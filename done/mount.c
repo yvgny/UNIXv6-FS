@@ -16,8 +16,9 @@
 int mountv6(const char *filename, struct unix_filesystem *u) {
 	M_REQUIRE_NON_NULL(filename);
 	M_REQUIRE_NON_NULL(u);
-	M_REQUIRE_NON_NULL(u->f);
 	memset(u, 0, sizeof(*u));
+	u->f = fopen(filename, "r");
+	M_REQUIRE_NON_NULL(u->f);
 	u->fbm = NULL;
 	u->ibm = NULL;
 	uint8_t bootblock[SECTOR_SIZE];
@@ -46,7 +47,7 @@ void mountv6_print_superblock(const struct unix_filesystem *u) {
 	printf("s_ilock             : %" PRIu8  "\n", u->s.s_ilock);
 	printf("s_fmod              : %" PRIu8  "\n", u->s.s_fmod);
 	printf("s_ronly             : %" PRIu8  "\n", u->s.s_ronly);
-	printf("s_time              : [0] %" PRIu16 "", u->s.s_time[0]);
+	printf("s_time              : [0] %" PRIu16 "\n", u->s.s_time[0]);
 	printf("**********FS SUPERBLOCK END**********\n");
 }
 
