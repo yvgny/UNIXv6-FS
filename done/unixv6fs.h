@@ -199,15 +199,15 @@ struct superblock {
  * The maximum file size is 16MB (24 bits).
  */
 struct inode {
-    uint16_t    i_mode;
-    uint8_t     i_nlink;
-    uint8_t     i_uid;
-    uint8_t     i_gid;
-    uint8_t     i_size0;
-    uint16_t    i_size1;
-    uint16_t    i_addr[ADDR_SMALL_LENGTH];
-    uint16_t    i_atime[2];
-    uint16_t    i_mtime[2];
+    uint16_t    i_mode;                         /*contains informations about inode*/
+    uint8_t     i_nlink;                        /*unused for this project*/
+    uint8_t     i_uid;                          /*id of the proprietary of the file*/
+    uint8_t     i_gid;                          /*id of the file group*/
+    uint8_t     i_size0;                        /*least significant bits of the file size*/
+    uint16_t    i_size1;                        /*most significant bits of the file size*/
+    uint16_t    i_addr[ADDR_SMALL_LENGTH];      /*contains the sector number where the file is stored*/
+    uint16_t    i_atime[2];                     /*stores the date of the last access to the file*/
+    uint16_t    i_mtime[2];                     /*stores the date of the last modification of the file*/
 };
 
 #define INODES_PER_SECTOR (SECTOR_SIZE / sizeof(struct inode))
