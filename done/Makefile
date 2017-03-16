@@ -2,6 +2,8 @@ CFLAGS += -std=c99
 
 all: test-inodes
 
+sector.o: sector.c sector.h
+
 test-core.o: test-core.c
 
 error.o: error.c error.h
