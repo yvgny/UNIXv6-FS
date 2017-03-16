@@ -10,6 +10,6 @@ error.o: error.c error.h
 
 test-inodes.o : test-inodes.c
 
-mount.o : mount.h mount.c
+mount.o : mount.h mount.c unixv6fs.h
 
-test-inodes: test-core.o error.o test-inodes.o mount.o
+test-inodes: test-core.o error.o test-inodes.o mount.o sector.o
