@@ -1,9 +1,13 @@
+CFLAGS += -std=c99
+
 all: test-inodes
 
 test-core.o: test-core.c
 
-error.o: error.c
+error.o: error.c error.h
 
 test-inodes.o : test-inodes.c
 
-test-inodes: test-core.o error.o test-inodes.o
+mount.o : mount.h mount.c
+
+test-inodes: test-core.o error.o test-inodes.o mount.o
