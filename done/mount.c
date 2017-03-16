@@ -27,8 +27,7 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
 		return error;
 	else if (bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM)
 		return ERR_BADBOOTSECTOR;
-	void* superblock[SECTOR_SIZE];
-	sector_read(u->f, SUPERBLOCK_SECTOR, superblock);
+	sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
 	return 0;
 }
 
