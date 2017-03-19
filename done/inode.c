@@ -15,24 +15,25 @@
 
 int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
-    M_REQUIRE_NON_NULL(u -> f);
+    M_REQUIRE_NON_NULL(u->f);
     int counter = 0;
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
-	for(int s = u->s.s_inode_start ; s < u->s.s_isize + u->s.s_inode_start ; s++) {
-		error = sector_read(u->f, s, sector);
+    for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
+        error = sector_read(u->f, s, sector);
         if (error != 0) {
             return error;
         }
-		for(int i = 0 ; i < INODES_PER_SECTOR ; i++) {
-			struct inode in = sector[i];
-			if (in.i_mode & IALLOC) {
-				counter = ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i;
-				printf("inode   %d (%s) len   %" PRIu32"\n", counter, (in.i_mode & IFDIR) ?
-					SHORT_DIR_NAME : SHORT_FIL_NAME, inode_getsize(&in));
-			}
-		}
-	}
-	
-	return 0;
+        for (int i = 0; i < INODES_PER_SECTOR; i++) {
+            struct inode in = sector[i];
+            if (in.i_mode & IALLOC) {
+                counter = ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i;
+                printf("inode   %d (%s) len   %" PRIu32"\n", counter, (in.i_mode & IFDIR) ?
+                                                                      SHORT_DIR_NAME : SHORT_FIL_NAME,
+                       inode_getsize(&in));
+            }
+        }
+    }
+
+    return 0;
 }
