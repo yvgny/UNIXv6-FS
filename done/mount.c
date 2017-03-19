@@ -33,6 +33,7 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
 
 
 void mountv6_print_superblock(const struct unix_filesystem *u) {
+    M_REQUIRE_NON_NULL(u);
 	printf("**********FS SUPERBLOCK START**********\n");
 	printf("s_isize             : %" PRIu16 "\n", u->s.s_isize);
 	printf("s_fsize             : %" PRIu16 "\n", u->s.s_fsize);
@@ -52,6 +53,7 @@ void mountv6_print_superblock(const struct unix_filesystem *u) {
 
 int umountv6(struct unix_filesystem *u) {
 	M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(u -> f);
 	if (fclose(u->f)) {
 		return ERR_IO;
 	}
