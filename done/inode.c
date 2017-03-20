@@ -29,8 +29,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
             if (in.i_mode & IALLOC) {
                 counter = ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i;
                 printf("inode   %d (%s) len   %" PRIu32"\n", counter, (in.i_mode & IFDIR) ?
-                                                                      SHORT_DIR_NAME : SHORT_FIL_NAME,
-                       inode_getsize(&in));
+                       SHORT_DIR_NAME : SHORT_FIL_NAME, inode_getsize(&in));
             }
         }
     }
@@ -39,17 +38,32 @@ int inode_scan_print(const struct unix_filesystem *u) {
 }
 
 void inode_print(const struct inode* in) {
-	printf("**********FS SUPERBLOCK START**********\n");
+	printf("**********FS INODE START**********\n");
 	if(in == NULL) {
 		printf("NULL ptr\n");
 	} else {
-		printf("i_mode: %" PRIu16 "\n", in.i_mode);
-		printf("i_nlink: %" PRIu8 "\n", in.i_nlink);
-		printf("i_uid: %" PRIu8 "\n", in.i_uid);
-		printf("i_gid: %" PRIu8 "\n", in.gid);
-		printf("i_size0: %" PRIu8 "\n", in.i_size0);
-		printf("i_size1: %" PRIu16 "\n", in.i_size1);
+		printf("i_mode: %" PRIu16 "\n", in->i_mode);
+		printf("i_nlink: %" PRIu8 "\n", in->i_nlink);
+		printf("i_uid: %" PRIu8 "\n", in->i_uid);
+		printf("i_gid: %" PRIu8 "\n", in->i_gid);
+		printf("i_size0: %" PRIu8 "\n", in->i_size0);
+		printf("i_size1: %" PRIu16 "\n", in->i_size1);
 		printf("size: %" PRIu32 "\n", inode_getsize(in));
 	}
-	printf("**********FS SUPERBLOCK END**********\n");
+	printf("**********FS INODE END**********\n");
+} 	
+
+int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
+	if(u->s.s_isize < inr || u->s.s_inode_start > inr) {
+		return ERR_INODE_OUTOF_RANGE;
+	}
+	int sector = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
+	printf("%" PRIu16 "\n", sector);
+	struct inode in[INODES_PER_SECTOR];
+	sector_read(u->f, sector, in);
+	inode = &in[inr - (inr / INODES_PER_SECTOR)];
+	if(inode->i_mode != IALLOC) {
+		return ERR_UNALLOCATED_INODE;
+	}
+	return 0;
 }
