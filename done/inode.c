@@ -54,14 +54,20 @@ void inode_print(const struct inode* in) {
 } 	
 
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
+	M_REQUIRE_NON_NULL(u);
+	M_REQUIRE_NON_NULL(inode);
+
 	if(u->s.s_isize < inr || u->s.s_inode_start > inr) {
 		return ERR_INODE_OUTOF_RANGE;
 	}
+
 	int sector = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
 	printf("%" PRIu16 "\n", sector);
+
 	struct inode in[INODES_PER_SECTOR];
 	sector_read(u->f, sector, in);
-	inode = &in[inr - (inr / INODES_PER_SECTOR)];
+	*inode = in[inr - ((inr / INODES_PER_SECTOR) * INODES_PER_SECTOR)];
+
 	if(inode->i_mode != IALLOC) {
 		return ERR_UNALLOCATED_INODE;
 	}
