@@ -14,4 +14,6 @@ mount.o : mount.h mount.c unixv6fs.h
 
 inode.o : inode.h inode.c
 
-test-print-inode: test-core.o error.o test-print-inode.o mount.o sector.o inode.o
+filev6.o : filev6.c filev6.h
+
+test-print-inode: test-core.o error.o test-print-inode.o mount.o sector.o inode.o filev6.o

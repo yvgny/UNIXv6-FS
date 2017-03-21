@@ -61,18 +61,36 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 		return ERR_INODE_OUTOF_RANGE;
 	}
 
-	int sector = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
+	int sec = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
 
     int error = -1;
-	struct inode in[INODES_PER_SECTOR];
-	error = sector_read(u->f, sector, in);
+	struct inode sector[INODES_PER_SECTOR];
+	error = sector_read(u->f, sec, sector);
     if (error != 0) {
         return error;
     }
-	*inode = in[inr - ((inr / INODES_PER_SECTOR) * INODES_PER_SECTOR)];
+	*inode = sector[inr - ((inr / INODES_PER_SECTOR) * INODES_PER_SECTOR)];
 
 	if(inode->i_mode != IALLOC) {
 		return ERR_UNALLOCATED_INODE;
 	}
 	return 0;
 }
+
+int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off) {
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
