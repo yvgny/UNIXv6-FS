@@ -12,8 +12,9 @@
 
 int test(struct unix_filesystem *u) {
 	struct inode in = {0};
-	inode_read(u, 3, &in);
+	inode_read(u, 5, &in);
 	inode_scan_print(u);
 	inode_print(&in);
+    printf("inode find sector = %i\n", inode_findsector(u, &in, 8));
     return 0;
 }
