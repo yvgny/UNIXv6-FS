@@ -64,13 +64,13 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 
     int sec = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
 
-    int error = -1;
     struct inode sector[INODES_PER_SECTOR];
-    error = sector_read(u->f, sec, sector);
+    int error = sector_read(u->f, sec, sector);
     if (error != 0) {
         return error;
     }
-    *inode = sector[inr - ((inr / INODES_PER_SECTOR) * INODES_PER_SECTOR)];
+    *inode = sector[(inr - 1) % INODES_PER_SECTOR];
+    inode_print(inode);
 
     if (inode->i_mode & IALLOC) {
         return ERR_UNALLOCATED_INODE;
@@ -82,7 +82,7 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
 
-    if (i->i_mode & IALLOC == 0) {
+    if (i->i_mode & IALLOC) {
         return ERR_UNALLOCATED_INODE;
     }
 

@@ -17,7 +17,6 @@
 int inner_test(struct unix_filesystem *u, int inr);
 
 int test(struct unix_filesystem *u) {
-	printf("\n");
 	inner_test(u, 3);
 	printf("\n");
 	inner_test(u, 5);
