@@ -11,6 +11,8 @@
 #include "mount.h"
 #include "unixv6fs.h"
 
+#define CONTENT_MAX_SIZE 896
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -1,4 +1,5 @@
-CFLAGS += -std=c99
+LDLIBS += -lcrypto
+CDFLAGS += -std=c99
 
 all: test-print-inode
 
@@ -16,4 +17,6 @@ inode.o : inode.h inode.c
 
 filev6.o : filev6.c filev6.h
 
-test-print-inode: test-core.o error.o test-print-inode.o mount.o sector.o inode.o filev6.o
+sha.o : sha.h sha.c
+
+test-print-inode: test-core.o error.o test-print-inode.o mount.o sector.o inode.o filev6.o sha.o
