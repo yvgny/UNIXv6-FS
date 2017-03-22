@@ -41,6 +41,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
         printf("no SHA for directories.\n");
     } else {
         unsigned char content[inode_getsectorsize(&inode)];
+        //TODO : use filev6_readblock ?
         for (int i = 0; i < inode_getsectorsize(&inode); i++) {
             sector_read(u->f, inode_findsector(u, &inode, i), &content[i * SECTOR_SIZE]);
         }
