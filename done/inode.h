@@ -15,6 +15,9 @@
 extern "C" {
 #endif
 
+#define MAX_SMALL_FILE_SIZE 4000 // define the maximum size of a "small" file, in byte
+#define MAX_BIG_FILE_SIZE 896000 // define the maximum size of a "big" file, in byte
+
 /**
  * @brief Return the size of a file associated to a given inode.
  *

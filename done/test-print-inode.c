@@ -30,7 +30,5 @@ int test(struct unix_filesystem *u) {
 		unsigned char sector[SECTOR_SIZE + 1];
 		filev6_readblock(fs, sector);
 	}
-	
-	
     return 0;
 }
