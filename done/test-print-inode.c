@@ -53,12 +53,13 @@ int inner_test(struct unix_filesystem *u, int inr) {
 	} else {
 		printf("the first sector of data of which contains:\n");
 		unsigned char sector[SECTOR_SIZE + 1];
-		error = filev6_readblock(&fs, sector);
-		if (error) {
+		int numberByteRead = filev6_readblock(&fs, sector);
+		if (numberByteRead <= 0) {
 			return error;
 		}
 		sector[SECTOR_SIZE] = '\0';
 		printf("%s", sector);
+
 	}
 	return 0;
 }

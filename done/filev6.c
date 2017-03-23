@@ -28,17 +28,20 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
 
 	//C'est cette ligne qui lance une erreur
     int error = sector_read(fv6->u->f, inode_findsector(fv6->u, &(fv6->i_node), fv6->offset / SECTOR_SIZE), buf);
+
+
     if (error != 0) {
         return error;
     }
     int byteRead = 0;
-    int remainingByte = 0;
-    if (remainingByte = inode_getsize(&(fv6->i_node)) - fv6->offset > SECTOR_SIZE) {
+    int remainingByte = inode_getsize(&(fv6->i_node)) - fv6->offset;
+    if (remainingByte > SECTOR_SIZE) {
         byteRead = SECTOR_SIZE;
     } else {
         byteRead = remainingByte;
     }
     fv6->offset += byteRead;
+
 
     return byteRead;
 }

@@ -81,7 +81,7 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
 
-    if (i->i_mode & IALLOC) {
+    if (!(i->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
     }
 
