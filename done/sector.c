@@ -19,7 +19,7 @@ int sector_read(FILE *f, uint32_t sector, void *data) {
     fseek(f, sector * SECTOR_SIZE, SEEK_SET);
     j = fread(data, SECTOR_SIZE, 1, f);
 
-    if (j != 1) {
+    if (j != 1 && !feof(f)) {
         return ERR_IO;
     }
 
