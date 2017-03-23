@@ -17,6 +17,7 @@
 int inner_test(struct unix_filesystem *u, int inr);
 
 int test(struct unix_filesystem *u) {
+	printf("\n");
 	inner_test(u, 3);
 	printf("\n");
 	inner_test(u, 5);
@@ -43,9 +44,8 @@ int inner_test(struct unix_filesystem *u, int inr) {
 	struct filev6 fs;
 	memset(&fs, 255, sizeof(fs));
 	int error = filev6_open(u, inr, &fs);
-	if (error != 0) {
+	if (error) {
 		printf("filev6_open failed for inode #%d.\n", inr);
-		printf("%d", error);
 		return error;
 	}
 	struct inode in = {0};

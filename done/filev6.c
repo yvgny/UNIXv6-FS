@@ -7,7 +7,7 @@
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6) {
     struct inode inode;
     int error = inode_read(u, inr, &inode);
-    if (error != 0) {
+    if (error) {
         return error;
     }
     fv6->u = u;

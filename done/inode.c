@@ -69,10 +69,9 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     if (error != 0) {
         return error;
     }
-    *inode = sector[(inr - 1) % INODES_PER_SECTOR];
-    inode_print(inode);
+    *inode = sector[inr % INODES_PER_SECTOR];
 
-    if (inode->i_mode & IALLOC) {
+    if (!inode->i_mode & IALLOC) {
         return ERR_UNALLOCATED_INODE;
     }
     return 0;
