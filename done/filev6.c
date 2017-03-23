@@ -23,6 +23,7 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
     M_REQUIRE_NON_NULL(buf);
 
     if (fv6->offset >= inode_getsize(&(fv6->i_node))) {
+        printf("condiiton nulle entrée, offset = %d, size = %d\n", fv6->offset,inode_getsize(&(fv6->i_node)) );
         return 0;
     }
 

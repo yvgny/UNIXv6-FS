@@ -48,19 +48,17 @@ int inner_test(struct unix_filesystem *u, int inr) {
 		printf("filev6_open failed for inode #%d.\n", inr);
 		return error;
 	}
-	struct inode in = {0};
-	error = inode_read(fs.u, inr, &in);
-	if (error != 0) {
-		return error;
-	}
 	printf("Printing inode #%d:\n", inr);
-	inode_print(&in);
-	if(in.i_mode & IFDIR) {
+	inode_print(&(fs.i_node));
+	if((fs.i_node).i_mode & IFDIR) {
 		printf("which is a directory.\n");
 	} else {
 		printf("the first sector of data of which contains:\n");
 		unsigned char sector[SECTOR_SIZE + 1];
-		filev6_readblock(&fs, sector);
+		error = filev6_readblock(&fs, sector);
+		if (error < 1) {
+			printf("j'arrive pas a lire wsh, erreur = %i\n", error);
+		}
 		sector[SECTOR_SIZE] = '\0';
 		printf("%s", sector);
 	}

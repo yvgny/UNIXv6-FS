@@ -16,7 +16,8 @@ void print_sha(unsigned char sha[]) {
 }
 
 void print_sha_from_content(const unsigned char *content, size_t length) {
-    print_sha(SHA256(content, length, NULL));
+    unsigned char sha[SHA256_DIGEST_LENGTH];
+    print_sha(SHA256(content, length, sha));
 }
 
 static void sha_to_string(const unsigned char *SHA, char *sha_string) {
@@ -43,6 +44,6 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
         for (int i = 0; i < inode_getsectorsize(&inode); i++) {
             sector_read(u->f, inode_findsector(u, &inode, i), &content[i * SECTOR_SIZE]);
         }
-        print_sha_from_content(content, CONTENT_MAX_SIZE);
+        print_sha_from_content(content, inode_getsectorsize(&inode));
     }
 }
