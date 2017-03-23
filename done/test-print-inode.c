@@ -17,10 +17,8 @@
 int inner_test(struct unix_filesystem *u, int inr);
 
 int test(struct unix_filesystem *u) {
-	printf("\n");
 	inner_test(u, 3);
-	printf("\n");
-	inner_test(u, 5);
+	/*inner_test(u, 5);
 	int error;
     int counter;
     struct inode sector[INODES_PER_SECTOR];
@@ -36,7 +34,7 @@ int test(struct unix_filesystem *u) {
 				print_sha_inode(u, in, counter);
             }
         }
-    }
+    }*/
     return 0;
 }
 
@@ -56,8 +54,8 @@ int inner_test(struct unix_filesystem *u, int inr) {
 		printf("the first sector of data of which contains:\n");
 		unsigned char sector[SECTOR_SIZE + 1];
 		error = filev6_readblock(&fs, sector);
-		if (error < 1) {
-			printf("j'arrive pas a lire wsh, erreur = %i\n", error);
+		if (error) {
+			return error;
 		}
 		sector[SECTOR_SIZE] = '\0';
 		printf("%s", sector);

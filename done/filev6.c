@@ -23,10 +23,10 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
     M_REQUIRE_NON_NULL(buf);
 
     if (fv6->offset >= inode_getsize(&(fv6->i_node))) {
-        printf("condiiton nulle entrée, offset = %d, size = %d\n", fv6->offset,inode_getsize(&(fv6->i_node)) );
         return 0;
     }
 
+	//C'est cette ligne qui lance une erreur
     int error = sector_read(fv6->u->f, inode_findsector(fv6->u, &(fv6->i_node), fv6->offset / SECTOR_SIZE), buf);
     if (error != 0) {
         return error;

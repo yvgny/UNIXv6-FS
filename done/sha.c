@@ -32,7 +32,7 @@ static void sha_to_string(const unsigned char *SHA, char *sha_string) {
 }
 
 void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
-    if (u == NULL || u->f == NULL || inode.i_mode != IALLOC) {
+    if (u == NULL || u->f == NULL || !(inode.i_mode & IALLOC)) {
         return;
     }
     printf("SHA inode %d: ", inr);
