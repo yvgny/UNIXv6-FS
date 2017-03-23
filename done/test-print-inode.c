@@ -16,9 +16,16 @@
 
 int inner_test(struct unix_filesystem *u, int inr);
 
+/* -Where to print "----\n" ?
+ * -The funcion print_sha_inode doesn't print the right SHA256 (it changes every time)
+ * -Why do we get a segmentation fault when running test for first.uv6*/
+
 int test(struct unix_filesystem *u) {
+	printf("\n");
 	inner_test(u, 3);
-	/*inner_test(u, 5);
+	printf("\n");
+	inner_test(u, 5);
+	printf("\nListing inodes SHA:\n");
 	int error;
     int counter;
     struct inode sector[INODES_PER_SECTOR];
@@ -34,7 +41,7 @@ int test(struct unix_filesystem *u) {
 				print_sha_inode(u, in, counter);
             }
         }
-    }*/
+    }
     return 0;
 }
 
@@ -58,7 +65,7 @@ int inner_test(struct unix_filesystem *u, int inr) {
 			return error;
 		}
 		sector[SECTOR_SIZE] = '\0';
-		printf("%s", sector);
+		printf("%s\n", sector);
 
 	}
 	return 0;

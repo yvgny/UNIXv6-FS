@@ -17,6 +17,7 @@ void print_sha(unsigned char sha[]) {
 
 void print_sha_from_content(const unsigned char *content, size_t length) {
     unsigned char sha[SHA256_DIGEST_LENGTH];
+    //Content == Coucou le monde! but SHA256 change for any run
     print_sha(SHA256(content, length, sha));
 }
 
@@ -41,8 +42,9 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
         printf("no SHA for directories.\n");
     } else {
         unsigned char content[inode_getsectorsize(&inode)];
-        for (int i = 0; i < inode_getsectorsize(&inode); i++) {
-            sector_read(u->f, inode_findsector(u, &inode, i), &content[i * SECTOR_SIZE]);
+        sector_read(u->f, inode_findsector(u, &inode, 0), content);
+        for (int i = 1; i < inode_getsectorsize(&inode); i++) {
+            sector_read(u->f, inode_findsector(u, &inode, i), &content[i * SECTOR_SIZE - 1]);
         }
         print_sha_from_content(content, inode_getsectorsize(&inode));
     }
