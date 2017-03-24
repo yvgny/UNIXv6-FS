@@ -16,6 +16,11 @@
 
 int inner_test(struct unix_filesystem *u, int inr);
 
+/**
+ * @brief run the different tests
+ * @param u the filesystem (IN)
+ * @return 0 if all were right or the number corresponding to the error
+ */
 int test(struct unix_filesystem *u) {
 	printf("\n");
 	inner_test(u, 3);
@@ -41,6 +46,12 @@ int test(struct unix_filesystem *u) {
     return 0;
 }
 
+/**
+ * @brief inner function that prints some information about the inode
+ * @param u the filesystem (IN)
+ * @param inr the inode number (IN)
+ * @return 0 if all were right or the number corresponding to the error
+ */
 int inner_test(struct unix_filesystem *u, int inr) {
 	struct filev6 fv6;
 	memset(&fv6, 255, sizeof(fv6));

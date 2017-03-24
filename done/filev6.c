@@ -1,3 +1,11 @@
+/**
+ * @file filev6.c
+ * @brief Implement some methods to work with filev6
+ *
+ * @author Théo Nikles & Sacha Kozma
+ * @date 22 mars 2017
+ *
+ */
 #include <stdio.h>
 #include "inode.h"
 #include "sector.h"

@@ -1,3 +1,11 @@
+/**
+ * @file sha.c
+ * @brief Implement some useful fonctions to calculate and print some sha
+ *
+ * @author Théo Nikles & Sacha Kozma
+ * @date 22 mars 2017
+ *
+ */
 #include <stdio.h>
 #include <openssl/sha.h>
 #include "sha.h"
