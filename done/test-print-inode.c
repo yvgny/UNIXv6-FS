@@ -16,10 +16,6 @@
 
 int inner_test(struct unix_filesystem *u, int inr);
 
-/* -Where to print "----\n" ?
- * -The funcion print_sha_inode doesn't print the right SHA256 (it changes every time)
- * -Why do we get a segmentation fault when running test for first.uv6*/
-
 int test(struct unix_filesystem *u) {
 	printf("\n");
 	inner_test(u, 3);
@@ -46,26 +42,26 @@ int test(struct unix_filesystem *u) {
 }
 
 int inner_test(struct unix_filesystem *u, int inr) {
-	struct filev6 fs;
-	memset(&fs, 255, sizeof(fs));
-	int error = filev6_open(u, inr, &fs);
+	struct filev6 fv6;
+	memset(&fv6, 255, sizeof(fv6));
+	int error = filev6_open(u, inr, &fv6);
 	if (error) {
 		printf("filev6_open failed for inode #%d.\n", inr);
 		return error;
 	}
 	printf("Printing inode #%d:\n", inr);
-	inode_print(&(fs.i_node));
-	if((fs.i_node).i_mode & IFDIR) {
+	inode_print(&(fv6.i_node));
+	if((fv6.i_node).i_mode & IFDIR) {
 		printf("which is a directory.\n");
 	} else {
 		printf("the first sector of data of which contains:\n");
 		unsigned char sector[SECTOR_SIZE + 1];
-		int numberByteRead = filev6_readblock(&fs, sector);
+		int numberByteRead = filev6_readblock(&fv6, sector);
 		if (numberByteRead <= 0) {
 			return error;
 		}
 		sector[SECTOR_SIZE] = '\0';
-		printf("%s\n", sector);
+		printf("%s\n----\n", sector);
 
 	}
 	return 0;
