@@ -59,7 +59,7 @@ void inode_print(const struct inode *in) {
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
-    //M_REQUIRE_NON_NULL(u->s); ???
+    //M_REQUIRE_NON_NULL(u->s); ??? TODO si on passe des arguments tout pété ?
     //M_REQUIRE_NON_NULL(u->f); ???
 
     if (u->s.s_isize < inr || inr < 0) {
@@ -84,7 +84,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
-    //M_REQUIRE_NON_NULL(u->f); ???
+    //M_REQUIRE_NON_NULL(u->f); ??? TODO meme chose que plus haut
     
     if (file_sec_off > file_size / SECTOR_SIZE) {
         return ERR_OFFSET_OUT_OF_RANGE;
@@ -101,10 +101,8 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
         return i->i_addr[file_sec_off];
     } else {
         int first_level = file_sec_off / ADDRESSES_PER_SECTOR;
-        //== file_sec_off % ADDRESSES_PER_SECTOR no !?
         int second_level = file_sec_off - ((file_sec_off / ADDRESSES_PER_SECTOR) * ADDRESSES_PER_SECTOR);
         uint16_t sector_list[ADDRESSES_PER_SECTOR];
-        //Forgotten error here (added now)
         int error = sector_read(u->f, i->i_addr[first_level], sector_list);
         if (error) {
 			return error;
