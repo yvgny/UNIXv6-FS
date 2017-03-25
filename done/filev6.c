@@ -13,12 +13,14 @@
 #include "error.h"
 
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6) {
+	//Checker si u est mounté (Require_non_null?)
     struct inode inode;
     int error = inode_read(u, inr, &inode);
     if (error) {
         return error;
     }
     fv6->u = u;
+    //Checker ici qur'inr soit valide ?
     fv6->i_number = inr;
     fv6->i_node = inode;
     fv6->offset = 0;
@@ -29,14 +31,19 @@ int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv
 int filev6_readblock(struct filev6 *fv6, void *buf) {
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
-
-    if (fv6->offset >= inode_getsize(&(fv6->i_node))) {
+    //M_REQUIRE_NON_NULL(fv6->u); ???
+	
+    if (fv6->offset >= inode_getsize(&(fv6->i_node)) /*|| fv6->offset < 0*/) {
         return 0;
     }
     
-    int error = sector_read(fv6->u->f, inode_findsector(fv6->u, &(fv6->i_node), fv6->offset / SECTOR_SIZE), buf);
+    /*int sector = inode_findsector(fv6->u, &(fv6->i_node);
+    if(error == ERR_UNALLOCATED_INODE || error == ERR_OFFSET_OUT_OF_RANG) {
+		return sector;
+	}*/
+    int error = sector_read(fv6->u->f, /*sector*/inode_findsector(fv6->u, &(fv6->i_node), fv6->offset / SECTOR_SIZE), buf);
 
-    if (error != 0) {
+    if (error) {
         return error;
     }
     int byteRead = 0;
@@ -47,7 +54,6 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
         byteRead = remainingByte;
     }
     fv6->offset += byteRead;
-
 
     return byteRead;
 }

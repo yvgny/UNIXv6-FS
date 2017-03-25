@@ -16,6 +16,7 @@
 int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
+    //M_REQUIRE_NON_NULL(u->s); ???
     int counter = 0;
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
@@ -28,9 +29,10 @@ int inode_scan_print(const struct unix_filesystem *u) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
                 counter = ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i;
-                printf("inode   %d (%s) len   %" PRIu32"\n", counter, (in.i_mode & IFDIR) ?
-                                                                      SHORT_DIR_NAME : SHORT_FIL_NAME,
-                       inode_getsize(&in));
+                printf("inode   %d (%s) len   %" PRIu32"\n", 
+					counter,
+					(in.i_mode & IFDIR) ? SHORT_DIR_NAME : SHORT_FIL_NAME,
+					inode_getsize(&in));
             }
         }
     }
@@ -57,6 +59,8 @@ void inode_print(const struct inode *in) {
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
+    //M_REQUIRE_NON_NULL(u->s); ???
+    //M_REQUIRE_NON_NULL(u->f); ???
 
     if (u->s.s_isize < inr || inr < 0) {
         return ERR_INODE_OUTOF_RANGE;
@@ -66,7 +70,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 
     struct inode sector[INODES_PER_SECTOR];
     int error = sector_read(u->f, sec, sector);
-    if (error != 0) {
+    if (error) {
         return error;
     }
     *inode = sector[inr % INODES_PER_SECTOR];
@@ -80,26 +84,31 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
-
-    if (!(i->i_mode & IALLOC)) {
+    //M_REQUIRE_NON_NULL(u->f); ???
+    
+    if (file_sec_off > file_size / SECTOR_SIZE) {
+        return ERR_OFFSET_OUT_OF_RANGE;
+    } else if (!(i->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
     }
 
     int32_t file_size = inode_getsize(i);
-
     if (file_size > MAX_BIG_FILE_SIZE) {
         return ERR_FILE_TOO_LARGE;
-    } else if (file_sec_off > file_size / SECTOR_SIZE) {
-        return ERR_OFFSET_OUT_OF_RANGE;
     }
 
     if (file_size <= MAX_SMALL_FILE_SIZE) {
         return i->i_addr[file_sec_off];
     } else {
         int first_level = file_sec_off / ADDRESSES_PER_SECTOR;
+        //== file_sec_off % ADDRESSES_PER_SECTOR no !?
         int second_level = file_sec_off - ((file_sec_off / ADDRESSES_PER_SECTOR) * ADDRESSES_PER_SECTOR);
         uint16_t sector_list[ADDRESSES_PER_SECTOR];
-        sector_read(u->f, i->i_addr[first_level], sector_list);
+        //Forgotten error here (added now)
+        int error = sector_read(u->f, i->i_addr[first_level], sector_list);
+        if (error) {
+			return error;
+		}
         return sector_list[second_level];
     }
 
