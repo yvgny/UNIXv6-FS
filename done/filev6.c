@@ -13,7 +13,6 @@
 #include "error.h"
 
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6) {
-	//TODO Checker si u est mounté (Require_non_null?)
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
 
@@ -23,7 +22,7 @@ int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv
         return error;
     }
     fv6->u = u;
-    //TODO Checker ici qur'inr soit valide ? si inode_read le fait deja, nécessaire ou pas ?
+
     fv6->i_number = inr;
     fv6->i_node = inode;
     fv6->offset = 0;
@@ -35,7 +34,7 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
     M_REQUIRE_NON_NULL(fv6->u);
-    //M_REQUIRE_NON_NULL(fv6->u->f); ??? N'y était pas avant
+    M_REQUIRE_NON_NULL(fv6->u->f);
 	
     if (fv6->offset >= inode_getsize(&(fv6->i_node)) || fv6->offset < 0) {
         return 0;
