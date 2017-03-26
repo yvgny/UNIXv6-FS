@@ -34,7 +34,7 @@ int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv
 int filev6_readblock(struct filev6 *fv6, void *buf) {
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
-    // TODO M_REQUIRE_NON_NULL(fv6->u); ??? meme chose que les autres
+    M_REQUIRE_NON_NULL(fv6->u);
 	
     if (fv6->offset >= inode_getsize(&(fv6->i_node)) /*|| fv6->offset < 0*/) {
         return 0;

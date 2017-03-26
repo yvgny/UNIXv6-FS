@@ -22,6 +22,7 @@ int inner_test(struct unix_filesystem *u, int inr);
  * @return 0 if all were right or the number corresponding to the error
  */
 int test(struct unix_filesystem *u) {
+	// TODO rajouter REQUIRE_NON_NULL dans les tests aussi ?
 	printf("\n");
 	inner_test(u, 3);
 	printf("\n");
@@ -53,6 +54,7 @@ int test(struct unix_filesystem *u) {
  * @return 0 if all were right or the number corresponding to the error
  */
 int inner_test(struct unix_filesystem *u, int inr) {
+	// TODO rajouter REQUIRE_NON_NULL dans les tests aussi ?
 	struct filev6 fv6;
 	memset(&fv6, 255, sizeof(fv6));
 	int error = filev6_open(u, inr, &fv6);

@@ -59,8 +59,8 @@ void inode_print(const struct inode *in) {
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
-    //M_REQUIRE_NON_NULL(u->s); ??? TODO si on passe des arguments tout pété ?
-    //M_REQUIRE_NON_NULL(u->f); ???
+    M_REQUIRE_NON_NULL(u->s);
+    M_REQUIRE_NON_NULL(u->f);
 
     if (u->s.s_isize < inr || inr < 0) {
         return ERR_INODE_OUTOF_RANGE;
@@ -84,7 +84,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
-    //M_REQUIRE_NON_NULL(u->f); ??? TODO meme chose que plus haut
+    M_REQUIRE_NON_NULL(u->f);
     
     if (file_sec_off > file_size / SECTOR_SIZE) {
         return ERR_OFFSET_OUT_OF_RANGE;

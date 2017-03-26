@@ -10,6 +10,7 @@
 #include "inode.h"
 
 int test(struct unix_filesystem *u) {
-	inode_scan_print(u);
+    // TODO rajouter REQUIRE_NON_NULL dans les tests aussi ?
+    inode_scan_print(u);
     return 0;
 }
