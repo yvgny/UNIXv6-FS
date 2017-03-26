@@ -59,7 +59,7 @@ void inode_print(const struct inode *in) {
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
-    M_REQUIRE_NON_NULL(u->s);
+    //M_REQUIRE_NON_NULL(u->s); ??? Lance une erreur => &(u->s) ???
     M_REQUIRE_NON_NULL(u->f);
 
     if (u->s.s_isize < inr || inr < 0) {
@@ -85,14 +85,14 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
     M_REQUIRE_NON_NULL(u->f);
-    
+
+    int32_t file_size = inode_getsize(i);    
     if (file_sec_off > file_size / SECTOR_SIZE) {
         return ERR_OFFSET_OUT_OF_RANGE;
     } else if (!(i->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
     }
 
-    int32_t file_size = inode_getsize(i);
     if (file_size > MAX_BIG_FILE_SIZE) {
         return ERR_FILE_TOO_LARGE;
     }

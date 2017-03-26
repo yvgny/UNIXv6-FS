@@ -30,7 +30,7 @@ void print_sha_from_content(const unsigned char *content, size_t length) {
 }
 
 void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
-    if (u == NULL || u->f == NULL || inode == NULL || !(inode.i_mode & IALLOC)) {
+    if (u == NULL || u->f == NULL || /*inode == NULL ||*/ !(inode.i_mode & IALLOC)) {
         return;
     }
     printf("SHA inode %d: ", inr);
@@ -44,7 +44,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
         int error;
         while(error = filev6_readblock(&fv6, &content[fv6.offset]) > 0) {
             if (error < 0) {
-                return error;
+                return;
             }
         };
         print_sha_from_content(content, inode_getsize(&inode));
