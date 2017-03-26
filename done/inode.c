@@ -16,7 +16,6 @@
 int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
-    M_REQUIRE_NON_NULL(u->s);
     int counter = 0;
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
@@ -59,7 +58,6 @@ void inode_print(const struct inode *in) {
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
-    M_REQUIRE_NON_NULL(u->s);
     M_REQUIRE_NON_NULL(u->f);
 
     if (u->s.s_isize < inr || inr < 0) {
