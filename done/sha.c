@@ -30,7 +30,7 @@ void print_sha_from_content(const unsigned char *content, size_t length) {
 }
 
 void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
-    if (u == NULL || u->f == NULL || /*inode == NULL ||*/ !(inode.i_mode & IALLOC)) {
+    if (u == NULL || u->f == NULL || !(inode.i_mode & IALLOC)) {
         return;
     }
     printf("SHA inode %d: ", inr);
