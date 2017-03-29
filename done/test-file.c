@@ -22,24 +22,24 @@ int inner_test(struct unix_filesystem *u, int inr);
  * @return 0 if all were right or the number corresponding to the error
  */
 int test(struct unix_filesystem *u) {
-	printf("\n");
-	inner_test(u, 3);
-	printf("\n");
-	inner_test(u, 5);
-	printf("\nListing inodes SHA:\n");
-	int error;
-    int counter;
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(u->f);
+
+    printf("\n");
+    inner_test(u, 3);
+    printf("\n");
+    inner_test(u, 5);
+    printf("\nListing inodes SHA:\n");
     struct inode sector[INODES_PER_SECTOR];
     for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
-        error = sector_read(u->f, s, sector);
+        int error = sector_read(u->f, s, sector);
         if (error != 0) {
             return error;
         }
         for (int i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
-                counter = ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i;
-				print_sha_inode(u, in, counter);
+                print_sha_inode(u, in, ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i);
             }
         }
     }
@@ -53,27 +53,29 @@ int test(struct unix_filesystem *u) {
  * @return 0 if all were right or the number corresponding to the error
  */
 int inner_test(struct unix_filesystem *u, int inr) {
-	struct filev6 fv6;
-	memset(&fv6, 255, sizeof(fv6));
-	int error = filev6_open(u, inr, &fv6);
-	if (error) {
-		printf("filev6_open failed for inode #%d.\n", inr);
-		return error;
-	}
-	printf("Printing inode #%d:\n", inr);
-	inode_print(&(fv6.i_node));
-	if((fv6.i_node).i_mode & IFDIR) {
-		printf("which is a directory.\n");
-	} else {
-		printf("the first sector of data of which contains:\n");
-		unsigned char sector[SECTOR_SIZE + 1];
-		int numberByteRead = filev6_readblock(&fv6, sector);
-		if (numberByteRead <= 0) {
-			return error;
-		}
-		sector[SECTOR_SIZE] = '\0';
-		printf("%s\n----\n", sector);
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(u->f);
+    struct filev6 fv6;
+    M_REQUIRE_NON_NULL(memset(&fv6, 255, sizeof(fv6)) == NULL);
+    int error = filev6_open(u, inr, &fv6);
+    if (error) {
+        printf("filev6_open failed for inode #%d.\n", inr);
+        return error;
+    }
+    printf("Printing inode #%d:\n", inr);
+    inode_print(&(fv6.i_node));
+    if ((fv6.i_node).i_mode & IFDIR) {
+        printf("which is a directory.\n");
+    } else {
+        printf("the first sector of data of which contains:\n");
+        unsigned char sector[SECTOR_SIZE + 1];
+        int numberByteRead = filev6_readblock(&fv6, sector);
+        if (numberByteRead <= 0) {
+            return error;
+        }
+        sector[SECTOR_SIZE] = '\0';
+        printf("%s\n----\n", sector);
 
-	}
-	return 0;
+    }
+    return 0;
 }
