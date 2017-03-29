@@ -14,7 +14,12 @@
 
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6) {
     M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(u->f);
     M_REQUIRE_NON_NULL(fv6);
+
+    if (inr < 0 || inr >= u->s.s_isize) {
+        return ERR_BAD_PARAMETER;
+    }
 
     struct inode inode;
     int error = inode_read(u, inr, &inode);
