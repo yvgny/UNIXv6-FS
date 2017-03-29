@@ -13,6 +13,7 @@
 #include "filev6.h"
 #include "sha.h"
 #include "sector.h"
+#include "error.h"
 
 int inner_test(struct unix_filesystem *u, int inr);
 
@@ -25,9 +26,9 @@ int test(struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
 
-    printf("\n");
+    puts("");
     inner_test(u, 3);
-    printf("\n");
+    puts("");
     inner_test(u, 5);
     printf("\nListing inodes SHA:\n");
     struct inode sector[INODES_PER_SECTOR];
@@ -56,7 +57,7 @@ int inner_test(struct unix_filesystem *u, int inr) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
     struct filev6 fv6;
-    M_REQUIRE_NON_NULL(memset(&fv6, 255, sizeof(fv6)) == NULL);
+    M_REQUIRE_NON_NULL(memset(&fv6, 255, sizeof(fv6)));
     int error = filev6_open(u, inr, &fv6);
     if (error) {
         printf("filev6_open failed for inode #%d.\n", inr);
