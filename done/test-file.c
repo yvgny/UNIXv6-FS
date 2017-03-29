@@ -30,19 +30,16 @@ int test(struct unix_filesystem *u) {
     printf("\n");
     inner_test(u, 5);
     printf("\nListing inodes SHA:\n");
-    int error;
-    int counter;
     struct inode sector[INODES_PER_SECTOR];
     for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
-        error = sector_read(u->f, s, sector);
+        int error = sector_read(u->f, s, sector);
         if (error != 0) {
             return error;
         }
         for (int i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
-                counter = ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i;
-                print_sha_inode(u, in, counter);
+                print_sha_inode(u, in, ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i);
             }
         }
     }

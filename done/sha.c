@@ -19,8 +19,9 @@ void print_sha(unsigned char sha[]) {
     if (sha == NULL) {
         return;
     }
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
         printf("%02x", sha[i]);
+    }
     printf("\n");
 }
 
@@ -41,7 +42,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
 		struct filev6 fv6 = { .u = u, .i_number = inr, .i_node = inode, .offset = 0 };
         unsigned char content[inode_getsectorsize(&inode)];
 
-        int error;
+        int error = 0;
         while(error = filev6_readblock(&fv6, &content[fv6.offset]) > 0) {
             if (error < 0) {
                 return;
