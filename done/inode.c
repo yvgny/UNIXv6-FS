@@ -23,7 +23,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
         if (error != 0) {
             return error;
         }
-        for (int i = 0; i < INODES_PER_SECTOR; i++) {
+        for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
                 printf("inode   %lu (%s) len   %" PRIu32"\n", 
@@ -58,7 +58,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     M_REQUIRE_NON_NULL(inode);
     M_REQUIRE_NON_NULL(u->f);
 
-    if (u->s.s_isize <= inr || inr < 0) {
+    if (u->s.s_isize <= inr) {
         return ERR_INODE_OUTOF_RANGE;
     }
 
