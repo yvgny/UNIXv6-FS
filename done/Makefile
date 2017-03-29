@@ -1,8 +1,11 @@
 LDLIBS += -lcrypto
-CFLAGS += -std=c99 -g -Wall -pedantic -Wredundant-decls -Wpointer-arith \
--Wunreachable-code -Wfloat-equal -Wshadow -Wunused-parameter -Wextra
+CFLAGS += -std=c99  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
+-Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings \
+-Wconversion -Wunreachable-code -Wunused-parameter
 
-all: test-file test-inodes
+TEST_DEPENDANCIES = test-core.o error.o mount.o sector.o inode.o filev6.o sha.o
+
+all: test-file test-inodes 
 
 sector.o: sector.c sector.h
 
@@ -22,6 +25,6 @@ filev6.o : filev6.c filev6.h
 
 sha.o : sha.h sha.c
 
-test-file: test-core.o error.o test-file.o mount.o sector.o inode.o filev6.o sha.o
+test-file: test-file.o $(TEST_DEPENDANCIES)
 
-test-inodes: test-core.o error.o test-inodes.o mount.o sector.o inode.o filev6.o sha.o
+test-inodes: test-inodes.o $(TEST_DEPENDANCIES)
