@@ -1,5 +1,5 @@
 LDLIBS += -lcrypto
-CDFLAGS += -std=c99
+CFLAGS += -std=c99 -g -Wall -pedantic 
 
 all: test-file test-inodes
 

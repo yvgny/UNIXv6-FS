@@ -7,6 +7,7 @@
  *
  */
 #include <stdio.h>
+#include <string.h>
 #include <openssl/sha.h>
 #include "sha.h"
 #include "unixv6fs.h"
@@ -27,7 +28,11 @@ void print_sha(unsigned char sha[]) {
 
 void print_sha_from_content(const unsigned char *content, size_t length) {
     unsigned char sha[SHA256_DIGEST_LENGTH];
-    print_sha(SHA256(content, length, sha));
+    memset(sha, 0, SHA256_DIGEST_LENGTH);
+    if (SHA256(content, length, sha) == NULL) {
+		return;
+	}
+    print_sha(sha);
 }
 
 void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
@@ -41,9 +46,9 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
     } else {
 		struct filev6 fv6 = { .u = u, .i_number = inr, .i_node = inode, .offset = 0 };
         unsigned char content[inode_getsectorsize(&inode)];
-
+		
         int error = 0;
-        while(error = filev6_readblock(&fv6, &content[fv6.offset]) > 0) {
+        while((error = filev6_readblock(&fv6, &content[fv6.offset])) > 0) {
             if (error < 0) {
                 return;
             }
