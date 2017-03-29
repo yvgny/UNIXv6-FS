@@ -21,6 +21,7 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     if (u->f == NULL) {
         return ERR_IO;
     }
+
     u->fbm = NULL;
     u->ibm = NULL;
     uint8_t bootblock[SECTOR_SIZE];
@@ -38,9 +39,9 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
 
 
 void mountv6_print_superblock(const struct unix_filesystem *u) {
-    printf("**********FS SUPERBLOCK START**********\n");
+    puts("**********FS SUPERBLOCK START**********");
     if (u == NULL) {
-        printf("NULL ptr\n");
+        puts("NULL ptr");
     } else {
         printf("s_isize             : %" PRIu16 "\n", u->s.s_isize);
         printf("s_fsize             : %" PRIu16 "\n", u->s.s_fsize);
@@ -56,7 +57,7 @@ void mountv6_print_superblock(const struct unix_filesystem *u) {
         printf("s_ronly             : %" PRIu8  "\n", u->s.s_ronly);
         printf("s_time              : [%" PRIu16 "] %" PRIu16 "\n", u->s.s_time[0], u->s.s_time[1]);
     }
-    printf("**********FS SUPERBLOCK END**********\n");
+    puts("**********FS SUPERBLOCK END**********");
 
 }
 

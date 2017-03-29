@@ -18,10 +18,7 @@ extern "C" {
 #endif
 
 struct directory_reader {
-    /* TODO WEEK 06:
-     * définir cette structure.
-     */
-    int unused; // so that it can compile before WEEK 6
+	struct direntv6 dir;
 };
 
 /**

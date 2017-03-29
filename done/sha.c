@@ -21,7 +21,7 @@ void print_sha(unsigned char sha[]) {
     }
     for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
         printf("%02x", sha[i]);
-    printf("\n");
+    puts("");
 }
 
 void print_sha_from_content(const unsigned char *content, size_t length) {
@@ -36,7 +36,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
     printf("SHA inode %d: ", inr);
 
     if (inode.i_mode & IFDIR) {
-        printf("no SHA for directories.\n");
+        puts("no SHA for directories.");
     } else {
 		struct filev6 fv6 = { .u = u, .i_number = inr, .i_node = inode, .offset = 0 };
         unsigned char content[inode_getsectorsize(&inode)];

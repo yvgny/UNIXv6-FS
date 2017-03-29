@@ -16,7 +16,6 @@
 int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
-    int counter = 0;
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
     for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
@@ -27,9 +26,8 @@ int inode_scan_print(const struct unix_filesystem *u) {
         for (int i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
-                counter = ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i;
-                printf("inode   %d (%s) len   %" PRIu32"\n", 
-					counter,
+                printf("inode   %lu (%s) len   %" PRIu32"\n", 
+					((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i,
 					(in.i_mode & IFDIR) ? SHORT_DIR_NAME : SHORT_FIL_NAME,
 					inode_getsize(&in));
             }
@@ -40,9 +38,9 @@ int inode_scan_print(const struct unix_filesystem *u) {
 }
 
 void inode_print(const struct inode *in) {
-    printf("**********FS INODE START**********\n");
+    puts("**********FS INODE START**********");
     if (in == NULL) {
-        printf("NULL ptr\n");
+        puts("NULL ptr\n");
     } else {
         printf("i_mode: %" PRIu16 "\n", in->i_mode);
         printf("i_nlink: %" PRIu8 "\n", in->i_nlink);
@@ -52,7 +50,7 @@ void inode_print(const struct inode *in) {
         printf("i_size1: %" PRIu16 "\n", in->i_size1);
         printf("size: %" PRIu32 "\n", inode_getsize(in));
     }
-    printf("**********FS INODE END**********\n");
+    puts("**********FS INODE END**********");
 }
 
 int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
@@ -60,7 +58,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     M_REQUIRE_NON_NULL(inode);
     M_REQUIRE_NON_NULL(u->f);
 
-    if (u->s.s_isize < inr || inr < 0) {
+    if (u->s.s_isize <= inr || inr < 0) {
         return ERR_INODE_OUTOF_RANGE;
     }
 
