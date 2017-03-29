@@ -1,5 +1,6 @@
 LDLIBS += -lcrypto
-CFLAGS += -std=c99 -g -Wall -pedantic -Wredundant-decls -Wpointer-arith -Wunreachable-code -Wfloat-equal -Wshadow -Wunused-parameter -Wextra
+CFLAGS += -std=c99 -g -Wall -pedantic -Wredundant-decls -Wpointer-arith \
+-Wunreachable-code -Wfloat-equal -Wshadow -Wunused-parameter -Wextra
 
 all: test-file test-inodes
 
