@@ -46,7 +46,7 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
     } else {
 		struct filev6 fv6 = { .u = u, .i_number = inr, .i_node = inode, .offset = 0 };
         unsigned char content[inode_getsectorsize(&inode)];
-		
+		memset(content, 0, inode_getsectorsize(&inode));
         int error = 0;
         while((error = filev6_readblock(&fv6, &content[fv6.offset])) > 0) {
             if (error < 0) {
