@@ -18,7 +18,10 @@ extern "C" {
 #endif
 
 struct directory_reader {
-	struct direntv6 dir;
+	struct filev6 fv6;
+	struct direntv6* dirs;
+	int cur;
+	int last;
 };
 
 /**
