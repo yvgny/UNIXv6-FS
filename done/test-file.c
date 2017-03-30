@@ -25,6 +25,7 @@ int inner_test(struct unix_filesystem *u, int inr);
 int test(struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
+    printf("%d", DIRENTRIES_PER_SECTOR);
 
     puts("");
     inner_test(u, 3);
