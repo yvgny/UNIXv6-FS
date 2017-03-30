@@ -1,5 +1,5 @@
 LDLIBS += -lcrypto
-CFLAGS += -std=c99 #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
+CFLAGS += -std=c99 -g  #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
 #-Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings \
 #-Wconversion -Wunreachable-code -Wunused-parameter
 

@@ -18,15 +18,15 @@
 
 int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct directory_reader *d) {
 	M_REQUIRE_NON_NULL(u);
-	struct filev6* fv6;
-	int error = filev6_open(u, inr, fv6);
+	struct filev6 fv6;
+	int error = filev6_open(u, inr, &fv6);
 	if(error < 0) {
 		return error;
 	}
-	if((fv6->i_node.i_mode & IFMT) != IFDIR) {
+	if((fv6.i_node.i_mode & IFMT) != IFDIR) {
 		return ERR_INVALID_DIRECTORY_INODE;
 	}
-	d->fv6 = *fv6;
+	d->fv6 = fv6;
 	memset(d->dirs, 0, DIRENTRIES_PER_SECTOR);
 	d->cur = 0;
 	d->last = 0;
@@ -56,16 +56,16 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
 int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const char *prefix) {
 	M_REQUIRE_NON_NULL(u);
 	M_REQUIRE_NON_NULL(prefix);
-	struct directory_reader* d;
-	int error = direntv6_opendir(u, inr, d);
+	struct directory_reader d;
+	int error = direntv6_opendir(u, inr, &d);
 	if (error < 0) {
 		return error;
 	}
 	char buf[MAXPATHLEN_UV6];
 	snprintf(buf, MAXPATHLEN_UV6, "%s\n", prefix);
 	char name[DIRENT_MAXLEN + 1];
-	uint16_t *child_inr;
-	if ((error = direntv6_readdir(d, name, child_inr)) != 0) {
+	uint16_t child_inr;
+	if ((error = direntv6_readdir(&d, name, &child_inr)) != 0) {
 		if(error < 0) {
 			return error;
 		}
