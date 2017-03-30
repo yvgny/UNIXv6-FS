@@ -23,7 +23,7 @@ int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct direc
 	if(error < 0) {
 		return error;
 	}
-	if((inr & IFMT) != IFDIR) {
+	if((fv6->i_node.i_mode & IFMT) != IFDIR) {
 		return ERR_INVALID_DIRECTORY_INODE;
 	}
 	d->fv6 = *fv6;
