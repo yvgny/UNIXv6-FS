@@ -97,7 +97,7 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
         return i->i_addr[file_sec_off];
     } else {
         int first_level = file_sec_off / ADDRESSES_PER_SECTOR;
-        int second_level = file_sec_off - ((file_sec_off / ADDRESSES_PER_SECTOR) * ADDRESSES_PER_SECTOR);
+        int second_level = file_sec_off % ADDRESSES_PER_SECTOR;
         uint16_t sector_list[ADDRESSES_PER_SECTOR];
         int error = sector_read(u->f, i->i_addr[first_level], sector_list);
         if (error) {
