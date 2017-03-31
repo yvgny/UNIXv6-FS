@@ -17,8 +17,6 @@
 
 #define MAXPATHLEN_UV6 1024
 
-int counter = 0;
-
 int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct directory_reader *d) {
 	M_REQUIRE_NON_NULL(u);
 	struct filev6 fv6;
@@ -47,7 +45,6 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
 			return byteRead;
 		}
 		d->last += byteRead / sizeof(struct direntv6);
-		//printf("byteRead : %d\n", byteRead);
 	}
 	strncpy(name, d->dirs[d->cur % (SECTOR_SIZE / sizeof(struct direntv6))].d_name, DIRENT_MAXLEN);
 	name[DIRENT_MAXLEN] = '\0';
@@ -64,7 +61,6 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 	struct directory_reader d;
 	int error = direntv6_opendir(u, inr, &d);
 	if (error < 0) {
-		printf("%d\n", ++counter);
 		printf("%s %s\n", SHORT_FIL_NAME, prefix);
 		return error;
 	}
@@ -74,7 +70,6 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 	memset(prefixCopy, 0, index + 1);
 	strncpy(prefixCopy, prefix, index + 1);
 	strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
-		printf("%d\n", ++counter);
 	printf("%s %s\n", SHORT_DIR_NAME, prefixCopy);
 	
 	
@@ -86,8 +81,9 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 		}
 		strncat(prefixCopy, name, MAXPATHLEN_UV6 - index + 1);
 		int returnValue = direntv6_print_tree(u, child_inr, prefixCopy);
-		
-		//printf("%s    %s\n", prefix, prefixCopy);
+		if(returnValue && returnValue != ERR_INVALID_DIRECTORY_INODE) {
+			printf("%d\n", returnValue);
+		}
 		memset(prefixCopy, 0, index + 1);
 		strncpy(prefixCopy, prefix, index + 1);
 		strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
