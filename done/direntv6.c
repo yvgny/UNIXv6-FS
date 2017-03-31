@@ -60,8 +60,10 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 	
 	struct directory_reader d;
 	int error = direntv6_opendir(u, inr, &d);
-	if (error < 0) {
+	if (error == ERR_INVALID_DIRECTORY_INODE) {
 		printf("%s %s\n", SHORT_FIL_NAME, prefix);
+		return error;
+	} else if (error < 0) {
 		return error;
 	}
 	
