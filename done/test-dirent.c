@@ -22,5 +22,5 @@
  * @return 0 if all were right or the number corresponding to the error
  */
 int test(struct unix_filesystem *u) {
-	direntv6_print_tree(u, 1,"/");
+	direntv6_print_tree(u, 1,"");
 }

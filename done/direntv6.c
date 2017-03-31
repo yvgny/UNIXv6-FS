@@ -7,6 +7,7 @@
  */
 
 #include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 #include "direntv6.h"
 #include "unixv6fs.h"
@@ -15,6 +16,8 @@
 #include "error.h"
 
 #define MAXPATHLEN_UV6 1024
+
+int counter = 0;
 
 int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct directory_reader *d) {
 	M_REQUIRE_NON_NULL(u);
@@ -44,11 +47,12 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
 			return byteRead;
 		}
 		d->last += byteRead / sizeof(struct direntv6);
+		//printf("byteRead : %d\n", byteRead);
 	}
 	strncpy(name, d->dirs[d->cur % (SECTOR_SIZE / sizeof(struct direntv6))].d_name, DIRENT_MAXLEN);
 	name[DIRENT_MAXLEN] = '\0';
 	*child_inr = d->dirs[d->cur % (SECTOR_SIZE / sizeof(struct direntv6))].d_inumber;
-	d->cur += sizeof(struct direntv6);
+	d->cur += 1;
 	
 	return 1;
 }
@@ -56,22 +60,35 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
 int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const char *prefix) {
 	M_REQUIRE_NON_NULL(u);
 	M_REQUIRE_NON_NULL(prefix);
+	
 	struct directory_reader d;
 	int error = direntv6_opendir(u, inr, &d);
 	if (error < 0) {
+		printf("%s %s\n", SHORT_FIL_NAME, prefix);
 		return error;
 	}
-	char buf[MAXPATHLEN_UV6];
-	snprintf(buf, MAXPATHLEN_UV6, "%s\n", prefix);
+	
+	int index = strlen(prefix);
+	char prefixCopy[index + 1];
+	memset(prefixCopy, 0, index + 1);
+	strncpy(prefixCopy, prefix, index + 1);
+	strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
+	printf("%s %s\n", SHORT_DIR_NAME, prefixCopy);
+	
+	
 	char name[DIRENT_MAXLEN + 1];
 	uint16_t child_inr;
-	if ((error = direntv6_readdir(&d, name, &child_inr)) != 0) {
+	while((error = direntv6_readdir(&d, name, &child_inr)) != 0) {
 		if(error < 0) {
 			return error;
 		}
-		char copy[strlen(prefix)];
-		strncpy(copy, prefix, strlen(prefix));
-		direntv6_print_tree(u, inr, strncat(copy, name, MAXPATHLEN_UV6 - strlen(prefix)));
+		strncat(prefixCopy, name, MAXPATHLEN_UV6 - index + 1);
+		int returnValue = direntv6_print_tree(u, child_inr, prefixCopy);
+		if(returnValue < 0) {
+			memset(prefixCopy, 0, index + 1);
+			strncpy(prefixCopy, prefix, index);
+			strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
+		}
 	}
 	
 	return 0;
