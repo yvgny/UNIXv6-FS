@@ -64,15 +64,17 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 	struct directory_reader d;
 	int error = direntv6_opendir(u, inr, &d);
 	if (error < 0) {
+		printf("%d\n", ++counter);
 		printf("%s %s\n", SHORT_FIL_NAME, prefix);
 		return error;
 	}
 	
 	int index = strlen(prefix);
-	char prefixCopy[index + 1];
+	char prefixCopy[MAXPATHLEN_UV6];
 	memset(prefixCopy, 0, index + 1);
 	strncpy(prefixCopy, prefix, index + 1);
 	strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
+		printf("%d\n", ++counter);
 	printf("%s %s\n", SHORT_DIR_NAME, prefixCopy);
 	
 	
@@ -84,11 +86,11 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 		}
 		strncat(prefixCopy, name, MAXPATHLEN_UV6 - index + 1);
 		int returnValue = direntv6_print_tree(u, child_inr, prefixCopy);
-		if(returnValue < 0) {
-			memset(prefixCopy, 0, index + 1);
-			strncpy(prefixCopy, prefix, index);
-			strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
-		}
+		
+		//printf("%s    %s\n", prefix, prefixCopy);
+		memset(prefixCopy, 0, index + 1);
+		strncpy(prefixCopy, prefix, index + 1);
+		strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
 	}
 	
 	return 0;
