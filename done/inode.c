@@ -26,10 +26,10 @@ int inode_scan_print(const struct unix_filesystem *u) {
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
-                printf("inode   %lu (%s) len   %" PRIu32"\n", 
-					((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i,
-					(in.i_mode & IFDIR) ? SHORT_DIR_NAME : SHORT_FIL_NAME,
-					inode_getsize(&in));
+                printf("inode   %lu (%s) len   %" PRIu32"\n",
+                       ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i,
+                       (in.i_mode & IFDIR) ? SHORT_DIR_NAME : SHORT_FIL_NAME,
+                       inode_getsize(&in));
             }
         }
     }
@@ -82,7 +82,7 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     M_REQUIRE_NON_NULL(i);
     M_REQUIRE_NON_NULL(u->f);
 
-    int32_t file_size = inode_getsize(i);    
+    int32_t file_size = inode_getsize(i);
     if (file_sec_off > file_size / SECTOR_SIZE) {
         return ERR_OFFSET_OUT_OF_RANGE;
     } else if (!(i->i_mode & IALLOC)) {
@@ -101,23 +101,9 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
         uint16_t sector_list[ADDRESSES_PER_SECTOR];
         int error = sector_read(u->f, i->i_addr[first_level], sector_list);
         if (error) {
-			return error;
-		}
+            return error;
+        }
         return sector_list[second_level];
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
