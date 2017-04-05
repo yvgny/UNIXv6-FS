@@ -39,7 +39,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
 
 void inode_print(const struct inode *in) {
     puts("**********FS INODE START**********");
-    if (in == NULL) {
+    if (NULL == in) {
         puts("NULL ptr\n");
     } else {
         printf("i_mode: %" PRIu16 "\n", in->i_mode);
@@ -83,7 +83,7 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     M_REQUIRE_NON_NULL(u->f);
 
     int32_t file_size = inode_getsize(i);
-    if (file_sec_off > file_size / SECTOR_SIZE) {
+    if ((file_sec_off > file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE != 0)) || (file_sec_off >= file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE == 0))) {
         return ERR_OFFSET_OUT_OF_RANGE;
     } else if (!(i->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
