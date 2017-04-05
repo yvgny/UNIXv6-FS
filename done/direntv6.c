@@ -35,7 +35,6 @@ int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct direc
 }
 
 int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr) {
-<<<<<<< HEAD
 	M_REQUIRE_NON_NULL(d);
 	M_REQUIRE_NON_NULL(d->dirs);
 	M_REQUIRE_NON_NULL(name);
@@ -58,38 +57,34 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
 int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const char *prefix) {
 	M_REQUIRE_NON_NULL(u);
 	M_REQUIRE_NON_NULL(prefix);
+	if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
+        return ERR_INODE_OUTOF_RANGE;
+	}
 	
 	struct directory_reader d;
+	char prefixCopy[MAXPATHLEN_UV6];
+	memset(prefixCopy, 0, MAXPATHLEN_UV6);
 	int error = direntv6_opendir(u, inr, &d);
 	if (error == ERR_INVALID_DIRECTORY_INODE) {
-		printf("%s %s\n", SHORT_FIL_NAME, prefix);
+		snprintf(prefixCopy, MAXPATHLEN_UV6, "%s", prefix);
+		printf("%s %s\n", SHORT_FIL_NAME, prefixCopy);
 		return error;
 	} else if (error < 0) {
 		return error;
 	}
-	
-	int index = strlen(prefix);
-	char prefixCopy[MAXPATHLEN_UV6];
-	memset(prefixCopy, 0, index + 1);
-	strncpy(prefixCopy, prefix, index + 1);
-	strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
+	snprintf(prefixCopy, MAXPATHLEN_UV6, "%s/", prefix);
 	printf("%s %s\n", SHORT_DIR_NAME, prefixCopy);
 	
 	
 	char name[DIRENT_MAXLEN + 1];
 	uint16_t child_inr;
 	while((error = direntv6_readdir(&d, name, &child_inr)) != 0) {
-		if(error < 0) {
-			return error;
-		}
-		strncat(prefixCopy, name, MAXPATHLEN_UV6 - index + 1);
-		error = direntv6_print_tree(u, child_inr, prefixCopy);
 		if(error < 0 && error != ERR_INVALID_DIRECTORY_INODE) {
 			return error;
 		}
-		memset(prefixCopy, 0, index + 1);
-		strncpy(prefixCopy, prefix, index + 1);
-		strncat(prefixCopy, "/", MAXPATHLEN_UV6 - index);
+		
+		snprintf(prefixCopy, MAXPATHLEN_UV6, "%s/%s", prefix, name);
+		error = direntv6_print_tree(u, child_inr, prefixCopy);
 	}
 	
 	return 0;
