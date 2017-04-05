@@ -39,7 +39,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
 
 void inode_print(const struct inode *in) {
     puts("**********FS INODE START**********");
-    if (in == NULL) {
+    if (NULL == in) {
         puts("NULL ptr\n");
     } else {
         printf("i_mode: %" PRIu16 "\n", in->i_mode);
