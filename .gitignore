@@ -1,8 +1,7 @@
 cmake-build-debug
-*.o
 .idea
 *.txt
 .DS_Store
-test-inodes
-test-print-inode
-test-file
+test-*
+!test-*.*
+*.o

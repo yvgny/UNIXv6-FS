@@ -19,9 +19,9 @@ extern "C" {
 
 struct directory_reader {
 	struct filev6 fv6;
-	struct direntv6* dirs;
-	int cur;
-	int last;
+	struct direntv6 dirs[DIRENTRIES_PER_SECTOR];
+	uint16_t cur;
+	uint16_t last;
 };
 
 /**

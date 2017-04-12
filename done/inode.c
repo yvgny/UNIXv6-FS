@@ -26,10 +26,10 @@ int inode_scan_print(const struct unix_filesystem *u) {
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
-                printf("inode   %lu (%s) len   %" PRIu32"\n", 
-					((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i,
-					(in.i_mode & IFDIR) ? SHORT_DIR_NAME : SHORT_FIL_NAME,
-					inode_getsize(&in));
+                printf("inode   %lu (%s) len   %" PRIu32"\n",
+                       ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i,
+                       (in.i_mode & IFDIR) ? SHORT_DIR_NAME : SHORT_FIL_NAME,
+                       inode_getsize(&in));
             }
         }
     }
@@ -39,7 +39,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
 
 void inode_print(const struct inode *in) {
     puts("**********FS INODE START**********");
-    if (in == NULL) {
+    if (NULL == in) {
         puts("NULL ptr\n");
     } else {
         printf("i_mode: %" PRIu16 "\n", in->i_mode);
@@ -58,7 +58,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     M_REQUIRE_NON_NULL(inode);
     M_REQUIRE_NON_NULL(u->f);
 
-    if (u->s.s_isize <= inr) {
+    if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
         return ERR_INODE_OUTOF_RANGE;
     }
 
@@ -82,8 +82,8 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     M_REQUIRE_NON_NULL(i);
     M_REQUIRE_NON_NULL(u->f);
 
-    int32_t file_size = inode_getsize(i);    
-    if (file_sec_off > file_size / SECTOR_SIZE) {
+    int32_t file_size = inode_getsize(i);
+    if ((file_sec_off > file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE != 0)) || (file_sec_off >= file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE == 0))) {
         return ERR_OFFSET_OUT_OF_RANGE;
     } else if (!(i->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
@@ -97,27 +97,13 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
         return i->i_addr[file_sec_off];
     } else {
         int first_level = file_sec_off / ADDRESSES_PER_SECTOR;
-        int second_level = file_sec_off - ((file_sec_off / ADDRESSES_PER_SECTOR) * ADDRESSES_PER_SECTOR);
+        int second_level = file_sec_off % ADDRESSES_PER_SECTOR;
         uint16_t sector_list[ADDRESSES_PER_SECTOR];
         int error = sector_read(u->f, i->i_addr[first_level], sector_list);
         if (error) {
-			return error;
-		}
+            return error;
+        }
         return sector_list[second_level];
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
