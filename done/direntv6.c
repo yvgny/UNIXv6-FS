@@ -79,7 +79,7 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 	char name[DIRENT_MAXLEN + 1];
 	uint16_t child_inr;
 	while((error = direntv6_readdir(&d, name, &child_inr)) != 0) {
-		if(error < 0 && error != ERR_INVALID_DIRECTORY_INODE) {
+		if(error < 0) {
 			return error;
 		}
 		
@@ -89,3 +89,67 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 	
 	return 0;
 }
+
+int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const char *entry, size_t size) {
+	M_REQUIRE_NON_NULL(u);
+	M_REQUIRE_NON_NULL(entry);
+	if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
+        return ERR_INODE_OUTOF_RANGE;
+	} else if (size == 0) {
+		return ERR_BAD_PARAMETER;
+	}
+	
+	size_t index = 0;
+	while(index < size && entry[index] == '/') {
+		index++;
+	}
+	if (index == size) {
+		return ERR_INODE_OUTOF_RANGE;
+	}
+	char* nextEntry = strchr(&entry[index], '/');
+	struct directory_reader d;
+	int error = direntv6_opendir(u, inr, &d);
+	if (error) {
+		return error;
+	}
+	char name[DIRENT_MAXLEN + 1];
+	uint16_t child_inr;
+	int found = 0, result;
+	while(!found && (result = direntv6_readdir(&d, name, &child_inr)) != 0) {
+		if(result < 0 && result != ERR_INVALID_DIRECTORY_INODE) {
+			return result;
+		}
+		if (strncmp(entry, name, size - index) == 0) {
+			found = 1;
+		}
+	}
+	if(!found) {
+		return ERR_INODE_OUTOF_RANGE;
+	}
+	
+	struct inode i_node;
+	error = inode_read(u, child_inr, &i_node);
+	if (error) {
+		return error;
+	}
+	if(NULL == nextEntry) {
+		if (IFDIR & i_node.i_mode) {
+			return child_inr;
+		}
+		direntv6_dirlookup_core(u, child_inr, nextEntry, size - index);
+	}
+	return ERR_INODE_OUTOF_RANGE;
+}
+
+int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char *entry) {
+	M_REQUIRE_NON_NULL(u);
+	M_REQUIRE_NON_NULL(entry);
+	if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
+        return ERR_INODE_OUTOF_RANGE;
+	}
+	
+	return direntv6_dirlookup_core(u, inr, entry, strlen(entry));
+}
+
+
+
