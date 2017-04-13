@@ -104,7 +104,7 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
 		index++;
 	}
 	if (index == size) {
-		return ERR_INODE_OUTOF_RANGE;
+		return inr;
 	}
 	char* nextEntry = strchr(&entry[index], '/');
 	struct directory_reader d;
@@ -119,13 +119,18 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
 		if(result < 0 && result != ERR_INVALID_DIRECTORY_INODE) {
 			return result;
 		}
-		if (strncmp(entry, name, size - index) == 0) {
+		printf("%s    %s\n", &entry[index], name);
+		printf("%zu\n", strlen(name));
+		if (strncmp(&entry[index], name, strlen(name)) == 0) {
+			printf("MAIS quoi\n");
 			found = 1;
 		}
 	}
 	if(!found) {
+		printf("MAIS ENFIN\n");
 		return ERR_INODE_OUTOF_RANGE;
 	}
+	printf("%d\n", found);
 	
 	struct inode i_node;
 	error = inode_read(u, child_inr, &i_node);
@@ -133,12 +138,14 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
 		return error;
 	}
 	if(NULL == nextEntry) {
-		if (IFDIR & i_node.i_mode) {
+		if (!(IFDIR & i_node.i_mode)) {
 			return child_inr;
+		} else {
+			direntv6_dirlookup_core(u, inr, nextEntry, size - index);
 		}
+	} else  {
 		direntv6_dirlookup_core(u, child_inr, nextEntry, size - index);
 	}
-	return ERR_INODE_OUTOF_RANGE;
 }
 
 int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char *entry) {
