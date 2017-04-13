@@ -37,6 +37,7 @@ int test(struct unix_filesystem *u) {
     printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/hosts.go////"));
     printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/hosts.go"));
     printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, ""));
+    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello"));
 
 
 

@@ -1,5 +1,5 @@
-
 #define SUPPORTED_OPERATIONS 13
+#define INPUT_MAX_LENGTH 256
 
 typedef int (*shell_fct)(const char*);
 
@@ -24,3 +24,4 @@ int do_istat(const char*);
 int do_inode(const char*);
 int do_sha(const char*);
 int do_psb(const char*);
+int tokenize_input(const char*, char**, size_t);

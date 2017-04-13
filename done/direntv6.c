@@ -96,9 +96,7 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     M_REQUIRE_NON_NULL(entry);
     if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
         return ERR_INODE_OUTOF_RANGE;
-    }/* else if (size == 0) {
-        return ERR_INODE_OUTOF_RANGE;
-    }*/
+    }
 
     size_t index = 0;
     while (index < size && entry[index] == '/') {

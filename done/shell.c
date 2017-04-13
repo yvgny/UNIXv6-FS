@@ -1,5 +1,8 @@
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 #include "shell.h"
+#include "error.h"
 
 
 struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
@@ -72,3 +75,27 @@ int do_sha(const char* args) {
 int do_psb(const char* args) {
 	return 0;
 }
+
+int tokenize_input(const char* input, char** command, size_t command_size) {
+	M_REQUIRE_NON_NULL(input);
+	M_REQUIRE_NON_NULL(command);
+	
+	int index = 0;
+	const char* maxInput = input + strlen(input) - 1;
+	char* c;
+	const char space = ' ';
+	
+	do {
+		while (input != maxInput && isspace(*input)) {
+			input++;
+		}
+		c = strtok(input, &space);
+		strcpy(command[index++], input);
+		input = c;
+	} while(*c != '\0');
+	return 0;
+}
+
+
+
+
