@@ -15,6 +15,7 @@
 #include "sector.h"
 #include "direntv6.h"
 #include "error.h"
+#include "shell.h"
 
 /**
  * @brief run the different tests
@@ -22,26 +23,14 @@
  * @return 0 if all were right or the number corresponding to the error
  */
 int test(struct unix_filesystem *u) {
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello/net/mail//////"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "////hello/net/mail//////"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello//////net/mail//////"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello/net/mailTest//////"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello/net/ma//////"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello/net/mail"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/mail//////"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/mail//////"));
-    printf("\n\n");
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/hosts.gotest"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/hosts.g"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/hosts.go/"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/hosts.go////"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "hello/net/hosts.go"));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, ""));
-    printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello"));
-
-
-
-
+	char input[256];
+	input[255] = '\0';
+	char command[5][256];
+	strcpy(input, "     ascj      ");
+	tokenize_input(input, command, 5);
+	/*for(int i = 0 ; i < 5 ; i++) {
+		printf("'%s'\n", command[i]);
+	}*/
     //printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello/net/cgo_sockold.go"));
     return 0;
 }

@@ -24,4 +24,4 @@ int do_istat(const char*);
 int do_inode(const char*);
 int do_sha(const char*);
 int do_psb(const char*);
-int tokenize_input(const char*, char**, size_t);
+int tokenize_input(char* input, char (*command)[256], size_t command_size);

@@ -76,23 +76,23 @@ int do_psb(const char* args) {
 	return 0;
 }
 
-int tokenize_input(const char* input, char** command, size_t command_size) {
+int tokenize_input(char* input, char (*command)[256], size_t command_size) {
 	M_REQUIRE_NON_NULL(input);
 	M_REQUIRE_NON_NULL(command);
 	
 	int index = 0;
 	const char* maxInput = input + strlen(input) - 1;
-	char* c;
-	const char space = ' ';
+	char space = ' ';
+	char* c = strtok(input, &space);
 	
 	do {
 		while (input != maxInput && isspace(*input)) {
 			input++;
 		}
-		c = strtok(input, &space);
+		c = strtok(NULL, &space);
 		strcpy(command[index++], input);
 		input = c;
-	} while(*c != '\0');
+	} while((c != NULL || c == '\0') && index < command_size);
 	return 0;
 }
 
