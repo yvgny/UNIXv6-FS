@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include "shell.h"
 #include "error.h"
+#include "mount.h"
 
 const char *const ERR_SHELL_MASSAGES[] = {
         "invalid command",
@@ -116,7 +117,6 @@ int do_mount(const char (*args)[]) {
 }
 
 int do_mkdir(const char (*args)[]) {
-	mountv6(
     return 0;
 }
 
@@ -146,7 +146,10 @@ int do_sha(const char (*args)[]) {
 }
 
 int do_psb(const char (*args)[]) {
-    return 0;
+    if (u == NULL) {
+        return ERR_FS_UNMOUNTED;
+    }
+    return mountv6_print_superblock(u);
 }
 
 int tokenize_input(char *input, char (*command)[INPUT_MAX_LENGTH], size_t command_size) {
