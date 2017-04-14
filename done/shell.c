@@ -163,7 +163,7 @@ int do_cat(const char (*args)[1]) {
 
     if (error < 0) {
         return error;
-    } else if (i_node.i_mode & IFDIR != 0) {
+    } else if (i_node.i_mode & IFDIR) {
         return ERR_CAT_OPERATION;
     }
 

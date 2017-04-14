@@ -50,4 +50,13 @@ int do_sha(const char (*)[]);
 
 int do_psb(const char (*)[]);
 
-int tokenize_input(char *, char (*)[], size_t);
+/**
+ * Allows to tokenize the input of the user into an array of string.
+ * The different tokens must separated by at least one white space.
+ *
+ * @param input the input of the user in a string format
+ * @param command the tokenized input
+ * @param command_size the maximum number of token that should be read from the input
+ * @return < 0 in case of an error, otherwise the number of token that have been scanned
+ */
+int tokenize_input(char *input, char (*command)[], size_t command_size);
