@@ -56,8 +56,8 @@ void display_error(int error);
  * @param path, the path to the inode we want to create (IN)
  * @return the number of the i_node on succes; <0 on exception
  */
- 
-int create_inode(struct inode *i_node,  const char* path);
+
+int create_inode(struct inode* i_node,  const char* path);
 
 /**
  * @brief unmount and free the filesystem given
@@ -165,9 +165,8 @@ int do_sha(const char (*args)[]);
 int do_psb(const char (*args)[]);
 
 /**
- * Allows to tokenize the input of the user into an array of string.
+ * @brief Allows to tokenize the input of the user into an array of string.
  * The different tokens must separated by at least one white space.
- *
  * @param input the input of the user in a string format
  * @param command the tokenized input
  * @param command_size the maximum number of token that should be read from the input
