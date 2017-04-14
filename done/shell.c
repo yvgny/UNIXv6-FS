@@ -132,6 +132,7 @@ void umountv6_fs() {
     if (u != NULL) {
 		umountv6(u);
 		free(u);
+        u = NULL;
 	}
 }
 
