@@ -82,9 +82,7 @@ int main(void) {
             display_error(ERR_INVALID_COMMAND);
         }
     }
-    if (u != NULL) {
-		umountv6(u);
-	}
+    umountv6_fs(u);
 
     return 0;
 }
@@ -96,16 +94,24 @@ void display_error(int error) {
         fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
     }
 }
+
 int create_inode(struct inode* i_node,  const char* path) {
 	int inr = direntv6_dirlookup(u, ROOT_INUMBER, path);
 	if (inr < 0) {
 		return inr;
 	}
-	int error = inode_read(u, inr, &i_node);
+	int error = inode_read(u, inr, i_node);
 	if (error) {
 		return error;
 	}
 	return inr;
+}
+
+void umountv6_fs(struct unix_filesystem* u) {
+    if (u != NULL) {
+		umountv6(u);
+		free(u);
+	}
 }
 
 int do_help(const char (*args)[]) {
@@ -128,6 +134,7 @@ int do_mkfs(const char (*args)[3]) {
 }
 
 int do_mount(const char (*args)[1]) {
+    umountv6_fs(u);
 	u = malloc(sizeof(struct unix_filesystem));
 	return mountv6(args[0], u);
 }
@@ -151,11 +158,34 @@ int do_cat(const char (*args)[]) {
     return 0;
 }
 
-int do_istat(const char (*args)[]) {
+int do_istat(const char (*args)[1]) {
+	if(NULL == u) {
+		return ERR_FS_UNMOUNTED;
+	}
+	struct inode i_node;
+	int inr;
+	int error = sscanf(args[0], "%d", &inr);
+	if (error != 1 || inr < 0) {
+		return ERR_INODE_OUTOF_RANGE;
+	}
+	error = inode_read(u, inr, &i_node);
+	if (error) {
+		return error;
+	}
+	inode_print(&i_node);
     return 0;
 }
 
-int do_inode(const char (*args)[]) {
+int do_inode(const char (*args)[1]) {
+	if (u == NULL) {
+		return ERR_FS_UNMOUNTED;
+	}
+	struct inode i_node;
+	int inr = create_inode(&i_node, args[0]);
+	if (inr < 0) {
+		return inr;
+	}
+	printf("inode: %d\n", inr);
     return 0;
 }
 
@@ -176,7 +206,8 @@ int do_psb(const char (*args)[]) {
     if (u == NULL) {
         return ERR_FS_UNMOUNTED;
     }
-    return mountv6_print_superblock(u);
+    mountv6_print_superblock(u);
+    return 0;
 }
 
 int tokenize_input(char *input, char (*command)[INPUT_MAX_LENGTH], size_t command_size) {
