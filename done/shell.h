@@ -15,6 +15,7 @@
 #include "error.h"
 #include "mount.h"
 #include "direntv6.h"
+#include "inode.h"
 
 #define SUPPORTED_OPERATIONS 13
 #define INPUT_MAX_LENGTH 256
