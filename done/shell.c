@@ -27,6 +27,8 @@ struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
         {"sha",   do_sha,   "display the SHA of a file",                                                    1, "<pathname>"},
         {"psb",   do_psb,   "Print SuperBlock of the currently mounted filesystem",                         0, ""}};
 
+unix_filesystem *u = NULL;
+
 int main(void) {
     size_t max_argc = 0;
     for (int i = 0; i < SUPPORTED_OPERATIONS; ++i) {
@@ -71,6 +73,9 @@ int main(void) {
             display_error(ERR_INVALID_COMMAND);
         }
     }
+    if (u != NULL) {
+		unmountv6(u);
+	}
 
     return 0;
 }
@@ -104,11 +109,11 @@ int do_mkfs(const char (*args)[]) {
 }
 
 int do_mount(const char (*args)[]) {
-    return 0;
+	return mountv6(args[0], u);
 }
 
 int do_mkdir(const char (*args)[]) {
-    printf("%s", args);
+	mountv6(
     return 0;
 }
 
