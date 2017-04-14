@@ -18,7 +18,8 @@ enum shell_error_codes {
     ERR_FS_UNMOUNTED,
     ERR_CAT_OPERATION,
     ERR_SHELL_IO,
-    ERR_SHELL_LAST
+    ERR_SHELL_LAST,
+    ERR_INTERRUPT_REQ
 };
 
 void display_error(int error);

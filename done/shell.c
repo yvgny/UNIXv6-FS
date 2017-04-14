@@ -64,6 +64,9 @@ int main(void) {
                     continue;
                 } else {
                     error = shell_cmds[i].fct(&command[1]);
+                    if (error == ERR_INTERRUPT_REQ) {
+                        return 0;
+                    }
                     display_error(error);
                     continue;
                 }
@@ -96,11 +99,11 @@ int do_help(const char (*args)[]) {
 }
 
 int do_exit(const char (*args)[]) {
-    return 0;
+    return ERR_INTERRUPT_REQ;
 }
 
 int do_quit(const char (*args)[]) {
-    return 0;
+    return ERR_INTERRUPT_REQ;
 }
 
 int do_mkfs(const char (*args)[]) {
