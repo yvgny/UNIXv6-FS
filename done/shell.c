@@ -55,19 +55,6 @@ int main(void) {
 
         for (int i = 0; i < SUPPORTED_OPERATIONS && !found; ++i) {
             error = strcmp(shell_cmds[i].name, command[0]);
-            /*if (error != 0) {
-                display_error(error);
-                continue;
-            } else if (args_number - 1 != shell_cmds[i].argc) {
-                display_error(ERR_INVALID_ARGS);
-                continue;
-            } else {
-                found = 1;
-                error = shell_cmds[i].fct(&command[1]);
-                display_error(error);
-                continue;
-            }*/
-
             if (error == 0) {
                 found = 1;
                 if (args_number - 1 != (int)shell_cmds[i].argc) {
@@ -79,7 +66,6 @@ int main(void) {
                     continue;
                 }
             }
-
         }
         if (!found) {
             display_error(ERR_INVALID_COMMAND);
@@ -98,7 +84,9 @@ void display_error(int error) {
 }
 
 int do_help(const char (*args)[]) {
-
+	for(int i = 0 ; i < SUPPORTED_OPERATIONS ; i++) {
+		printf("- %s: %s.\n", shell_cmds[i].name, shell_cmds[i].help);
+	}
     return 0;
 }
 
