@@ -6,6 +6,16 @@
  * @date 12.04.17
  */
 
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include "mount.h"
+#include "sha.h"
+#include "error.h"
+#include "mount.h"
+#include "direntv6.h"
+
 #define SUPPORTED_OPERATIONS 13
 #define INPUT_MAX_LENGTH 256
 
@@ -47,14 +57,14 @@ void display_error(int error);
  * @return the number of the i_node on succes; <0 on exception
  */
  
-int create_inode(struct inode* i_node,  const char* path);
+int create_inode(struct inode *i_node,  const char* path);
 
 /**
  * @brief unmount and free the filesystem given
  * @param u, the filesystem to unmount
  */
 
-void umountv6_fs(struct unix_filesystem*);
+void umountv6_fs(struct unix_filesystem* u);
 
 /**
  * @brief displays some helpful information for a user
