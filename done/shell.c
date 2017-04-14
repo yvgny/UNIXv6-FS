@@ -16,6 +16,7 @@
 #include "error.h"
 #include "mount.h"
 #include "direntv6.h"
+#include "inode.h"
 
 /*
  * An array that contains the messages corresponding to the different errors
@@ -62,7 +63,9 @@ int main(void) {
 
     char command[max_argc][INPUT_MAX_LENGTH];
     char input[INPUT_MAX_LENGTH];
-    int returnValue = 0;
+    int error = 0;
+    int number_args = 0;
+    int compare = 0;
     int found = 0;
 
 
@@ -73,25 +76,25 @@ int main(void) {
             return ERR_IO;
         }
         input[strlen(input) - 1] = '\0';
-        returnValue = tokenize_input(input, command, max_argc);
-        if (returnValue < 0) {
-            display_error(returnValue);
+        number_args = tokenize_input(input, command, max_argc);
+        if (number_args < 0) {
+            display_error(number_args);
             continue;
         }
 
         for (int i = 0; i < SUPPORTED_OPERATIONS && !found; ++i) {
-            returnValue = strcmp(shell_cmds[i].name, command[0]);
-            if (returnValue == 0) {
+            compare = strcmp(shell_cmds[i].name, command[0]);
+            if (compare == 0) {
                 found = 1;
-                if (returnValue - 1 != (int)shell_cmds[i].argc) {
+                if (number_args - 1 != (int)shell_cmds[i].argc) {
                     display_error(ERR_INVALID_ARGS);
                     continue;
                 } else {
-                    returnValue = shell_cmds[i].fct(&command[1]);
-                    if (returnValue == ERR_INTERRUPT_REQ) {
+                    error = shell_cmds[i].fct(&command[1]);
+                    if (error == ERR_INTERRUPT_REQ) {
                         return 0;
                     }
-                    display_error(returnValue);
+                    display_error(error);
                     continue;
                 }
             }
@@ -125,7 +128,7 @@ int create_inode(struct inode* i_node,  const char* path) {
 	return inr;
 }
 
-void umountv6_fs(struct unix_filesystem* u) {
+void umountv6_fs() {
     if (u != NULL) {
 		umountv6(u);
 		free(u);
@@ -152,7 +155,7 @@ int do_mkfs(const char (*args)[3]) {
 }
 
 int do_mount(const char (*args)[1]) {
-    umountv6_fs(u);
+    umountv6_fs();
 	u = malloc(sizeof(struct unix_filesystem));
 	return mountv6(args[0], u);
 }

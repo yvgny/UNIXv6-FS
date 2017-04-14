@@ -15,6 +15,7 @@
 #include "error.h"
 #include "mount.h"
 #include "direntv6.h"
+#include "inode.h"
 
 #define SUPPORTED_OPERATIONS 13
 #define INPUT_MAX_LENGTH 256
@@ -64,7 +65,7 @@ int create_inode(struct inode* i_node,  const char* path);
  * @param u, the filesystem to unmount
  */
 
-void umountv6_fs(struct unix_filesystem* u);
+void umountv6_fs();
 
 /**
  * @brief displays some helpful information for a user
