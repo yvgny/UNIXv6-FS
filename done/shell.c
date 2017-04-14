@@ -16,6 +16,7 @@
 #include "error.h"
 #include "mount.h"
 #include "direntv6.h"
+#include "inode.h"
 
 /*
  * An array that contains the messages corresponding to the different errors
@@ -100,7 +101,7 @@ int main(void) {
             display_error(ERR_INVALID_COMMAND);
         }
     }
-    umountv6_fs(u);
+    umountv6_fs();
 
     return 0;
 }
@@ -125,7 +126,7 @@ int create_inode(struct inode* i_node,  const char* path) {
 	return inr;
 }
 
-void umountv6_fs(struct unix_filesystem* u) {
+void umountv6_fs(void) {
     if (u != NULL) {
 		umountv6(u);
 		free(u);
@@ -153,7 +154,7 @@ int do_mkfs(const char (*args)[3]) {
 }
 
 int do_mount(const char (*args)[1]) {
-    umountv6_fs(u);
+    umountv6_fs();
 	u = malloc(sizeof(struct unix_filesystem));
 	return mountv6(args[0], u);
 }
