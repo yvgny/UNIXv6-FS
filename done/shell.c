@@ -101,7 +101,7 @@ int create_inode(struct inode* i_node,  const char* path) {
 	if (inr < 0) {
 		return inr;
 	}
-	int error = inode_read(u, inr, &i_node);
+	int error = inode_read(u, inr, i_node);
 	if (error) {
 		return error;
 	}
@@ -147,7 +147,33 @@ int do_add(const char (*args)[]) {
     return 0;
 }
 
-int do_cat(const char (*args)[]) {
+int do_cat(const char (*args)[1]) {
+    if (u == NULL) {
+        return  ERR_FS_UNMOUNTED;
+    }
+    struct inode i_node;
+    int error = create_inode(&i_node, args[0]);
+
+    if (error < 0) {
+        return error;
+    } else if (i_node.i_mode & IFDIR != 0) {
+        return ERR_CAT_OPERATION;
+    }
+
+    struct filev6 file;
+    error = filev6_open(u, error, &file);
+    if (error < 0) {
+        return error;
+    }
+    char buffer[SECTOR_SIZE + 1];
+    buffer[SECTOR_SIZE] = '\0';
+    while ((error = filev6_readblock(&file, buffer)) != 0) {
+        if (error < 0) {
+            return error;
+        }
+        printf("%s", buffer);
+    }
+
     return 0;
 }
 
@@ -176,7 +202,8 @@ int do_psb(const char (*args)[]) {
     if (u == NULL) {
         return ERR_FS_UNMOUNTED;
     }
-    return mountv6_print_superblock(u);
+    mountv6_print_superblock(u);
+    return 0;
 }
 
 int tokenize_input(char *input, char (*command)[INPUT_MAX_LENGTH], size_t command_size) {
