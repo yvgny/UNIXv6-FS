@@ -130,6 +130,7 @@ void umountv6_fs(struct unix_filesystem* u) {
     if (u != NULL) {
 		umountv6(u);
 		free(u);
+        u = NULL;
 	}
 }
 
