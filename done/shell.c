@@ -121,7 +121,10 @@ int do_mkdir(const char (*args)[]) {
 }
 
 int do_lsall(const char (*args)[]) {
-    return 0;
+	if (u == NULL) {
+		return ERR_FS_UNMOUNTED;
+	}
+	return direntv6_print_tree(u, ROOT_INUMBER, ""); 
 }
 
 int do_add(const char (*args)[]) {
