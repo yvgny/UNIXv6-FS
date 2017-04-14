@@ -2,8 +2,14 @@
 #include <string.h>
 #include <ctype.h>
 #include "shell.h"
-#include "error.h"
 #include "mount.h"
+#include "sha.h"
+#include "error.h"
+<<<<<<< HEAD
+#include "mount.h"
+=======
+#include "direntv6.h"
+>>>>>>> b8b01fe628ce21236c9e3bef7e8b26feab7cb737
 
 const char *const ERR_SHELL_MASSAGES[] = {
         "invalid command",
@@ -28,7 +34,7 @@ struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
         {"sha",   do_sha,   "display the SHA of a file",                                                    1, "<pathname>"},
         {"psb",   do_psb,   "Print SuperBlock of the currently mounted filesystem",                         0, ""}};
 
-unix_filesystem *u = NULL;
+struct unix_filesystem *u = NULL;
 
 int main(void) {
     size_t max_argc = 0;
@@ -78,7 +84,7 @@ int main(void) {
         }
     }
     if (u != NULL) {
-		unmountv6(u);
+		umountv6(u);
 	}
 
     return 0;
@@ -108,11 +114,10 @@ int do_quit(const char (*args)[]) {
 }
 
 int do_mkfs(const char (*args)[]) {
-    printf("%s", args);
     return 0;
 }
 
-int do_mount(const char (*args)[]) {
+int do_mount(const char (*args)[1]) {
 	return mountv6(args[0], u);
 }
 
@@ -121,11 +126,13 @@ int do_mkdir(const char (*args)[]) {
 }
 
 int do_lsall(const char (*args)[]) {
-    return 0;
+	if (u == NULL) {
+		return ERR_FS_UNMOUNTED;
+	}
+	return direntv6_print_tree(u, ROOT_INUMBER, ""); 
 }
 
 int do_add(const char (*args)[]) {
-    printf("%s", args);
     return 0;
 }
 
@@ -142,6 +149,9 @@ int do_inode(const char (*args)[]) {
 }
 
 int do_sha(const char (*args)[]) {
+	if (u == NULL) {
+		return ERR_FS_UNMOUNTED;
+	}
     return 0;
 }
 
