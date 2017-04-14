@@ -23,14 +23,5 @@
  * @return 0 if all were right or the number corresponding to the error
  */
 int test(struct unix_filesystem *u) {
-	char input[256];
-	input[255] = '\0';
-	char command[5][256];
-	strcpy(input, "ceci  est un                    tes");
-	tokenize_input(input, command, 5);
-	for(int i = 0 ; i < 4 ; i++) {
-		printf("'%s'\n", command[i]);
-	}
-    //printf("%d\n", direntv6_dirlookup(u, ROOT_INUMBER, "/hello/net/cgo_sockold.go"));
-    return 0;
+    return direntv6_print_tree(u, ROOT_INUMBER, "");
 }

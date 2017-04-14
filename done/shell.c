@@ -4,6 +4,13 @@
 #include "shell.h"
 #include "error.h"
 
+const char *const ERR_SHELL_MASSAGES[] = {
+        "invalid command",
+        "wrong number of arguments",
+        "mount the FS before the operation",
+        "cat on directory is not defined",
+        "IO error: No such file or directory"
+};
 
 struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
         {"help",  do_help,  "display this help",                                                            0, ""},
@@ -20,63 +27,115 @@ struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
         {"sha",   do_sha,   "display the SHA of a file",                                                    1, "<pathname>"},
         {"psb",   do_psb,   "Print SuperBlock of the currently mounted filesystem",                         0, ""}};
 
-int do_help(const char *args) {
+int main(void) {
+    size_t max_argc = 0;
+    for (int i = 0; i < SUPPORTED_OPERATIONS; ++i) {
+        max_argc = shell_cmds[i].argc > max_argc ? shell_cmds[i].argc : max_argc;
+    }
+
+    char command[max_argc][INPUT_MAX_LENGTH];
+    char input[INPUT_MAX_LENGTH];
+    int error = 0;
+
+
+    while (!feof(stdin) && !ferror(stdin)) {
+        printf("shell$ ");
+        if (fgets(input, INPUT_MAX_LENGTH, stdin) == NULL) {
+            return ERR_IO;
+        }
+
+        error = tokenize_input(input, command, max_argc);
+        if (error != 0) {
+            display_error(error);
+            continue;
+        }
+
+        for (int i = 0; i < SUPPORTED_OPERATIONS; ++i) {
+            error = strcmp(shell_cmds[i].name, command[0]);
+            if (error < 0) {
+                display_error(error);
+                continue;
+            } else if (error - 1 != shell_cmds[i].argc) {
+                display_error(ERR_INVALID_ARGS);
+                continue;
+            } else {
+                error = shell_cmds[i].fct(&command[1]);
+                display_error(error);
+                continue;
+            }
+        }
+
+        display_error(ERR_INVALID_COMMAND);
+    }
 
     return 0;
 }
 
-int do_exit(const char *args) {
+void display_error(int error) {
+    if (error > 0) {
+        fprintf(stderr, "ERROR SHELL: %s.\n", ERR_SHELL_MASSAGES[error - 1]);
+    } else {
+        fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
+    }
+}
+
+int do_help(const char (*args)[]) {
+
     return 0;
 }
 
-int do_quit(const char *args) {
+int do_exit(const char (*args)[]) {
     return 0;
 }
 
-int do_mkfs(const char *args) {
+int do_quit(const char (*args)[]) {
+    return 0;
+}
+
+int do_mkfs(const char (*args)[]) {
     printf("%s", args);
     return 0;
 }
 
-int do_mount(const char *args) {
+int do_mount(const char (*args)[]) {
     return 0;
 }
 
-int do_mkdir(const char *args) {
+int do_mkdir(const char (*args)[]) {
     printf("%s", args);
     return 0;
 }
 
-int do_lsall(const char *args) {
+int do_lsall(const char (*args)[]) {
     return 0;
 }
 
-int do_add(const char *args) {
+int do_add(const char (*args)[]) {
     printf("%s", args);
     return 0;
 }
 
-int do_cat(const char *args) {
+int do_cat(const char (*args)[]) {
     return 0;
 }
 
-int do_istat(const char *args) {
+int do_istat(const char (*args)[]) {
     return 0;
 }
 
-int do_inode(const char *args) {
+int do_inode(const char (*args)[]) {
     return 0;
 }
 
-int do_sha(const char *args) {
+int do_sha(const char (*args)[]) {
     return 0;
 }
 
-int do_psb(const char *args) {
+int do_psb(const char (*args)[]) {
     return 0;
 }
 
-int tokenize_input(char *input, char (*command)[256], size_t command_size) {
+int tokenize_input(char *input, char (*command)[INPUT_MAX_LENGTH], size_t command_size) {
     M_REQUIRE_NON_NULL(input);
     M_REQUIRE_NON_NULL(command);
 
@@ -93,7 +152,8 @@ int tokenize_input(char *input, char (*command)[256], size_t command_size) {
         strcpy(command[index++], input);
         input = c;
     } while (input != NULL && index < command_size);
-    return 0;
+
+    return index;
 }
 
 

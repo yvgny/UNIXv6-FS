@@ -14,7 +14,6 @@
 #include "filev6.h"
 #include "mount.h"
 #include "error.h"
-#include <math.h>
 
 #define MAXPATHLEN_UV6 1024
 
@@ -109,8 +108,6 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     struct directory_reader d;
     int error = direntv6_opendir(u, inr, &d);
     if (error) {
-        printf("1error = %d\n", error);
-        fflush(stdout);
         return error;
     }
     char name[DIRENT_MAXLEN + 1];
@@ -119,9 +116,6 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     int strLength = 0;
     while (!found && (result = direntv6_readdir(&d, name, &child_inr)) != 0) {
         if (result < 0 && result != ERR_INVALID_DIRECTORY_INODE) {
-            printf("2error = %d\n", error);
-            fflush(stdout);
-
             return result;
         }
 
@@ -138,9 +132,6 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     struct inode i_node;
     error = inode_read(u, child_inr, &i_node);
     if (error) {
-        printf("3error = %d\n", error);
-        fflush(stdout);
-
         return error;
     }
     if (NULL == nextEntry) {
