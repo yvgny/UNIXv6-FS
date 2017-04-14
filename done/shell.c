@@ -5,11 +5,9 @@
 #include "mount.h"
 #include "sha.h"
 #include "error.h"
-<<<<<<< HEAD
 #include "mount.h"
-=======
 #include "direntv6.h"
->>>>>>> b8b01fe628ce21236c9e3bef7e8b26feab7cb737
+
 
 const char *const ERR_SHELL_MASSAGES[] = {
         "invalid command",
