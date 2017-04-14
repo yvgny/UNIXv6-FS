@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include "shell.h"
 #include "mount.h"
 #include "sha.h"
@@ -93,6 +94,17 @@ void display_error(int error) {
         fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
     }
 }
+int create_inode(struct inode* i_node,  const char* path) {
+	int inr = direntv6_dirlookup(u, ROOT_INUMBER, path);
+	if (inr < 0) {
+		return inr;
+	}
+	int error = inode_read(u, inr, &i_node);
+	if (error) {
+		return error;
+	}
+	return inr;
+}
 
 int do_help(const char (*args)[]) {
 	for(int i = 0 ; i < SUPPORTED_OPERATIONS ; i++) {
@@ -101,19 +113,20 @@ int do_help(const char (*args)[]) {
     return 0;
 }
 
-int do_exit(const char (*args)[]) {
+int do_exit(const char (*args)[0]) {
     return ERR_INTERRUPT_REQ;
 }
 
-int do_quit(const char (*args)[]) {
+int do_quit(const char (*args)[0]) {
     return ERR_INTERRUPT_REQ;
 }
 
-int do_mkfs(const char (*args)[]) {
+int do_mkfs(const char (*args)[3]) {
     return 0;
 }
 
 int do_mount(const char (*args)[1]) {
+	u = malloc(sizeof(struct unix_filesystem));
 	return mountv6(args[0], u);
 }
 
@@ -144,10 +157,16 @@ int do_inode(const char (*args)[]) {
     return 0;
 }
 
-int do_sha(const char (*args)[]) {
+int do_sha(const char (*args)[1]) {
 	if (u == NULL) {
 		return ERR_FS_UNMOUNTED;
 	}
+	struct inode i_node;
+	int inr = create_inode(&i_node, args[0]);
+	if (inr < 0) {
+		return inr;
+	}
+	print_sha_inode(u, i_node, inr);
     return 0;
 }
 
