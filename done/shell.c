@@ -62,8 +62,7 @@ int main(void) {
 
     char command[max_argc][INPUT_MAX_LENGTH];
     char input[INPUT_MAX_LENGTH];
-    int error = 0;
-    int args_number = 0;
+    int returnValue = 0;
     int found = 0;
 
 
@@ -74,25 +73,25 @@ int main(void) {
             return ERR_IO;
         }
         input[strlen(input) - 1] = '\0';
-        args_number = tokenize_input(input, command, max_argc);
-        if (args_number < 0) {
-            display_error(args_number);
+        returnValue = tokenize_input(input, command, max_argc);
+        if (returnValue < 0) {
+            display_error(returnValue);
             continue;
         }
 
         for (int i = 0; i < SUPPORTED_OPERATIONS && !found; ++i) {
-            error = strcmp(shell_cmds[i].name, command[0]);
-            if (error == 0) {
+            returnValue = strcmp(shell_cmds[i].name, command[0]);
+            if (returnValue == 0) {
                 found = 1;
-                if (args_number - 1 != (int)shell_cmds[i].argc) {
+                if (returnValue - 1 != (int)shell_cmds[i].argc) {
                     display_error(ERR_INVALID_ARGS);
                     continue;
                 } else {
-                    error = shell_cmds[i].fct(&command[1]);
-                    if (error == ERR_INTERRUPT_REQ) {
+                    returnValue = shell_cmds[i].fct(&command[1]);
+                    if (returnValue == ERR_INTERRUPT_REQ) {
                         return 0;
                     }
-                    display_error(error);
+                    display_error(returnValue);
                     continue;
                 }
             }
