@@ -154,7 +154,33 @@ int do_add(const char (*args)[]) {
     return 0;
 }
 
-int do_cat(const char (*args)[]) {
+int do_cat(const char (*args)[1]) {
+    if (u == NULL) {
+        return  ERR_FS_UNMOUNTED;
+    }
+    struct inode i_node;
+    int error = create_inode(&i_node, args[0]);
+
+    if (error < 0) {
+        return error;
+    } else if (i_node.i_mode & IFDIR != 0) {
+        return ERR_CAT_OPERATION;
+    }
+
+    struct filev6 file;
+    error = filev6_open(u, error, &file);
+    if (error < 0) {
+        return error;
+    }
+    char buffer[SECTOR_SIZE + 1];
+    buffer[SECTOR_SIZE] = '\0';
+    while ((error = filev6_readblock(&file, buffer)) != 0) {
+        if (error < 0) {
+            return error;
+        }
+        printf("%s", buffer);
+    }
+
     return 0;
 }
 
