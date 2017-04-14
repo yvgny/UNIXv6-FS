@@ -46,7 +46,7 @@ int main(void) {
         if (fgets(input, INPUT_MAX_LENGTH, stdin) == NULL) {
             return ERR_IO;
         }
-
+        input[strlen(input) - 1] = '\0';
         args_number = tokenize_input(input, command, max_argc);
         if (args_number < 0) {
             display_error(args_number);
@@ -69,11 +69,11 @@ int main(void) {
             }*/
 
             if (error == 0) {
-                if (args_number - 1 != shell_cmds[i].argc) {
+                found = 1;
+                if (args_number - 1 != (int)shell_cmds[i].argc) {
                     display_error(ERR_INVALID_ARGS);
                     continue;
                 } else {
-                    found = 1;
                     error = shell_cmds[i].fct(&command[1]);
                     display_error(error);
                     continue;
@@ -92,7 +92,7 @@ int main(void) {
 void display_error(int error) {
     if (error > 0) {
         fprintf(stderr, "ERROR SHELL: %s.\n", ERR_SHELL_MASSAGES[error - 1]);
-    } else {
+    } else if (error < 0){
         fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
     }
 }
