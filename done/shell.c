@@ -6,7 +6,9 @@
 #include "mount.h"
 #include "sha.h"
 #include "error.h"
+#include "mount.h"
 #include "direntv6.h"
+
 
 const char *const ERR_SHELL_MASSAGES[] = {
         "invalid command",
@@ -171,7 +173,10 @@ int do_sha(const char (*args)[1]) {
 }
 
 int do_psb(const char (*args)[]) {
-    return 0;
+    if (u == NULL) {
+        return ERR_FS_UNMOUNTED;
+    }
+    return mountv6_print_superblock(u);
 }
 
 int tokenize_input(char *input, char (*command)[INPUT_MAX_LENGTH], size_t command_size) {
