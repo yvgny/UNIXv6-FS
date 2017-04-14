@@ -1,3 +1,11 @@
+/**
+ * @file shell.h
+ * @brief shell offers different methods to debug or find information on a fs
+ *
+ * @author Sacha Kozma & Théo Nikles
+ * @date 12.04.17
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -9,6 +17,9 @@
 #include "mount.h"
 #include "direntv6.h"
 
+/*
+ * An array that contains the messages corresponding to the different errors
+ */
 
 const char *const ERR_SHELL_MASSAGES[] = {
         "invalid command",
@@ -18,6 +29,10 @@ const char *const ERR_SHELL_MASSAGES[] = {
         "IO error: No such file or directory"
 };
 
+/*
+ * An array that contains all the supported operations
+ */
+ 
 struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
         {"help",  do_help,  "display this help",                                                            0, ""},
         {"exit",  do_exit,  "exit shell",                                                                   0, ""},
@@ -32,6 +47,10 @@ struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
         {"inode", do_inode, "display the inode number of a file",                                           1, "<pathname>"},
         {"sha",   do_sha,   "display the SHA of a file",                                                    1, "<pathname>"},
         {"psb",   do_psb,   "Print SuperBlock of the currently mounted filesystem",                         0, ""}};
+
+/*
+ * The filesystem that we will work with in the shell
+ */
 
 struct unix_filesystem *u = NULL;
 
