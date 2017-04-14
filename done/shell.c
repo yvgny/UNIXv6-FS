@@ -36,36 +36,54 @@ int main(void) {
     char command[max_argc][INPUT_MAX_LENGTH];
     char input[INPUT_MAX_LENGTH];
     int error = 0;
+    int args_number = 0;
+    int found = 0;
 
 
     while (!feof(stdin) && !ferror(stdin)) {
+        found = 0;
         printf("shell$ ");
         if (fgets(input, INPUT_MAX_LENGTH, stdin) == NULL) {
             return ERR_IO;
         }
 
-        error = tokenize_input(input, command, max_argc);
-        if (error != 0) {
-            display_error(error);
+        args_number = tokenize_input(input, command, max_argc);
+        if (args_number < 0) {
+            display_error(args_number);
             continue;
         }
 
-        for (int i = 0; i < SUPPORTED_OPERATIONS; ++i) {
+        for (int i = 0; i < SUPPORTED_OPERATIONS && !found; ++i) {
             error = strcmp(shell_cmds[i].name, command[0]);
-            if (error < 0) {
+            /*if (error != 0) {
                 display_error(error);
                 continue;
-            } else if (error - 1 != shell_cmds[i].argc) {
+            } else if (args_number - 1 != shell_cmds[i].argc) {
                 display_error(ERR_INVALID_ARGS);
                 continue;
             } else {
+                found = 1;
                 error = shell_cmds[i].fct(&command[1]);
                 display_error(error);
                 continue;
-            }
-        }
+            }*/
 
-        display_error(ERR_INVALID_COMMAND);
+            if (error == 0) {
+                if (args_number - 1 != shell_cmds[i].argc) {
+                    display_error(ERR_INVALID_ARGS);
+                    continue;
+                } else {
+                    found = 1;
+                    error = shell_cmds[i].fct(&command[1]);
+                    display_error(error);
+                    continue;
+                }
+            }
+
+        }
+        if (!found) {
+            display_error(ERR_INVALID_COMMAND);
+        }
     }
 
     return 0;
