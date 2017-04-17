@@ -65,7 +65,7 @@ int create_inode(struct inode* i_node,  const char* path);
  * @param u, the filesystem to unmount
  */
 
-void umountv6_fs();
+int umountv6_fs(void);
 
 /**
  * @brief displays some helpful information for a user

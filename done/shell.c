@@ -33,7 +33,7 @@ const char *const ERR_SHELL_MASSAGES[] = {
 /*
  * An array that contains all the supported operations
  */
- 
+
 struct shell_map shell_cmds[SUPPORTED_OPERATIONS] = {
         {"help",  do_help,  "display this help",                                                            0, ""},
         {"exit",  do_exit,  "exit shell",                                                                   0, ""},
@@ -86,7 +86,7 @@ int main(void) {
             compare = strcmp(shell_cmds[i].name, command[0]);
             if (compare == 0) {
                 found = 1;
-                if (number_args - 1 != (int)shell_cmds[i].argc) {
+                if (number_args - 1 != (int) shell_cmds[i].argc) {
                     display_error(ERR_INVALID_ARGS);
                     continue;
                 } else {
@@ -111,44 +111,47 @@ int main(void) {
 void display_error(int error) {
     if (error > 0) {
         fprintf(stderr, "ERROR SHELL: %s.\n", ERR_SHELL_MASSAGES[error - 1]);
-    } else if (error < 0){
+    } else if (error < 0) {
         fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
     }
 }
 
-int create_inode(struct inode* i_node,  const char* path) {
-	int inr = direntv6_dirlookup(u, ROOT_INUMBER, path);
-	if (inr < 0) {
-		return inr;
-	}
-	int error = inode_read(u, inr, i_node);
-	if (error) {
-		return error;
-	}
-	return inr;
+int create_inode(struct inode *i_node, const char *path) {
+    int inr = direntv6_dirlookup(u, ROOT_INUMBER, path);
+    if (inr < 0) {
+        return inr;
+    }
+    int error = inode_read(u, inr, i_node);
+    if (error) {
+        return error;
+    }
+    return inr;
 }
 
-void umountv6_fs(void) {
+int umountv6_fs(void) {
     if (u != NULL) {
-		umountv6(u);
-		free(u);
+        int error = umountv6(u);
+        free(u);
         u = NULL;
-	}
+    }
+
+    return 0;
 }
 
 int do_help(const char (*args)[]) {
-	for(int i = 0 ; i < SUPPORTED_OPERATIONS ; i++) {
-		printf("- %s: %s.\n", shell_cmds[i].name, shell_cmds[i].help);
-	}
+    for (int i = 0; i < SUPPORTED_OPERATIONS; i++) {
+        printf("- %s: %s.\n", shell_cmds[i].name, shell_cmds[i].help);
+    }
     return 0;
 }
 
 int do_exit(const char (*args)[0]) {
+    int error = umountv6_fs();
     return ERR_INTERRUPT_REQ;
 }
 
 int do_quit(const char (*args)[0]) {
-    return ERR_INTERRUPT_REQ;
+    return do_exit(args);
 }
 
 int do_mkfs(const char (*args)[3]) {
@@ -157,8 +160,13 @@ int do_mkfs(const char (*args)[3]) {
 
 int do_mount(const char (*args)[1]) {
     umountv6_fs();
-	u = malloc(sizeof(struct unix_filesystem));
-	return mountv6(args[0], u);
+    u = malloc(sizeof(struct unix_filesystem));
+    int error = mountv6(args[0], u);
+    if (error < 0) {
+        umountv6_fs();
+        return error;
+    }
+    return 0;
 }
 
 int do_mkdir(const char (*args)[]) {
@@ -166,10 +174,10 @@ int do_mkdir(const char (*args)[]) {
 }
 
 int do_lsall(const char (*args)[]) {
-	if (u == NULL) {
-		return ERR_FS_UNMOUNTED;
-	}
-	return direntv6_print_tree(u, ROOT_INUMBER, ""); 
+    if (u == NULL) {
+        return ERR_FS_UNMOUNTED;
+    }
+    return direntv6_print_tree(u, ROOT_INUMBER, "");
 }
 
 int do_add(const char (*args)[]) {
@@ -178,7 +186,7 @@ int do_add(const char (*args)[]) {
 
 int do_cat(const char (*args)[1]) {
     if (u == NULL) {
-        return  ERR_FS_UNMOUNTED;
+        return ERR_FS_UNMOUNTED;
     }
     struct inode i_node;
     int error = create_inode(&i_node, args[0]);
@@ -207,46 +215,46 @@ int do_cat(const char (*args)[1]) {
 }
 
 int do_istat(const char (*args)[1]) {
-	if(NULL == u) {
-		return ERR_FS_UNMOUNTED;
-	}
-	struct inode i_node;
-	int inr;
-	int error = sscanf(args[0], "%d", &inr);
-	if (error != 1 || inr < 0) {
-		return ERR_INODE_OUTOF_RANGE;
-	}
-	error = inode_read(u, inr, &i_node);
-	if (error) {
-		return error;
-	}
-	inode_print(&i_node);
+    if (NULL == u) {
+        return ERR_FS_UNMOUNTED;
+    }
+    struct inode i_node;
+    int inr;
+    int error = sscanf(args[0], "%d", &inr);
+    if (error != 1 || inr < 0) {
+        return ERR_INODE_OUTOF_RANGE;
+    }
+    error = inode_read(u, inr, &i_node);
+    if (error) {
+        return error;
+    }
+    inode_print(&i_node);
     return 0;
 }
 
 int do_inode(const char (*args)[1]) {
-	if (u == NULL) {
-		return ERR_FS_UNMOUNTED;
-	}
-	struct inode i_node;
-	int inr = create_inode(&i_node, args[0]);
-	if (inr < 0) {
-		return inr;
-	}
-	printf("inode: %d\n", inr);
+    if (u == NULL) {
+        return ERR_FS_UNMOUNTED;
+    }
+    struct inode i_node;
+    int inr = create_inode(&i_node, args[0]);
+    if (inr < 0) {
+        return inr;
+    }
+    printf("inode: %d\n", inr);
     return 0;
 }
 
 int do_sha(const char (*args)[1]) {
-	if (u == NULL) {
-		return ERR_FS_UNMOUNTED;
-	}
-	struct inode i_node;
-	int inr = create_inode(&i_node, args[0]);
-	if (inr < 0) {
-		return inr;
-	}
-	print_sha_inode(u, i_node, inr);
+    if (u == NULL) {
+        return ERR_FS_UNMOUNTED;
+    }
+    struct inode i_node;
+    int inr = create_inode(&i_node, args[0]);
+    if (inr < 0) {
+        return inr;
+    }
+    print_sha_inode(u, i_node, inr);
     return 0;
 }
 
