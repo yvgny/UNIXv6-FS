@@ -137,26 +137,18 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     if (NULL == nextEntry) {
         if (!(IFDIR & i_node.i_mode)) {
             return child_inr;
-        } else {
-            return ERR_INODE_OUTOF_RANGE;
         }
+        return ERR_INODE_OUTOF_RANGE;
     } else {
         if (IFDIR & i_node.i_mode) {
             direntv6_dirlookup_core(u, child_inr, nextEntry, size - index - strLength);
-        } else {
-            return ERR_INODE_OUTOF_RANGE;
         }
+        return ERR_INODE_OUTOF_RANGE;
     }
 }
 
 int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char *entry) {
-    M_REQUIRE_NON_NULL(u);
-    M_REQUIRE_NON_NULL(entry);
-    if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
-        return ERR_INODE_OUTOF_RANGE;
-    }
-
-    return direntv6_dirlookup_core(u, inr, entry, strlen(entry));
+	return direntv6_dirlookup_core(u, inr, entry, strlen(entry));
 }
 
 
