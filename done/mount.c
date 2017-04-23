@@ -16,7 +16,7 @@
 int mountv6(const char *filename, struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(u);
-    memset(u, 0, sizeof(*u))
+    memset(u, 0, sizeof(*u));
     u->f = fopen(filename, "r");
     if (u->f == NULL) {
         return ERR_IO;

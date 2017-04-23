@@ -130,7 +130,7 @@ int create_inode(struct inode *i_node, const char *path) {
 
 int umountv6_fs(void) {
     if (u != NULL) {
-        int error = umountv6(u);
+        umountv6(u);
         free(u);
         u = NULL;
     }
@@ -146,7 +146,7 @@ int do_help(const char (*args)[]) {
 }
 
 int do_exit(const char (*args)[0]) {
-    int error = umountv6_fs();
+    umountv6_fs();
     return ERR_INTERRUPT_REQ;
 }
 
