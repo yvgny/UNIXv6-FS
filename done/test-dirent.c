@@ -15,6 +15,7 @@
 #include "sector.h"
 #include "direntv6.h"
 #include "error.h"
+#include "shell.h"
 
 /**
  * @brief run the different tests
@@ -22,5 +23,5 @@
  * @return 0 if all were right or the number corresponding to the error
  */
 int test(struct unix_filesystem *u) {
-	direntv6_print_tree(u, 1,"");
+    return direntv6_print_tree(u, ROOT_INUMBER, "");
 }

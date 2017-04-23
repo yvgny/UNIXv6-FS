@@ -1,11 +1,11 @@
-LDLIBS += -lcrypto
-CFLAGS += -std=c99 -g  #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
-#-Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings \
-#-Wconversion -Wunreachable-code -Wunused-parameter
+LDLIBS += -lcrypto -lc
+CFLAGS += -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
+-Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings \
+-Wconversion -Wunreachable-code -Wunused-parameter
 
-TEST_DEPENDANCIES = test-core.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o
+DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o
 
-all: test-file test-inodes test-dirent
+all: test-file test-inodes test-dirent shell
 
 sector.o: sector.c sector.h
 
@@ -29,8 +29,12 @@ direntv6.o : direntv6.c direntv6.h
 
 sha.o : sha.h sha.c
 
-test-file: test-file.o $(TEST_DEPENDANCIES)
+shell.o : shell.h shell.c
 
-test-inodes: test-inodes.o $(TEST_DEPENDANCIES)
+test-file: test-file.o test-core.o $(DEPENDANCIES)
 
-test-dirent : test-dirent.o $(TEST_DEPENDANCIES)
+test-inodes: test-inodes.o test-core.o $(DEPENDANCIES)
+
+test-dirent : test-dirent.o test-core.o $(DEPENDANCIES)
+
+shell: shell.o $(DEPENDANCIES)

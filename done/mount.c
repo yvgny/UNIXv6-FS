@@ -16,7 +16,7 @@
 int mountv6(const char *filename, struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(filename);
     M_REQUIRE_NON_NULL(u);
-    M_REQUIRE_NON_NULL(memset(u, 0, sizeof(*u)));
+    memset(u, 0, sizeof(*u))
     u->f = fopen(filename, "r");
     if (u->f == NULL) {
         return ERR_IO;
@@ -28,8 +28,7 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     int error = sector_read(u->f, BOOTBLOCK_SECTOR, bootblock);
     if (error) {
         return error;
-    }
-    else if (bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM) {
+    } else if (bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM) {
         return ERR_BADBOOTSECTOR;
     }
     error = sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
