@@ -1,6 +1,5 @@
 cmake-build-debug
 .idea
-*.txt
 .DS_Store
 shell
 test-*

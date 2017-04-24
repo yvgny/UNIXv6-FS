@@ -1,0 +1,136 @@
+Submission accepted
+
+stdout:
+=====
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o shell.o shell.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o error.o error.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o mount.o mount.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o sector.o sector.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o inode.o inode.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o filev6.o filev6.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o sha.o sha.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code -Wunused-parameter   -c -o direntv6.o direntv6.c
+cc   shell.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o  -lcrypto -lc -o shell
+Submission accepted
+
+-----
+stderr:
+shell.c: In function ‘main’:
+shell.c:93:29: warning: pointers to arrays with different qualifiers are incompatible in ISO C [-Wpedantic]
+                     error = shell_cmds[i].fct(&command[1]);
+                             ^
+shell.c: In function ‘create_inode’:
+shell.c:124:31: warning: conversion to ‘uint16_t {aka short unsigned int}’ from ‘int’ may alter its value [-Wconversion]
+     int error = inode_read(u, inr, i_node);
+                               ^
+shell.c: In function ‘do_help’:
+shell.c:141:26: warning: unused parameter ‘args’ [-Wunused-parameter]
+ int do_help(const char (*args)[]) {
+                          ^
+shell.c: At top level:
+shell.c:148:26: warning: ISO C forbids zero-size array ‘args’ [-Wpedantic]
+ int do_exit(const char (*args)[0]) {
+                          ^
+shell.c: In function ‘do_exit’:
+shell.c:148:26: warning: unused parameter ‘args’ [-Wunused-parameter]
+shell.c: At top level:
+shell.c:153:26: warning: ISO C forbids zero-size array ‘args’ [-Wpedantic]
+ int do_quit(const char (*args)[0]) {
+                          ^
+shell.c: In function ‘do_mkfs’:
+shell.c:157:26: warning: unused parameter ‘args’ [-Wunused-parameter]
+ int do_mkfs(const char (*args)[3]) {
+                          ^
+shell.c: In function ‘do_mkdir’:
+shell.c:172:27: warning: unused parameter ‘args’ [-Wunused-parameter]
+ int do_mkdir(const char (*args)[]) {
+                           ^
+shell.c: In function ‘do_lsall’:
+shell.c:176:27: warning: unused parameter ‘args’ [-Wunused-parameter]
+ int do_lsall(const char (*args)[]) {
+                           ^
+shell.c: In function ‘do_add’:
+shell.c:183:25: warning: unused parameter ‘args’ [-Wunused-parameter]
+ int do_add(const char (*args)[]) {
+                         ^
+shell.c: In function ‘do_cat’:
+shell.c:201:28: warning: conversion to ‘uint16_t {aka short unsigned int}’ from ‘int’ may alter its value [-Wconversion]
+     error = filev6_open(u, error, &file);
+                            ^
+shell.c: In function ‘do_istat’:
+shell.c:227:27: warning: conversion to ‘uint16_t {aka short unsigned int}’ from ‘int’ may alter its value [-Wconversion]
+     error = inode_read(u, inr, &i_node);
+                           ^
+shell.c: In function ‘do_psb’:
+shell.c:261:25: warning: unused parameter ‘args’ [-Wunused-parameter]
+ int do_psb(const char (*args)[]) {
+                         ^
+shell.c: In function ‘tokenize_input’:
+shell.c:285:37: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     } while (input != NULL && index < command_size);
+                                     ^
+sector.c: In function ‘sector_read’:
+sector.c:23:13: warning: conversion to ‘int’ from ‘size_t {aka long unsigned int}’ may alter its value [-Wconversion]
+     error = fread(data, SECTOR_SIZE, 1, f);
+             ^
+inode.c: In function ‘inode_scan_print’:
+inode.c:22:35: warning: conversion to ‘uint32_t {aka unsigned int}’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+         error = sector_read(u->f, s, sector);
+                                   ^
+inode.c:30:50: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+                        ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i,
+                                                  ^
+inode.c: In function ‘inode_read’:
+inode.c:65:15: warning: conversion to ‘int’ from ‘long unsigned int’ may alter its value [-Wconversion]
+     int sec = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
+               ^
+inode.c:68:35: warning: conversion to ‘uint32_t {aka unsigned int}’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+     int error = sector_read(u->f, sec, sector);
+                                   ^
+filev6.c: In function ‘filev6_readblock’:
+filev6.c:52:40: warning: conversion to ‘uint32_t {aka unsigned int}’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+     int error = sector_read(fv6->u->f, sector, buf);
+                                        ^
+sha.c: In function ‘print_sha_inode’:
+sha.c:39:99: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     if (u == NULL || u->f == NULL || !(inode.i_mode & IALLOC) || u->s.s_isize * INODES_PER_SECTOR <= inr) {
+                                                                                                   ^
+sha.c:47:45: warning: conversion to ‘short unsigned int’ from ‘int’ may alter its value [-Wconversion]
+   struct filev6 fv6 = { .u = u, .i_number = inr, .i_node = inode, .offset = 0 };
+                                             ^
+sha.c:49:22: warning: conversion to ‘size_t {aka long unsigned int}’ from ‘int32_t {aka int}’ may change the sign of the result [-Wsign-conversion]
+   memset(content, 0, inode_getsectorsize(&inode));
+                      ^
+sha.c:56:41: warning: conversion to ‘size_t {aka long unsigned int}’ from ‘int32_t {aka int}’ may change the sign of the result [-Wsign-conversion]
+         print_sha_from_content(content, inode_getsize(&inode));
+                                         ^
+direntv6.c: In function ‘direntv6_readdir’:
+direntv6.c:47:29: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+         d->last += byteRead / sizeof(struct direntv6);
+                             ^
+direntv6.c:47:20: warning: conversion to ‘uint16_t {aka short unsigned int}’ from ‘long unsigned int’ may alter its value [-Wconversion]
+         d->last += byteRead / sizeof(struct direntv6);
+                    ^
+direntv6.c:52:15: warning: conversion to ‘uint16_t {aka short unsigned int}’ from ‘int’ may alter its value [-Wconversion]
+     d->cur += 1;
+               ^
+direntv6.c: In function ‘direntv6_dirlookup_core’:
+direntv6.c:122:63: warning: signed and unsigned type in conditional expression [-Wsign-compare]
+         strLength = NULL == nextEntry ? strlen(&entry[index]) : (int) (nextEntry - &entry[index]);
+                                                               ^
+direntv6.c:122:63: warning: conversion to ‘size_t {aka long unsigned int}’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+direntv6.c:122:21: warning: conversion to ‘int’ from ‘size_t {aka long unsigned int}’ may alter its value [-Wconversion]
+         strLength = NULL == nextEntry ? strlen(&entry[index]) : (int) (nextEntry - &entry[index]);
+                     ^
+direntv6.c:124:23: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         if (strLength == strlen(name) && strncmp(&entry[index], name, strLength) == 0) {
+                       ^
+direntv6.c:124:71: warning: conversion to ‘size_t {aka long unsigned int}’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+         if (strLength == strlen(name) && strncmp(&entry[index], name, strLength) == 0) {
+                                                                       ^
+direntv6.c:133:13: warning: implicit declaration of function ‘inode_read’ [-Wimplicit-function-declaration]
+     error = inode_read(u, child_inr, &i_node);
+             ^
+direntv6.c:144:75: warning: conversion to ‘size_t {aka long unsigned int}’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+             direntv6_dirlookup_core(u, child_inr, nextEntry, size - index - strLength);
+                                                                           ^
