@@ -141,7 +141,7 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
         return ERR_INODE_OUTOF_RANGE;
     } else {
         if (IFDIR & i_node.i_mode) {
-            direntv6_dirlookup_core(u, child_inr, nextEntry, size - index - strLength);
+            return direntv6_dirlookup_core(u, child_inr, nextEntry, size - index - strLength);
         }
         return ERR_INODE_OUTOF_RANGE;
     }

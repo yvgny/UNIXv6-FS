@@ -5,3 +5,4 @@ shell
 test-*
 !test-*.*
 *.o
+CMakeLists.txt
