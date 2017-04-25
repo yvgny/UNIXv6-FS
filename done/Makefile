@@ -5,7 +5,7 @@ CFLAGS += -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
 
 DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o
 
-all: test-file test-inodes test-dirent shell
+all: test-file test-inodes test-dirent shell fs
 
 sector.o: sector.c sector.h
 
@@ -30,6 +30,12 @@ direntv6.o : direntv6.c direntv6.h
 sha.o : sha.h sha.c
 
 shell.o : shell.h shell.c
+
+fs.o: fs.c
+	$(COMPILE.c) -D_DEFAULT_SOURCE $$(pkg-config fuse --cflags) -o $@ -c $<
+
+fs: fs.o
+	$(LINK.c) -o $@ $^ $(LDLIBS) $$(pkg-config fuse --libs)
 
 test-file: test-file.o test-core.o $(DEPENDANCIES)
 
