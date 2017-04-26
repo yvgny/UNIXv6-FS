@@ -66,6 +66,15 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
     return byteRead;
 }
 
+int filev6_lseek(struct filev6 *fv6, int32_t offset) {
+    M_REQUIRE_NON_NULL(fv6);
+    if (offset < 0 || offset >= inode_getsize(fv6->i_node)) {
+        return ERR_OFFSET_OUT_OF_RANGE;
+    }
 
+    fv6->offset = offset;
+
+    return 0;
+}
 
 
