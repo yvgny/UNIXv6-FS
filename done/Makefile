@@ -1,7 +1,7 @@
 LDLIBS += -lcrypto -lc
-CFLAGS += -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
--Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings \
--Wconversion -Wunreachable-code -Wunused-parameter
+CFLAGS += -std=c99 -g #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
+#-Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings \
+#-Wconversion -Wunreachable-code -Wunused-parameter
 
 DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o
 
@@ -35,7 +35,7 @@ fs.o: fs.c
 	$(COMPILE.c) -D_DEFAULT_SOURCE $$(pkg-config fuse --cflags) -o $@ -c $<
 
 fs: fs.o
-	$(LINK.c) -o $@ $^ $(LDLIBS) $$(pkg-config fuse --libs)
+	$(LINK.c) -o $@ $^ $(DEPENDANCIES) $(LDLIBS) $$(pkg-config fuse --libs)
 
 test-file: test-file.o test-core.o $(DEPENDANCIES)
 

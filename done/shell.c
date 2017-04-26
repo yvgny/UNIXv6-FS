@@ -22,7 +22,7 @@
  * An array that contains the messages corresponding to the different errors
  */
 
-const char *const ERR_SHELL_MASSAGES[] = {
+const char *const ERR_SHELL_MESSAGES[] = {
         "invalid command",
         "wrong number of arguments",
         "mount the FS before the operation",
@@ -110,7 +110,7 @@ int main(void) {
 
 void display_error(int error) {
     if (error > 0) {
-        fprintf(stderr, "ERROR SHELL: %s.\n", ERR_SHELL_MASSAGES[error - 1]);
+        fprintf(stderr, "ERROR SHELL: %s.\n", ERR_SHELL_MESSAGES[error - 1]);
     } else if (error < 0) {
         fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
     }
