@@ -23,7 +23,7 @@
 
 struct unix_filesystem fs;
 
-void print_error(int);
+int print_error(int);
 
 static int arg_parse(void *, const char *, int, struct fuse_args *);
 
@@ -72,15 +72,13 @@ static int fs_getattr(const char *path, struct stat *stbuf) {
 
     inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
     if (inr < 0) {
-        print_error(inr);
-        return inr;
+        return print_error(inr);
     }
 
     struct inode i_node;
     res = inode_read(&fs, inr, &i_node);
     if (res < 0) {
-        print_error(res);
-        return res;
+        return print_error(res);
     }
 
     stbuf->st_ino = inr;
@@ -97,11 +95,30 @@ static int fs_getattr(const char *path, struct stat *stbuf) {
 
 static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                       off_t offset, struct fuse_file_info *fi) {
-    (void) offset;
+	(void) offset;
     (void) fi;
 
     filler(buf, ".", NULL, 0);
     filler(buf, "..", NULL, 0);
+    
+	int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
+	if (inr < 0) {
+		return print_error(inr);
+	}
+	struct directory_reader d;
+    int error = direntv6_opendir(&fs, inr, &d);
+    if (error < 0) {
+		return print_error(error);
+	}
+
+    char name[DIRENT_MAXLEN + 1];
+    uint16_t child_inr;
+    while ((error = direntv6_readdir(&d, name, &child_inr)) != 0) {
+        if (error < 0) {
+            return print_error(error);
+        }
+        filler(buf, name, NULL, 0);
+    }
 
     return 0;
 }
@@ -113,7 +130,7 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
     return size;
 }
 
-void print_error(int error) {
+int print_error(int error) {
     fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
-    return;
+    return error;
 }
