@@ -126,8 +126,29 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 static int fs_read(const char *path, char *buf, size_t size, off_t offset,
                    struct fuse_file_info *fi) {
     (void) fi;
+    
+	int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
+	if (inr < 0) {
+		print_error(inr);
+		return 0;
+	}
+	struct directory_reader d;
+	direntv6_opendir(&fs, inr, &d);
+	if (filev6_lseek(&d.fv6, offset) < 0) {
+		return 0;
+	}
+	
+	int byteRead;
+	int totalByte = 0;
+    while ((byteRead = filev6_readblock(&d.fv6, &buf[totalByte])) != 0 && totalByte + byteRead < size) {
+        if (byteRead < 0) {
+			print_error(byteRead);
+            return totalByte;
+        }
+        totalByte += byteRead;
+    }
 
-    return size;
+    return totalByte;
 }
 
 int print_error(int error) {
