@@ -135,7 +135,6 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
 	struct filev6 fv6;
 	int error = filev6_open(&fs, inr, &fv6);
     if (error < 0) {
-        fprintf(stderr, "ich bin da\n");
         print_error(error);
         return 0;
     }
