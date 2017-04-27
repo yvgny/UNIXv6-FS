@@ -103,12 +103,12 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     
 	int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
 	if (inr < 0) {
-		return print_error(inr);
+        return print_error(inr);
 	}
 	struct directory_reader d;
     int error = direntv6_opendir(&fs, inr, &d);
     if (error < 0) {
-		return print_error(error);
+        return print_error(error);
 	}
 
     char name[DIRENT_MAXLEN + 1];
