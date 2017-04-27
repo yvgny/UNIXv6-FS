@@ -1,48 +1,44 @@
-#pragma once
+#include <stdio.h>
+#include <inttypes.h>
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include "error.h"
 
-/**
- * @file bmblock.h
- * @brief utility functions for the UNIX v6 filesystem.
- *
- * @author Edouard Bugnion
- * @date summer 2016
- */
+#define BM_MEMBER_SIZE 64
 
-#include <stdint.h>
+struct bmblock_array *bm_alloc(uint64_t min, uint64_t max) {
+	if(min > max || min < 0) {
+		return NULL;
+	}
+	struct bmblock_array *bmblock;
+	size_t length = (size_t)ceil((max - min + 1) / (double)BM_MEMBER_SIZE);
+	if (NULL == (bmblock = malloc(sizeof(bmblock_array) + (length - 1) * sizeof(uint64_t)))) {
+		return bmblock;
+	}
+	memset(bmblock, 0, sizeof(*bmblock));
+	bmblock->length = length;
+	bmblock->min = min;
+	bmblock->max = max;
+	
+	return bmblock;
+}
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-struct bmblock_array {
-    int unused; // so that it can compile before WEEK 9
-};
-
-#define BITS_PER_VECTOR (8*sizeof(((struct bmblock_array*)0)->bm[0]))
-
-/**
- * @brief allocate a new bmblock_array to handle elements indexed
- * between min and may (included, thus (max-min+1) elements).
- * @param min the mininum value supported by our bmblock_array
- * @param max the maxinum value supported by our bmblock_array
- * @return a pointer of the newly created bmblock_array or NULL on failure
- */
-struct bmblock_array *bm_alloc(uint64_t min, uint64_t max);
-
-/**
- * @brief return the bit associated to the given value
- * @param bmblock_array the array containing the value we want to read
- * @param x an integer corresponding to the number of the value we are looking for
- * @return <0 on failure, 0 or 1 on success
- */
-int bm_get(struct bmblock_array *bmblock_array, uint64_t x);
+int bm_get(struct bmblock_array *bmblock_array, uint64_t x) {
+	if (bmblock_array->min > x || bmblock_array->max < x) {
+		return ERR_BAD_PARAMETER;
+	}
+	return (bmblock_array->bm[x / BM_MEMBER_SIZE] >> x % BM_MEMBER_SIZE) & 1;
+}
 
 /**
  * @brief set to true (or 1) the bit associated to the given value
  * @param bmblock_array the array containing the value we want to set
  * @param x an integer corresponding to the number of the value we are looking for
  */
-void bm_set(struct bmblock_array *bmblock_array, uint64_t x);
+void bm_set(struct bmblock_array *bmblock_array, uint64_t x) {
+	
+}
 
 /**
  * @brief set to false (or 0) the bit associated to the given value
