@@ -132,15 +132,20 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
 		print_error(inr);
 		return 0;
 	}
-	struct directory_reader d;
-	direntv6_opendir(&fs, inr, &d);
-	if (filev6_lseek(&d.fv6, offset) < 0) {
+	struct filev6 fv6;
+	int error = filev6_open(&fs, inr, &fv6);
+    if (error < 0) {
+        fprintf(stderr, "ich bin da\n");
+        print_error(error);
+        return 0;
+    }
+	if (filev6_lseek(&fv6, offset) < 0) {
 		return 0;
 	}
 	
-	int byteRead;
+	int byteRead = 0;
 	int totalByte = 0;
-    while ((byteRead = filev6_readblock(&d.fv6, &buf[totalByte])) != 0 && totalByte + byteRead < size) {
+    while (totalByte + SECTOR_SIZE < size && (byteRead = filev6_readblock(&fv6, &buf[totalByte])) != 0) {
         if (byteRead < 0) {
 			print_error(byteRead);
             return totalByte;
