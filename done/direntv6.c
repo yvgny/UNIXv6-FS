@@ -14,6 +14,7 @@
 #include "filev6.h"
 #include "mount.h"
 #include "error.h"
+#include "inode.h"
 
 #define MAXPATHLEN_UV6 1024
 

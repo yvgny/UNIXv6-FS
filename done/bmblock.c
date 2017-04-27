@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include "bmblock.h"
 #include "error.h"
 
 #define BM_MEMBER_SIZE 64
@@ -13,7 +14,7 @@ struct bmblock_array *bm_alloc(uint64_t min, uint64_t max) {
 	}
 	struct bmblock_array *bmblock;
 	size_t length = (size_t)ceil((max - min + 1) / (double)BM_MEMBER_SIZE);
-	if (NULL == (bmblock = malloc(sizeof(bmblock_array) + (length - 1) * sizeof(uint64_t)))) {
+	if (NULL == (bmblock = malloc(sizeof(struct bmblock_array) + (length - 1) * sizeof(uint64_t)))) {
 		return bmblock;
 	}
 	memset(bmblock, 0, sizeof(*bmblock));
