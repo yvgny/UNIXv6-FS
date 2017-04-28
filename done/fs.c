@@ -86,30 +86,31 @@ static int fs_getattr(const char *path, struct stat *stbuf) {
     stbuf->st_mode = stbuf->st_mode | (i_node.i_mode & IFDIR ? S_IFDIR : S_IFREG);
     stbuf->st_uid = i_node.i_uid;
     stbuf->st_gid = i_node.i_gid;
-    stbuf->st_gid = inode_getsize(&i_node);
+    stbuf->st_size = inode_getsize(&i_node);
     stbuf->st_blksize = SECTOR_SIZE;
     stbuf->st_blocks = inode_getsectorsize(&i_node);
+    stbuf->st_nlink = i_node.i_nlink;
 
     return 0;
 }
 
 static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                       off_t offset, struct fuse_file_info *fi) {
-	(void) offset;
+    (void) offset;
     (void) fi;
 
     filler(buf, ".", NULL, 0);
     filler(buf, "..", NULL, 0);
-    
-	int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
-	if (inr < 0) {
+
+    int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
+    if (inr < 0) {
         return print_error(inr);
-	}
-	struct directory_reader d;
+    }
+    struct directory_reader d;
     int error = direntv6_opendir(&fs, inr, &d);
     if (error < 0) {
         return print_error(error);
-	}
+    }
 
     char name[DIRENT_MAXLEN + 1];
     uint16_t child_inr;
@@ -126,27 +127,27 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 static int fs_read(const char *path, char *buf, size_t size, off_t offset,
                    struct fuse_file_info *fi) {
     (void) fi;
-    
-	int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
-	if (inr < 0) {
-		print_error(inr);
-		return 0;
-	}
-	struct filev6 fv6;
-	int error = filev6_open(&fs, inr, &fv6);
+
+    int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
+    if (inr < 0) {
+        print_error(inr);
+        return 0;
+    }
+    struct filev6 fv6;
+    int error = filev6_open(&fs, inr, &fv6);
     if (error < 0) {
         print_error(error);
         return 0;
     }
-	if (filev6_lseek(&fv6, offset) < 0) {
-		return 0;
-	}
-	
-	int byteRead = 0;
-	int totalByte = 0;
+    if (filev6_lseek(&fv6, offset) < 0) {
+        return 0;
+    }
+
+    int byteRead = 0;
+    int totalByte = 0;
     while (totalByte + SECTOR_SIZE < size && (byteRead = filev6_readblock(&fv6, &buf[totalByte])) != 0) {
         if (byteRead < 0) {
-			print_error(byteRead);
+            print_error(byteRead);
             return totalByte;
         }
         totalByte += byteRead;
@@ -157,5 +158,26 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
 
 int print_error(int error) {
     fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
-    return error;
+    int fuse_err = 0;
+    switch (error) {
+        case ERR_INODE_OUTOF_RANGE:
+            fuse_err = ENOENT;
+            break;
+        case ERR_INVALID_DIRECTORY_INODE:
+            fuse_err = ENOTDIR;
+            break;
+        case ERR_BAD_PARAMETER:
+            fuse_err = EPERM;
+            break;
+        case ERR_IO:
+            fuse_err = EIO;
+            break;
+        case ERR_FILE_TOO_LARGE:
+            fuse_err = EFBIG;
+            break;
+        default:
+            fuse_err = error;
+            break;
+    }
+    return -fuse_err;
 }
