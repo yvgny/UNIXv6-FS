@@ -44,7 +44,7 @@ void bm_set(struct bmblock_array *bmblock_array, uint64_t x) {
 		return;
 	}
 	uint64_t relative_x = x - bmblock_array->min;
-	uint64_t mask = 1 << (relative_x  % BM_MEMBER_SIZE);
+	uint64_t mask = (uint64_t )1 << (relative_x  % BM_MEMBER_SIZE);
 	bmblock_array->bm[relative_x / BM_MEMBER_SIZE] |= mask;
 }
 
@@ -53,8 +53,8 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
 		return;
 	}
 	uint64_t relative_x = x - bmblock_array->min;
-	uint64_t mask = 1 << (relative_x % BM_MEMBER_SIZE);
-	mask = !mask;
+	uint64_t mask = (uint64_t )1 << (relative_x % BM_MEMBER_SIZE);
+	mask = ~mask;
 	bmblock_array->bm[relative_x / BM_MEMBER_SIZE] &= mask;
 	bmblock_array->cursor = bmblock_array->cursor > relative_x ? relative_x : bmblock_array->cursor;
 }
@@ -64,7 +64,7 @@ int bm_find_next(struct bmblock_array *bmblock_array) {
 		if(bmblock_array->bm[i] != UINT64_C(-1)) {
 			for(int j = bmblock_array->cursor % BM_MEMBER_SIZE ; j < BM_MEMBER_SIZE ; j++) {
 				if (!((bmblock_array->bm[i] >> j) & 1)) {
-					bmblock_array->cursor = j + BM_MEMBER_SIZE * i;
+					bmblock_array->cursor = (uint64_t )j + BM_MEMBER_SIZE * i;
 					return bmblock_array->cursor;
 				}
 			}
