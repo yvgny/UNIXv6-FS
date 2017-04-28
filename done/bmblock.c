@@ -44,7 +44,7 @@ void bm_set(struct bmblock_array *bmblock_array, uint64_t x) {
 		return;
 	}
 	uint64_t relative_x = x - bmblock_array->min;
-	uint64_t mask = 1 << ((relative_x - bmblock_array->min) % BM_MEMBER_SIZE);
+	uint64_t mask = 1 << (relative_x  % BM_MEMBER_SIZE);
 	bmblock_array->bm[relative_x / BM_MEMBER_SIZE] |= mask;
 }
 
