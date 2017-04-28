@@ -56,15 +56,16 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
 	uint64_t mask = (uint64_t )1 << (relative_x % BM_MEMBER_SIZE);
 	mask = ~mask;
 	bmblock_array->bm[relative_x / BM_MEMBER_SIZE] &= mask;
-	bmblock_array->cursor = bmblock_array->cursor > relative_x ? relative_x : bmblock_array->cursor;
+	bmblock_array->cursor = bmblock_array->cursor > relative_x ? x : bmblock_array->cursor;
 }
 
 int bm_find_next(struct bmblock_array *bmblock_array) {
-	for (int i = bmblock_array->cursor / BM_MEMBER_SIZE ; i < bmblock_array->max/ BM_MEMBER_SIZE ; i++) {
+    uint64_t relative_cursor = bmblock_array->cursor - bmblock_array->min;
+	for (uint64_t i = relative_cursor / BM_MEMBER_SIZE ; i < (bmblock_array->max - bmblock_array->min)/ BM_MEMBER_SIZE ; i++) {
 		if(bmblock_array->bm[i] != UINT64_C(-1)) {
-			for(int j = bmblock_array->cursor % BM_MEMBER_SIZE ; j < BM_MEMBER_SIZE ; j++) {
+			for(uint64_t j = relative_cursor % BM_MEMBER_SIZE ; j < BM_MEMBER_SIZE ; j++) {
 				if (!((bmblock_array->bm[i] >> j) & 1)) {
-					bmblock_array->cursor = (uint64_t )j + BM_MEMBER_SIZE * i;
+					bmblock_array->cursor = bmblock_array->min + (uint64_t )j + BM_MEMBER_SIZE * i;
 					return bmblock_array->cursor;
 				}
 			}
@@ -76,7 +77,7 @@ int bm_find_next(struct bmblock_array *bmblock_array) {
 
 void bm_print(struct bmblock_array *bmblock_array) {
 	puts("**********BitMap Block START**********");
-	printf("length: %" PRIu64 "\n", bmblock_array->length);
+	printf("length: %zu\n", bmblock_array->length);
 	printf("min: %" PRIu64 "\n", bmblock_array->min);
 	printf("max: %" PRIu64 "\n", bmblock_array->max);
 	printf("cursor: %" PRIu64 "\n", bmblock_array->cursor);
@@ -93,7 +94,7 @@ void print_binary(uint64_t bitmap_v) {
 		if (i % 8 == 0) {
 			printf(" ");
 		}
-		printf("%lu", (bitmap_v >> i) & 1);
+		printf("%" PRIu64, (bitmap_v >> i) & 1);
 	}
 	puts("");
 }
