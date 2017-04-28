@@ -1,15 +1,10 @@
-/*
-  FUSE: Filesystem in Userspace
-  Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
-
-  This program can be distributed under the terms of the GNU GPL.
-  See the file COPYING.
-
-  gcc -Wall hello.c `pkg-config fuse --cflags --libs` -o hello
-*/
-
-#define FUSE_USE_VERSION 26
-
+/**
+ * @file  fs.c
+ * @brief access the filesystem using fuse.
+ *
+ * @author Théo Nikles et Sacha Kozma
+ * @date 28 avril 2017
+ */
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +15,8 @@
 #include "mount.h"
 #include "direntv6.h"
 #include "inode.h"
+
+#define FUSE_USE_VERSION 26
 
 struct unix_filesystem fs;
 
