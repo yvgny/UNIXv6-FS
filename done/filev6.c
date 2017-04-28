@@ -56,11 +56,7 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
     }
     int byteRead = 0;
     int remainingByte = inode_getsize(&(fv6->i_node)) - fv6->offset;
-    if (remainingByte > SECTOR_SIZE) {
-        byteRead = SECTOR_SIZE;
-    } else {
-        byteRead = remainingByte;
-    }
+    byteRead = remainingByte > SECTOR_SIZE ? SECTOR_SIZE : remainingByte;
     fv6->offset += byteRead;
 
     return byteRead;
