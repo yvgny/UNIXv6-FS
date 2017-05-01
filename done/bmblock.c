@@ -77,13 +77,13 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
     uint64_t mask = (uint64_t) 1 << (relative_x % BM_MEMBER_SIZE);
     mask = ~mask;
     bmblock_array->bm[relative_x / BM_MEMBER_SIZE] &= mask;
-    bmblock_array->cursor = bmblock_array->cursor > relative_x ? x : bmblock_array->cursor;
+    bmblock_array->cursor = bmblock_array->cursor > x ? x : bmblock_array->cursor;
 }
 
 int bm_find_next(struct bmblock_array *bmblock_array) {
     uint64_t relative_cursor = bmblock_array->cursor - bmblock_array->min;
     for (uint64_t i = relative_cursor / BM_MEMBER_SIZE;
-         i < (bmblock_array->max - bmblock_array->min) / BM_MEMBER_SIZE; i++) {
+         i < ceil((bmblock_array->max - bmblock_array->min) / (double)BM_MEMBER_SIZE); i++) {
         if (bmblock_array->bm[i] != UINT64_C(-1)) {
             for (uint64_t j = relative_cursor % BM_MEMBER_SIZE; j < BM_MEMBER_SIZE; j++) {
                 if (!((bmblock_array->bm[i] >> j) & 1)) {
