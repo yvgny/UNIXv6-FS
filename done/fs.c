@@ -5,6 +5,8 @@
  * @author Théo Nikles et Sacha Kozma
  * @date 28 avril 2017
  */
+#define FUSE_USE_VERSION 26
+
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,8 +17,6 @@
 #include "mount.h"
 #include "direntv6.h"
 #include "inode.h"
-
-#define FUSE_USE_VERSION 26
 
 struct unix_filesystem fs;
 
