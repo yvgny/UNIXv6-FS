@@ -5,7 +5,7 @@ CFLAGS += -std=c99 -g  #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
 
 DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o
 
-all: test-file test-inodes test-dirent test-bitmap shell
+all: test-file test-inodes test-dirent test-bitmap test-ibm shell
 
 sector.o: sector.c sector.h
 
@@ -20,6 +20,8 @@ test-inodes.o : test-inodes.c
 test-dirent.o : test-dirent.c
 
 test-bitmap.o : test-bitmap.c
+
+test-ibm.o: test-ibm.c
 
 mount.o : mount.h mount.c unixv6fs.h
 
@@ -40,6 +42,8 @@ test-file: test-file.o test-core.o $(DEPENDANCIES)
 test-inodes: test-inodes.o test-core.o $(DEPENDANCIES)
 
 test-dirent : test-dirent.o test-core.o $(DEPENDANCIES)
+
+test-ibm : test-ibm.o test-core.o bmblock.o $(DEPENDANCIES)
 
 test-bitmap : test-bitmap.o test-core.o bmblock.o $(DEPENDANCIES)
 

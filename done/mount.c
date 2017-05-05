@@ -10,9 +10,33 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include "mount.h"
+#include "bmblock.h"
 #include "unixv6fs.h"
 #include "sector.h"
 #include "error.h"
+
+void fill_ibm(struct unix_filesystem *u) {
+    struct inode sector[INODES_PER_SECTOR];
+    int error = 0;
+    int alloc = 0;
+    for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
+        error = sector_read(u->f, s, sector);
+        if (error != 0) {
+            return;
+        }
+        for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
+            struct inode in = sector[i];
+            if (in.i_mode & IALLOC) {
+				alloc = 1;
+				bm_set(u->ibm, s * INODES_PER_SECTOR + i);
+            }
+        }
+        if(alloc) {
+			bm_set(u->fbm, s);
+		}
+		alloc = 0;
+    }
+}
 
 int mountv6(const char *filename, struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(filename);
@@ -40,9 +64,10 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     u->fbm = bm_alloc(u->s.s_fsize - data_sector,u->s.s_fsize);
     u->ibm = bm_alloc(u->s.s_inode_start, u->s.s_inode_start + number_inode);
 
+	fill_ibm(u);
+
     return 0;
 }
-
 
 void mountv6_print_superblock(const struct unix_filesystem *u) {
     puts("**********FS SUPERBLOCK START**********");
