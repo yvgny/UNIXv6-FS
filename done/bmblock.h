@@ -68,6 +68,12 @@ int bm_find_next(struct bmblock_array *bmblock_array);
  */
 void bm_print(struct bmblock_array *bmblock_array);
 
+/**
+ * @brief free the space used for a bitmap
+ * @param bmblock the bitmap block to be freed
+ */
+void bm_free(struct bmblock_array *bmblock);
+
 #ifdef __cplusplus
 }
 #endif

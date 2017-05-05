@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <stdlib.h>
 #include "mount.h"
 #include "unixv6fs.h"
 #include "sector.h"
@@ -22,8 +23,6 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
         return ERR_IO;
     }
 
-    u->fbm = NULL;
-    u->ibm = NULL;
     uint8_t bootblock[SECTOR_SIZE];
     int error = sector_read(u->f, BOOTBLOCK_SECTOR, bootblock);
     if (error) {
@@ -35,6 +34,12 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     if (error) {
         return error;
     }
+    uint16_t number_inode = u->s.s_isize * INODES_PER_SECTOR;
+    uint16_t data_sector = u->s.s_fsize - u->s.s_isize - u->s.s_inode_start;
+
+    u->fbm = bm_alloc(u->s.s_fsize - data_sector,u->s.s_fsize);
+    u->ibm = bm_alloc(u->s.s_inode_start, u->s.s_inode_start + number_inode);
+
     return 0;
 }
 
@@ -68,6 +73,8 @@ int umountv6(struct unix_filesystem *u) {
     if (fclose(u->f)) {
         return ERR_IO;
     }
+    bm_free(u->fbm);
+    bm_free(u->ibm);
     return 0;
 }
 
