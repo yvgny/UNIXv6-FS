@@ -3,7 +3,7 @@ CFLAGS += -std=c99 -g  #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
 #-Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings \
 #-Wconversion -Wunreachable-code -Wunused-parameter
 
-DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o
+DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o
 
 all: test-file test-inodes test-dirent test-bitmap test-ibm shell
 
@@ -43,8 +43,8 @@ test-inodes: test-inodes.o test-core.o $(DEPENDANCIES)
 
 test-dirent : test-dirent.o test-core.o $(DEPENDANCIES)
 
-test-ibm : test-ibm.o test-core.o bmblock.o $(DEPENDANCIES)
+test-ibm : test-ibm.o test-core.o $(DEPENDANCIES)
 
-test-bitmap : test-bitmap.o test-core.o bmblock.o $(DEPENDANCIES)
+test-bitmap : test-bitmap.o test-core.o $(DEPENDANCIES)
 
 shell: shell.o $(DEPENDANCIES)

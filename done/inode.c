@@ -12,6 +12,7 @@
 #include "unixv6fs.h"
 #include "inode.h"
 #include "sector.h"
+#include "bmblock.h"
 
 int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);

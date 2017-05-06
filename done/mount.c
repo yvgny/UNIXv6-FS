@@ -18,24 +18,19 @@
 void fill_ibm(struct unix_filesystem *u) {
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
-    int alloc = 0;
     for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
         error = sector_read(u->f, s, sector);
-        if (error != 0) {
-            return;
-        }
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
-            if (in.i_mode & IALLOC) {
-				alloc = 1;
-				bm_set(u->ibm, s * INODES_PER_SECTOR + i);
+            if (error != 0 || in.i_mode & IALLOC) {
+                bm_set(u->ibm, (s - u->s.s_inode_start) * INODES_PER_SECTOR + i);
             }
         }
-        if(alloc) {
-			bm_set(u->fbm, s);
-		}
-		alloc = 0;
     }
+}
+
+void fill_fbm(struct unix_filesystem *u) {
+    //TODO
 }
 
 int mountv6(const char *filename, struct unix_filesystem *u) {
@@ -61,10 +56,10 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     uint16_t number_inode = u->s.s_isize * INODES_PER_SECTOR;
     uint16_t data_sector = u->s.s_fsize - u->s.s_isize - u->s.s_inode_start;
 
-    u->fbm = bm_alloc(u->s.s_fsize - data_sector,u->s.s_fsize);
-    u->ibm = bm_alloc(u->s.s_inode_start, u->s.s_inode_start + number_inode);
+    u->fbm = bm_alloc(u->s.s_fsize - data_sector, u->s.s_fsize);
+    u->ibm = bm_alloc(ROOT_INUMBER + 1, number_inode);
 
-	fill_ibm(u);
+    fill_ibm(u);
 
     return 0;
 }
