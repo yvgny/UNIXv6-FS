@@ -6,3 +6,4 @@ test-*
 !test-*.*
 *.o
 CMakeLists.txt
+fs

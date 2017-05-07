@@ -5,7 +5,7 @@ CFLAGS += -std=c99 -g  #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
 
 DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o
 
-all: test-file test-inodes test-dirent test-bitmap test-ibm shell
+all: test-file test-inodes test-dirent shell fs test-bitmap test-ibm
 
 sector.o: sector.c sector.h
 
@@ -36,6 +36,12 @@ sha.o : sha.h sha.c
 shell.o : shell.h shell.c
 
 bmblock.o : bmblock.h bmblock.c
+
+fs.o: fs.c
+	$(COMPILE.c) -D_DEFAULT_SOURCE $$(pkg-config fuse --cflags) -o $@ -c $<
+
+fs: fs.o
+	$(LINK.c) -o $@ $^ $(DEPENDANCIES) $(LDLIBS) $$(pkg-config fuse --libs)
 
 test-file: test-file.o test-core.o $(DEPENDANCIES)
 
