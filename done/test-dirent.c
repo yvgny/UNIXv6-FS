@@ -6,16 +6,8 @@
  * @date 30 mars 2017
  *
  */
-#include <stdio.h>
-#include <string.h>
 #include "mount.h"
-#include "inode.h"
-#include "filev6.h"
-#include "sha.h"
-#include "sector.h"
 #include "direntv6.h"
-#include "error.h"
-#include "shell.h"
 
 /**
  * @brief run the different tests

@@ -11,12 +11,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "shell.h"
-#include "mount.h"
-#include "sha.h"
-#include "error.h"
-#include "mount.h"
-#include "direntv6.h"
-#include "inode.h"
 
 /*
  * An array that contains the messages corresponding to the different errors
@@ -139,7 +133,7 @@ int umountv6_fs(void) {
 
 int do_help(args_list args) {
     for (int i = 0; i < SUPPORTED_OPERATIONS; i++) {
-        printf("- %s: %s.\n", shell_cmds[i].name, shell_cmds[i].help);
+        printf("- %s %s: %s.\n", shell_cmds[i].name, shell_cmds[i].args, shell_cmds[i].help);
     }
     return 0;
 }
@@ -159,7 +153,6 @@ int do_mkfs(args_list args) {
 
 int do_mount(args_list args) {
     umountv6_fs();
-    printf("%s\n", args[0]);
     u = malloc(sizeof(struct unix_filesystem));
     int error = mountv6(args[0], u);
     if (error < 0) {

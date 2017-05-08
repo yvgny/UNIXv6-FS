@@ -7,12 +7,8 @@
  */
 
 #include <stdint.h>
-#include <inttypes.h>
 #include <string.h>
 #include "direntv6.h"
-#include "unixv6fs.h"
-#include "filev6.h"
-#include "mount.h"
 #include "error.h"
 #include "inode.h"
 

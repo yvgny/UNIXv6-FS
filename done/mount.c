@@ -48,7 +48,6 @@ void fill_fbm(struct unix_filesystem *u) {
 
     inode_read(u, ROOT_INUMBER, &i_node);
     while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
-        printf("%d\n", sector);
         bm_set(u->fbm, sector);
     }
 }

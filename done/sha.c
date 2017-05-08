@@ -10,10 +10,8 @@
 #include <string.h>
 #include <openssl/sha.h>
 #include "sha.h"
-#include "unixv6fs.h"
 #include "filev6.h"
 #include "inode.h"
-#include "sector.h"
 
 
 void print_sha(unsigned char sha[]) {
