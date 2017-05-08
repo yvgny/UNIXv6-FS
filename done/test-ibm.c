@@ -1,11 +1,10 @@
-#include <stdio.h>
 #include "bmblock.h"
 #include "mount.h"
 
-int test(struct unix_filesystem* u) {
-	bm_print(u->ibm);
-	// bm_print(u->fbm);
+int test(struct unix_filesystem *u) {
+    bm_print(u->fbm);
+    bm_print(u->ibm);
 
-	return 0;
+    return 0;
 }
 

@@ -8,12 +8,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <stdlib.h>
 #include "mount.h"
 #include "bmblock.h"
-#include "unixv6fs.h"
 #include "sector.h"
 #include "error.h"
+#include "inode.h"
 
 void fill_ibm(struct unix_filesystem *u) {
     struct inode sector[INODES_PER_SECTOR];
@@ -30,7 +29,28 @@ void fill_ibm(struct unix_filesystem *u) {
 }
 
 void fill_fbm(struct unix_filesystem *u) {
-    //TODO
+    struct inode i_node;
+    int sector = 0;
+    int offset = 0;
+
+    for (uint64_t i = u->ibm->min; i < u->ibm->max; i++) {
+        if (bm_get(u->ibm, i)) {
+            inode_read(u, i, &i_node);
+            while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
+                bm_set(u->fbm, sector);
+            }
+            if (offset == 1) {
+                inode_print(&i_node);
+            }
+            offset = 0;
+        }
+    }
+
+    inode_read(u, ROOT_INUMBER, &i_node);
+    while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
+        printf("%d\n", sector);
+        bm_set(u->fbm, sector);
+    }
 }
 
 int mountv6(const char *filename, struct unix_filesystem *u) {
@@ -56,10 +76,11 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     uint16_t number_inode = u->s.s_isize * INODES_PER_SECTOR;
     uint16_t data_sector = u->s.s_fsize - u->s.s_isize - u->s.s_inode_start;
 
-    u->fbm = bm_alloc(u->s.s_fsize - data_sector, u->s.s_fsize);
+    u->fbm = bm_alloc(u->s.s_fsize - data_sector + UINT64_C(1), u->s.s_fsize);
     u->ibm = bm_alloc(ROOT_INUMBER + 1, number_inode);
 
     fill_ibm(u);
+    fill_fbm(u);
 
     return 0;
 }
