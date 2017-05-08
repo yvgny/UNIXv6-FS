@@ -81,7 +81,6 @@ int main(void) {
             display_error(number_args);
             continue;
         }
-
         for (int i = 0; i < SUPPORTED_OPERATIONS && !found; ++i) {
             compare = strcmp(shell_cmds[i].name, command[0]);
             if (compare == 0) {
@@ -138,28 +137,29 @@ int umountv6_fs(void) {
     return 0;
 }
 
-int do_help(const char (*args)[]) {
+int do_help(args_list args) {
     for (int i = 0; i < SUPPORTED_OPERATIONS; i++) {
         printf("- %s: %s.\n", shell_cmds[i].name, shell_cmds[i].help);
     }
     return 0;
 }
 
-int do_exit(const char (*args)[0]) {
+int do_exit(args_list args) {
     umountv6_fs();
     return ERR_INTERRUPT_REQ;
 }
 
-int do_quit(const char (*args)[0]) {
+int do_quit(args_list args) {
     return do_exit(args);
 }
 
-int do_mkfs(const char (*args)[3]) {
+int do_mkfs(args_list args) {
     return 0;
 }
 
-int do_mount(const char (*args)[1]) {
+int do_mount(args_list args) {
     umountv6_fs();
+    printf("%s\n", args[0]);
     u = malloc(sizeof(struct unix_filesystem));
     int error = mountv6(args[0], u);
     if (error < 0) {
@@ -169,22 +169,22 @@ int do_mount(const char (*args)[1]) {
     return 0;
 }
 
-int do_mkdir(const char (*args)[]) {
+int do_mkdir(args_list args) {
     return 0;
 }
 
-int do_lsall(const char (*args)[]) {
+int do_lsall(args_list args) {
     if (u == NULL) {
         return ERR_FS_UNMOUNTED;
     }
     return direntv6_print_tree(u, ROOT_INUMBER, "");
 }
 
-int do_add(const char (*args)[]) {
+int do_add(args_list args) {
     return 0;
 }
 
-int do_cat(const char (*args)[1]) {
+int do_cat(args_list args) {
     if (u == NULL) {
         return ERR_FS_UNMOUNTED;
     }
@@ -214,7 +214,7 @@ int do_cat(const char (*args)[1]) {
     return 0;
 }
 
-int do_istat(const char (*args)[1]) {
+int do_istat(args_list args) {
     if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
@@ -232,7 +232,7 @@ int do_istat(const char (*args)[1]) {
     return 0;
 }
 
-int do_inode(const char (*args)[1]) {
+int do_inode(args_list args) {
     if (u == NULL) {
         return ERR_FS_UNMOUNTED;
     }
@@ -245,7 +245,7 @@ int do_inode(const char (*args)[1]) {
     return 0;
 }
 
-int do_sha(const char (*args)[1]) {
+int do_sha(args_list args) {
     if (u == NULL) {
         return ERR_FS_UNMOUNTED;
     }
@@ -258,7 +258,7 @@ int do_sha(const char (*args)[1]) {
     return 0;
 }
 
-int do_psb(const char (*args)[]) {
+int do_psb(args_list args) {
     if (u == NULL) {
         return ERR_FS_UNMOUNTED;
     }
