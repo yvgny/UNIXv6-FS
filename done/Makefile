@@ -51,6 +51,6 @@ test-dirent : test-dirent.o test-core.o $(DEPENDANCIES)
 
 test-ibm : test-ibm.o test-core.o $(DEPENDANCIES)
 
-test-bitmap : test-bitmap.o test-core.o $(DEPENDANCIES)
+test-bitmap : test-bitmap.o $(DEPENDANCIES)
 
 shell: shell.o $(DEPENDANCIES)

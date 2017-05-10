@@ -33,22 +33,20 @@ void fill_fbm(struct unix_filesystem *u) {
     int sector = 0;
     int offset = 0;
 
-    for (uint64_t i = u->ibm->min; i < u->ibm->max; i++) {
+    //TODO verifiy min - 1 as it is confusing
+    for (uint64_t i = u->ibm->min - 1; i < u->ibm->max; i++) {
         if (bm_get(u->ibm, i)) {
             inode_read(u, i, &i_node);
+            if (inode_getsize(&i_node) > MAX_SMALL_FILE_SIZE) {
+                for (int j = 0; j < ADDR_SMALL_LENGTH; ++j) {
+                    bm_set(u->fbm, i_node.i_addr[j]);
+                }
+            }
             while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
                 bm_set(u->fbm, sector);
             }
-            if (offset == 1) {
-                inode_print(&i_node);
-            }
             offset = 0;
         }
-    }
-
-    inode_read(u, ROOT_INUMBER, &i_node);
-    while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
-        bm_set(u->fbm, sector);
     }
 }
 
@@ -73,9 +71,8 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
         return error;
     }
     uint16_t number_inode = u->s.s_isize * INODES_PER_SECTOR;
-    uint16_t data_sector = u->s.s_fsize - u->s.s_isize - u->s.s_inode_start;
 
-    u->fbm = bm_alloc(u->s.s_fsize - data_sector + UINT64_C(1), u->s.s_fsize);
+    u->fbm = bm_alloc(u->s.s_block_start + UINT64_C(1), u->s.s_fsize);
     u->ibm = bm_alloc(ROOT_INUMBER + 1, number_inode);
 
     fill_ibm(u);
