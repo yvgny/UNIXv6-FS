@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         mountv6_print_superblock(&u);
         error = test(&u);
     }
-    fprintf(stderr, "%d", error);
+
     if (error) {
         puts(ERR_MESSAGES[error - ERR_FIRST]);
     }

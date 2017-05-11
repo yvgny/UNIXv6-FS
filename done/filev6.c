@@ -11,6 +11,8 @@
 #include "sector.h"
 #include "filev6.h"
 #include "error.h"
+#include "bmblock.h"
+#include "string.h"
 
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6) {
     M_REQUIRE_NON_NULL(u);
@@ -69,6 +71,33 @@ int filev6_lseek(struct filev6 *fv6, int32_t offset) {
     }
 
     fv6->offset = offset;
+
+    return 0;
+}
+
+int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6) {
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(fv6);
+
+    int next_inr = bm_find_next(u->ibm);
+    if (next_inr < 0) {
+        return next_inr;
+    }
+
+    memset(&fv6->i_node, 0, sizeof(struct inode));
+
+    //TODO : échanger offset avec mode ?
+    fv6->i_node.i_mode = mode;
+    fv6->offset = 0;
+    fv6->i_number = (uint16_t) next_inr;
+    fv6->u = u;
+
+    int error = inode_write(u, fv6->i_number, &fv6->i_node);
+    if (error < 0) {
+        return error;
+    }
+
+    bm_set(u->ibm, next_inr);
 
     return 0;
 }

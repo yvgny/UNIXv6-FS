@@ -10,6 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "shell.h"
 
 /*
@@ -17,6 +18,7 @@
  */
 
 const char *const ERR_SHELL_MESSAGES[] = {
+        "unused message",
         "invalid command",
         "wrong number of arguments",
         "mount the FS before the operation",
@@ -55,6 +57,7 @@ int main(void) {
         max_argc = shell_cmds[i].argc > max_argc ? shell_cmds[i].argc : max_argc;
     }
 
+    max_argc += 1;
     char command[max_argc][INPUT_MAX_LENGTH];
     char input[INPUT_MAX_LENGTH];
     int error = 0;
@@ -65,7 +68,7 @@ int main(void) {
 
     while (!feof(stdin) && !ferror(stdin)) {
         found = 0;
-        printf("shell$ ");
+        printf(">>> ");
         if (fgets(input, INPUT_MAX_LENGTH, stdin) == NULL) {
             return ERR_IO;
         }
@@ -103,7 +106,7 @@ int main(void) {
 
 void display_error(int error) {
     if (error > 0) {
-        fprintf(stderr, "ERROR SHELL: %s.\n", ERR_SHELL_MESSAGES[error - 1]);
+        fprintf(stderr, "ERROR SHELL: %s.\n", ERR_SHELL_MESSAGES[error]);
     } else if (error < 0) {
         fprintf(stderr, "ERROR FS: %s.\n", ERR_MESSAGES[error - ERR_FIRST]);
     }
@@ -148,12 +151,33 @@ int do_quit(args_list args) {
 }
 
 int do_mkfs(args_list args) {
+    uint16_t num_blocks;
+    uint16_t num_inodes;
+
+    int scanned = sscanf(args[1], "%" SCNu16 "", &num_inodes);
+    if (scanned != 1) {
+        return ERR_INVALID_ARGS;
+    }
+
+    scanned = sscanf(args[2], "%" SCNu16 "", &num_blocks);
+    if (scanned != 1) {
+        return ERR_INVALID_ARGS;
+    }
+
+    int error = mountv6_mkfs(args[0], num_blocks, num_inodes);
+    if (error < 0) {
+        return error;
+    }
+
     return 0;
 }
 
 int do_mount(args_list args) {
     umountv6_fs();
     u = malloc(sizeof(struct unix_filesystem));
+    if (NULL == u) {
+        return ERR_LAST; //TODO Quel code d'erreur ?
+    }
     int error = mountv6(args[0], u);
     if (error < 0) {
         umountv6_fs();

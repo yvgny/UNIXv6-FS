@@ -76,13 +76,42 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     return 0;
 }
 
+int inode_write(struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(inode);
+    M_REQUIRE_NON_NULL(u->f);
+
+    if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
+        return ERR_INODE_OUTOF_RANGE;
+    }
+
+    int sec = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
+
+    struct inode sector[INODES_PER_SECTOR];
+    int error = sector_read(u->f, sec, sector);
+    if (error) {
+        return error;
+    }
+
+    sector[inr % INODES_PER_SECTOR] = *inode;
+
+    error = sector_write(u->f, sec, sector);
+    if (error < 0) {
+        return error;
+    }
+
+    return 0;
+}
+
+
 int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int32_t file_sec_off) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(i);
     M_REQUIRE_NON_NULL(u->f);
 
     int32_t file_size = inode_getsize(i);
-    if ((file_sec_off > file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE != 0)) || (file_sec_off >= file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE == 0))) {
+    if ((file_sec_off > file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE != 0)) ||
+        (file_sec_off >= file_size / SECTOR_SIZE && (file_size % SECTOR_SIZE == 0))) {
         return ERR_OFFSET_OUT_OF_RANGE;
     } else if (!(i->i_mode & IALLOC)) {
         return ERR_UNALLOCATED_INODE;
