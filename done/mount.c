@@ -9,9 +9,46 @@
 #include <string.h>
 #include <inttypes.h>
 #include "mount.h"
-#include "unixv6fs.h"
+#include "bmblock.h"
 #include "sector.h"
 #include "error.h"
+#include "inode.h"
+
+void fill_ibm(struct unix_filesystem *u) {
+    struct inode sector[INODES_PER_SECTOR];
+    int error = 0;
+    for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
+        error = sector_read(u->f, s, sector);
+        for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
+            struct inode in = sector[i];
+            if (error != 0 || in.i_mode & IALLOC) {
+                bm_set(u->ibm, (s - u->s.s_inode_start) * INODES_PER_SECTOR + i);
+            }
+        }
+    }
+}
+
+void fill_fbm(struct unix_filesystem *u) {
+    struct inode i_node;
+    int sector = 0;
+    int offset = 0;
+
+    //TODO verifiy min - 1 as it is confusing
+    for (uint64_t i = u->ibm->min - 1; i < u->ibm->max; i++) {
+        if (bm_get(u->ibm, i)) {
+            inode_read(u, i, &i_node);
+            if (inode_getsize(&i_node) > MAX_SMALL_FILE_SIZE) {
+                for (int j = 0; j < ADDR_SMALL_LENGTH; ++j) {
+                    bm_set(u->fbm, i_node.i_addr[j]);
+                }
+            }
+            while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
+                bm_set(u->fbm, sector);
+            }
+            offset = 0;
+        }
+    }
+}
 
 int mountv6(const char *filename, struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(filename);
@@ -22,8 +59,6 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
         return ERR_IO;
     }
 
-    u->fbm = NULL;
-    u->ibm = NULL;
     uint8_t bootblock[SECTOR_SIZE];
     int error = sector_read(u->f, BOOTBLOCK_SECTOR, bootblock);
     if (error) {
@@ -35,9 +70,16 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     if (error) {
         return error;
     }
+    uint16_t number_inode = u->s.s_isize * INODES_PER_SECTOR;
+
+    u->fbm = bm_alloc(u->s.s_block_start + UINT64_C(1), u->s.s_fsize);
+    u->ibm = bm_alloc(ROOT_INUMBER + 1, number_inode);
+
+    fill_ibm(u);
+    fill_fbm(u);
+
     return 0;
 }
-
 
 void mountv6_print_superblock(const struct unix_filesystem *u) {
     puts("**********FS SUPERBLOCK START**********");
@@ -68,6 +110,8 @@ int umountv6(struct unix_filesystem *u) {
     if (fclose(u->f)) {
         return ERR_IO;
     }
+    bm_free(u->fbm);
+    bm_free(u->ibm);
     return 0;
 }
 

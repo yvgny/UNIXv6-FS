@@ -20,7 +20,9 @@
 #define SUPPORTED_OPERATIONS 13
 #define INPUT_MAX_LENGTH 256
 
-typedef int (*shell_fct)(const char (*)[]);
+typedef const char args_list[][INPUT_MAX_LENGTH];
+
+typedef int (*shell_fct)(args_list);
 
 struct shell_map {
     const char *name;    // nom de la commande
@@ -73,7 +75,7 @@ int umountv6_fs(void);
  * @return 0 on succes; >0 on exception
  */
 
-int do_help(const char (*args)[]);
+int do_help(args_list args);
 
 /**
  * @brief this command allows to exit the shell
@@ -81,7 +83,7 @@ int do_help(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_exit(const char (*args)[]);
+int do_exit(args_list args);
 
 /**
  * @brief this command allows to exit the shell
@@ -89,13 +91,13 @@ int do_exit(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_quit(const char (*args)[]);
+int do_quit(args_list args);
 
 /**
  * TODO
  */
 
-int do_mkfs(const char (*args)[]);
+int do_mkfs(args_list args);
 
 /**
  * @brief mounts the filesystem
@@ -103,13 +105,13 @@ int do_mkfs(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_mount(const char (*args)[]);
+int do_mount(args_list args);
 
 /**
  * TODO
  */
 
-int do_mkdir(const char (*args)[]);
+int do_mkdir(args_list args);
 
 /**
  * @brief displays the full filesystem
@@ -117,13 +119,13 @@ int do_mkdir(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_lsall(const char (*args)[]);
+int do_lsall(args_list args);
 
 /**
  * TODO
  */
 
-int do_add(const char (*args)[]);
+int do_add(args_list args);
 
 /**
  * @brief opens and displays a given file
@@ -131,7 +133,7 @@ int do_add(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_cat(const char (*args)[]);
+int do_cat(args_list args);
 
 /**
  * @brief displays some informations about a given inode
@@ -139,7 +141,7 @@ int do_cat(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_istat(const char (*args)[]);
+int do_istat(args_list args);
 
 /**
  * @brief finds and print the number of the inode that we are looking for
@@ -147,7 +149,7 @@ int do_istat(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_inode(const char (*args)[]);
+int do_inode(args_list args);
 
 /**
  * @brief print the sha of a given file
@@ -155,7 +157,7 @@ int do_inode(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_sha(const char (*args)[]);
+int do_sha(args_list args);
 
 /**
  * @brief prints the superblock of the filesystem
@@ -163,7 +165,7 @@ int do_sha(const char (*args)[]);
  * @return 0 on succes; >0 on exception
  */
 
-int do_psb(const char (*args)[]);
+int do_psb(args_list args);
 
 /**
  * @brief Allows to tokenize the input of the user into an array of string.

@@ -7,12 +7,8 @@
  */
 
 #include <stdint.h>
-#include <inttypes.h>
 #include <string.h>
 #include "direntv6.h"
-#include "unixv6fs.h"
-#include "filev6.h"
-#include "mount.h"
 #include "error.h"
 #include "inode.h"
 
@@ -114,13 +110,13 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     char name[DIRENT_MAXLEN + 1];
     uint16_t child_inr = 0;
     int found = 0, result = 0;
-    int strLength = 0;
+    size_t strLength = 0;
     while (!found && (result = direntv6_readdir(&d, name, &child_inr)) != 0) {
         if (result < 0 && result != ERR_INVALID_DIRECTORY_INODE) {
             return result;
         }
 
-        strLength = NULL == nextEntry ? strlen(&entry[index]) : (int) (nextEntry - &entry[index]);
+        strLength = NULL == nextEntry ? strlen(&entry[index]) : (nextEntry - &entry[index]);
 
         if (strLength == strlen(name) && strncmp(&entry[index], name, strLength) == 0) {
             found = 1;

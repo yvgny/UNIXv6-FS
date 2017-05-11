@@ -17,8 +17,7 @@
 
 int test(struct unix_filesystem *u);
 
-void error(const char* message)
-{
+void error(const char *message) {
     fputs(message, stderr);
     putc('\n', stderr);
     fputs("Usage: " USAGE, stderr);
@@ -26,8 +25,7 @@ void error(const char* message)
     exit(1);
 }
 
-void check_args(int argc)
-{
+void check_args(int argc) {
     if (argc < MIN_ARGS) {
         error("too few arguments:");
     }
@@ -36,8 +34,7 @@ void check_args(int argc)
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     // Check the number of args but remove program's name
     check_args(argc - 1);
 
@@ -47,6 +44,7 @@ int main(int argc, char *argv[])
         mountv6_print_superblock(&u);
         error = test(&u);
     }
+    fprintf(stderr, "%d", error);
     if (error) {
         puts(ERR_MESSAGES[error - ERR_FIRST]);
     }

@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 #include "unixv6fs.h"
-#include "bmblock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +21,12 @@ struct unix_filesystem {
     struct bmblock_array *fbm;     /* block bitmmap -- ignore before WEEK 10 */
     struct bmblock_array *ibm;     /* inode bitmap  -- ignore before WEEK 10 */
 };
+
+/**
+ * @brief fills the fbm and the ibm of the given unixfilesystem
+ * @param u the filesystem
+ */
+void fill(struct unix_filesystem *u);
 
 /**
  * @brief  mount a unix v6 filesystem

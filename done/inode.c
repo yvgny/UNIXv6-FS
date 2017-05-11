@@ -6,7 +6,6 @@
  * @date 16 mars 2017
  */
 #include <stdio.h>
-#include <string.h>
 #include <inttypes.h>
 #include "error.h"
 #include "unixv6fs.h"
