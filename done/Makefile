@@ -5,7 +5,7 @@ CFLAGS += -std=c99 -g  #-pedantic -Wall -Wextra -Wfloat-equal -Wshadow        \
 
 DEPENDANCIES = error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o
 
-all: test-file test-inodes test-dirent shell fs test-bitmap test-ibm
+all: test-file test-inodes test-dirent shell fs 
 
 sector.o: sector.c sector.h
 
