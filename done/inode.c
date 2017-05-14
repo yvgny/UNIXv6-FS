@@ -11,6 +11,7 @@
 #include "unixv6fs.h"
 #include "inode.h"
 #include "sector.h"
+#include "bmblock.h"
 
 int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
@@ -135,3 +136,17 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
     }
 
 }
+
+int inode_alloc(struct unix_filesystem *u) {
+    M_REQUIRE_NON_NULL(u);
+
+    int inr = bm_find_next(u->ibm);
+    if (inr < 0) {
+        return ERR_NOMEM;
+    }
+
+    bm_set(u->ibm, inr);
+
+    return inr;
+}
+

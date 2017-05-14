@@ -187,6 +187,10 @@ int do_mount(args_list args) {
 }
 
 int do_mkdir(args_list args) {
+    int error = direntv6_create(u, args[0], IALLOC | IFDIR);
+    if (error < 0) {
+        return error;
+    }
     return 0;
 }
 

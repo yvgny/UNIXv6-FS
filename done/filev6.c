@@ -7,6 +7,7 @@
  *
  */
 #include <stdio.h>
+#include <inttypes.h>
 #include "inode.h"
 #include "sector.h"
 #include "filev6.h"
@@ -79,17 +80,11 @@ int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6) 
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
 
-    int next_inr = bm_find_next(u->ibm);
-    if (next_inr < 0) {
-        return next_inr;
-    }
 
     memset(&fv6->i_node, 0, sizeof(struct inode));
 
-    //TODO : échanger offset avec mode ?
     fv6->i_node.i_mode = mode;
     fv6->offset = 0;
-    fv6->i_number = (uint16_t) next_inr;
     fv6->u = u;
 
     int error = inode_write(u, fv6->i_number, &fv6->i_node);
@@ -97,9 +92,20 @@ int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6) 
         return error;
     }
 
-    bm_set(u->ibm, next_inr);
+    //TODO superflu ?
+    bm_set(u->ibm, fv6->i_number);
 
     return 0;
 }
 
+int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, int len) {
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(fv6);
+    M_REQUIRE_NON_NULL(buf);
 
+    struct direntv6 *d = buf;
+    printf("direntv6 name: %s\n", d->d_name);
+    printf("direntv6 inr: %" PRIu16 "\n", d->d_inumber);
+
+    return 0;
+}
