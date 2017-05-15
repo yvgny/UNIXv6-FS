@@ -1,0 +1,33 @@
+Submission accepted
+
+stdout:
+=====
+Attempting to make target shell
+cc -std=c99 -g     -c -o test-file.o test-file.c
+cc -std=c99 -g     -c -o test-core.o test-core.c
+cc -std=c99 -g     -c -o error.o error.c
+cc -std=c99 -g     -c -o mount.o mount.c
+cc -std=c99 -g     -c -o sector.o sector.c
+cc -std=c99 -g     -c -o inode.o inode.c
+cc -std=c99 -g     -c -o filev6.o filev6.c
+cc -std=c99 -g     -c -o sha.o sha.c
+cc -std=c99 -g     -c -o direntv6.o direntv6.c
+cc -std=c99 -g     -c -o bmblock.o bmblock.c
+cc   test-file.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o test-file
+cc -std=c99 -g     -c -o test-inodes.o test-inodes.c
+cc   test-inodes.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o test-inodes
+cc -std=c99 -g     -c -o test-dirent.o test-dirent.c
+cc   test-dirent.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o test-dirent
+cc -std=c99 -g     -c -o shell.o shell.c
+cc   shell.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o shell
+cc -std=c99 -g     -c -D_DEFAULT_SOURCE $(pkg-config fuse --cflags) -o fs.o -c fs.c
+cc -std=c99 -g      -o fs fs.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o -lcrypto -lc -lm $(pkg-config fuse --libs)
+Made target shell successfully
+=====
+Attempting to make target fs
+cc -std=c99 -g      -o fs fs.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o -lcrypto -lc -lm $(pkg-config fuse --libs)
+Made target fs successfully
+Submission accepted
+
+-----
+stderr:
