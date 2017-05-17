@@ -15,6 +15,8 @@
 #include "bmblock.h"
 #include "string.h"
 
+int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char* buf, int len);
+
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
@@ -102,10 +104,74 @@ int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, 
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
-
-    struct direntv6 *d = buf;
-    printf("direntv6 name: %s\n", d->d_name);
-    printf("direntv6 inr: %" PRIu16 "\n", d->d_inumber);
-
+    
+    fv6->offset = 0;
+    int byte_read;
+    const char* byte_buf = buf;
+    while (len > 0) {
+		byte_read = filev6_writesector(u, fv6, &byte_buf[fv6->offset], len);
+		if (byte_read < 0) {
+			return byte_read;
+		}
+		fv6->offset += byte_read;
+		len -= byte_read;
+	}
+	
+	int error = inode_write(u, fv6->i_number, &fv6->i_node);
+	if(error < 0) {
+		return error;
+	}
+	
     return 0;
 }
+
+int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char *buf, int len) {
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(fv6);
+    M_REQUIRE_NON_NULL(buf);
+    uint32_t i_size = inode_getsize(&fv6->i_node);
+    if (0 <= len) {
+		return 0;
+	} else if (i_size + len >= MAX_BIG_FILE_SIZE) {
+		return ERR_FILE_TOO_LARGE;
+	}
+	
+	uint16_t index = i_size / SECTOR_SIZE + (i_size % SECTOR_SIZE != 0 ? 1 : 0);
+	uint16_t last_addr = fv6->i_node.i_addr[index];
+	char byte[SECTOR_SIZE];
+	memset(byte, 0, SECTOR_SIZE);
+	uint32_t byte_written;
+	int next;
+	if(i_size % SECTOR_SIZE == 0) {
+		next = bm_find_next(u->fbm);
+		if (next < 0) {
+			return next;
+		}
+		bm_set(u->fbm, next);
+		memcpy(byte, buf, len > SECTOR_SIZE ? SECTOR_SIZE : len);
+		byte_written = len > SECTOR_SIZE ? SECTOR_SIZE : len;
+	} else {
+		sector_read(u->f, last_addr, byte);
+		uint16_t remaining_byte = SECTOR_SIZE - (i_size % SECTOR_SIZE);
+		remaining_byte = remaining_byte < len ? remaining_byte : len;
+		memcpy(&byte[i_size % SECTOR_SIZE], buf, remaining_byte);
+		byte_written = remaining_byte;
+		next = last_addr;
+	}
+	int error = sector_write(u->f, next, byte);
+	if (error < 0) {
+		return error;
+	}
+	// TODO : Vérifier que index < 7
+	fv6->i_node.i_addr[index + 1] = next;
+	return (error = inode_setsize(&fv6->i_node, i_size + byte_written)) ? error : byte_written;
+}
+
+
+
+
+
+
+
+
+

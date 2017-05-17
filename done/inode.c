@@ -137,6 +137,17 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
 
 }
 
+int inode_setsize(struct inode *inode, int new_size) {
+	M_REQUIRE_NON_NULL(inode);
+	if(new_size < 0) {
+		return ERR_NOMEM;
+	}
+	
+	inode->i_size0 = (new_size >> 16) & 0xFF;
+	inode->i_size1 = new_size & 0xFFFF;
+	return 0;
+}
+
 int inode_alloc(struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
 
@@ -149,4 +160,5 @@ int inode_alloc(struct unix_filesystem *u) {
 
     return inr;
 }
+
 
