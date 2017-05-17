@@ -188,7 +188,6 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     struct inode i_node;
     memset(&i_node, 0, sizeof(struct inode));
     i_node.i_mode = mode;
-    i_node.i_size1 = 16;
 
     int error = inode_write(u, inr, &i_node);
     if (error < 0) {
