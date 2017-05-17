@@ -105,6 +105,10 @@ int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, 
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
     
+    struct direntv6 *d = buf;
+    printf("%s\n", d->d_name);
+    printf("%d\n", d->d_inumber);
+    
     fv6->offset = 0;
     int byte_read;
     const char* byte_buf = buf;
@@ -130,7 +134,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
     uint32_t i_size = inode_getsize(&fv6->i_node);
-    if (0 <= len) {
+    if (0 >= len) {
 		return 0;
 	} else if (i_size + len >= MAX_BIG_FILE_SIZE) {
 		return ERR_FILE_TOO_LARGE;
@@ -143,6 +147,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
 	uint32_t byte_written;
 	int next;
 	if(i_size % SECTOR_SIZE == 0) {
+		printf("ON EST LA\n");
 		next = bm_find_next(u->fbm);
 		if (next < 0) {
 			return next;

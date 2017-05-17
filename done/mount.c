@@ -151,7 +151,6 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     struct inode sector[INODES_PER_SECTOR];
     memset(&sector, 0, sizeof(sector));
     sector[1].i_mode = IALLOC | IFDIR;
-    sector[1].i_size1 = 16;
     sector[1].i_addr[0] = sb.s_block_start + 1;
     
     error = sector_write(f, sb.s_inode_start, sector);

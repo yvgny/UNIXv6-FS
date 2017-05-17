@@ -175,6 +175,9 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
         return ERR_BAD_PARAMETER; // TODO différencier les deux types d'erreurs possible ?
     }
 
+    printf("%s\n", parent_path);
+    printf("%d\n", parent_inr);
+
     int inr = direntv6_dirlookup(u, parent_inr, filename);
     if (inr > 0) {
         return ERR_FILENAME_ALREADY_EXISTS;
