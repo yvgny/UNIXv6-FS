@@ -133,18 +133,18 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
-    uint32_t i_size = inode_getsize(&fv6->i_node);
+    int32_t i_size = inode_getsize(&fv6->i_node);
     if (0 >= len) {
 		return 0;
 	} else if (i_size + len >= MAX_BIG_FILE_SIZE) {
 		return ERR_FILE_TOO_LARGE;
 	}
 	
-	uint16_t index = i_size / SECTOR_SIZE + (i_size % SECTOR_SIZE != 0 ? 1 : 0);
+	int32_t index = i_size / SECTOR_SIZE + (i_size % SECTOR_SIZE != 0 ? 1 : 0);
 	uint16_t last_addr = fv6->i_node.i_addr[index];
 	char byte[SECTOR_SIZE];
 	memset(byte, 0, SECTOR_SIZE);
-	uint32_t byte_written;
+	int byte_written;
 	int next;
 	if(i_size % SECTOR_SIZE == 0) {
 		printf("ON EST LA\n");
@@ -157,7 +157,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
 		byte_written = len > SECTOR_SIZE ? SECTOR_SIZE : len;
 	} else {
 		sector_read(u->f, last_addr, byte);
-		uint16_t remaining_byte = SECTOR_SIZE - (i_size % SECTOR_SIZE);
+		int remaining_byte = SECTOR_SIZE - (i_size % SECTOR_SIZE);
 		remaining_byte = remaining_byte < len ? remaining_byte : len;
 		memcpy(&byte[i_size % SECTOR_SIZE], buf, remaining_byte);
 		byte_written = remaining_byte;
