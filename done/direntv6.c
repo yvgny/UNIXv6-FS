@@ -12,8 +12,6 @@
 #include "error.h"
 #include "inode.h"
 
-#define MAXPATHLEN_UV6 1024
-
 /**
  * @brief separate the filename from the parent path, given a full pathname
  * @param full_path (IN) the full pathname
@@ -21,7 +19,6 @@
  * @param filename (OUT) the filename inse the parent path
  * @return <0 in case on an error , 0 otherwise
  */
-int tokenize_path(const char *const full_path, char *parent_path, char *filename);
 
 int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct directory_reader *d) {
     M_REQUIRE_NON_NULL(u);
@@ -213,10 +210,8 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     return 0;
 }
 
-int tokenize_path(const char *const full_path, char *parent_path, char *filename) {
+int tokenize_path(const char *const full_path, const char *parent_path, const char *filename) {
     M_REQUIRE_NON_NULL(full_path);
-    M_REQUIRE_NON_NULL(parent_path);
-    M_REQUIRE_NON_NULL(filename);
 
     size_t full_path_length = strlen(full_path);
 
@@ -233,8 +228,12 @@ int tokenize_path(const char *const full_path, char *parent_path, char *filename
     }
 
     *filename_start = '\0';
-    strncpy(parent_path, full_path_copy, MAXPATHLEN_UV6);
-    strncpy(filename, filename_start + 1, MAXPATHLEN_UV6);
+    if (parent_path != NULL) {
+        strncpy(parent_path, full_path_copy, MAXPATHLEN_UV6);
+    }
+    if (filename != NULL) {
+        strncpy(filename, filename_start + 1, MAXPATHLEN_UV6);
+    }
 
     return 0;
 }

@@ -11,8 +11,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <libgen.h>
 #include "shell.h"
 #include "bmblock.h"
+#include "direntv6.h"
 
 /*
  * An array that contains the messages corresponding to the different errors
@@ -114,6 +116,9 @@ void display_error(int error) {
 }
 
 int create_inode(struct inode *i_node, const char *path) {
+    if (NULL == u) {
+        return ERR_FS_UNMOUNTED;
+    }
     int inr = direntv6_dirlookup(u, ROOT_INUMBER, path);
     if (inr < 0) {
         return inr;
@@ -136,6 +141,9 @@ int umountv6_fs(void) {
 }
 
 int do_help(args_list args) {
+    if (NULL == u) {
+        return ERR_FS_UNMOUNTED;
+    }
     for (int i = 0; i < SUPPORTED_OPERATIONS; i++) {
         printf("- %s %s: %s.\n", shell_cmds[i].name, shell_cmds[i].args, shell_cmds[i].help);
     }
@@ -188,6 +196,9 @@ int do_mount(args_list args) {
 }
 
 int do_mkdir(args_list args) {
+    if (NULL == u) {
+        return ERR_FS_UNMOUNTED;
+    }
     int error = direntv6_create(u, args[0], IALLOC | IFDIR);
     if (error < 0) {
         return error;
@@ -196,18 +207,117 @@ int do_mkdir(args_list args) {
 }
 
 int do_lsall(args_list args) {
-    if (u == NULL) {
+    if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
     return direntv6_print_tree(u, ROOT_INUMBER, "");
 }
 
+
+int create_file(const char *filename, const char *parent_path, struct filev6 *fv6) {
+    M_REQUIRE_NON_NULL(filename);
+    M_REQUIRE_NON_NULL(parent_path);
+    M_REQUIRE_NON_NULL(fv6);
+
+    int inr = inode_alloc(u);
+    if (inr < 0) {
+        return inr;
+    }
+    fv6->i_number = inr;
+
+    int error = filev6_create(u, IALLOC, fv6);
+    if (error < 0) {
+        bm_clear(u->ibm, inr);
+        return error;
+    }
+
+    struct direntv6 dirv6;
+    strncpy(dirv6.d_name, filename, 14);
+    printf("filename = %s, dirv6 name = %s", filename, dirv6.d_name);
+    dirv6.d_inumber = inr;
+
+    struct filev6 parent_dir_fv6;
+    int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent_path);
+    if (parent_inr < 0) {
+        return ERR_INVALID_ARGS;
+    }
+
+    error = filev6_open(u, parent_inr, &parent_dir_fv6);
+    if (error < 0) {
+        return error;
+    }
+
+    error = filev6_writebytes(u, &parent_dir_fv6, &dirv6, sizeof(dirv6));
+    if (error < 0) {
+        return error;
+    }
+
+
+    return 0;
+}
+
 int do_add(args_list args) {
+    if (NULL == u) {
+        return ERR_FS_UNMOUNTED;
+    }
+
+    struct filev6 fv6;
+    const char filename[FILENAME_MAX];
+
+    tokenize_path(args[0], NULL, filename);
+
+    int error = create_file(filename, args[1], &fv6);
+    if (error < 0) {
+        return error;
+    }
+
+    FILE *f = fopen(args[0], "rb");
+    if (NULL == f) {
+        return ERR_IO;
+    }
+
+    error = fseek(f, 0, SEEK_END);
+    if (error < 0) {
+        fclose(f);
+        bm_clear(u->ibm, fv6.i_number);
+        return ERR_IO;
+    }
+
+    long file_size = ftell(f);
+    if (file_size < 0) {
+        fclose(f);
+        bm_clear(u->ibm, fv6.i_number);
+        return ERR_IO;
+    } else if (file_size > MAX_BIG_FILE_SIZE) {
+        bm_clear(u->ibm, fv6.i_number);
+        fclose(f);
+        return ERR_FILE_TOO_LARGE;
+    }
+    error = fseek(f, 0, SEEK_SET);
+    if (error < 0) {
+        fclose(f);
+        bm_clear(u->ibm, fv6.i_number);
+        return ERR_IO;
+    }
+
+
+    char *buf = malloc(file_size + 1);
+    buf[file_size] = EOF;
+    fread(buf, file_size, 1, f);
+    fclose(f);
+
+    error = filev6_writebytes(u, &fv6, buf, file_size);
+    free(buf);
+    if (error < 0) {
+        bm_clear(u->ibm, fv6.i_number);
+        return error;
+    }
+
     return 0;
 }
 
 int do_cat(args_list args) {
-    if (u == NULL) {
+    if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
     struct inode i_node;
@@ -255,7 +365,7 @@ int do_istat(args_list args) {
 }
 
 int do_inode(args_list args) {
-    if (u == NULL) {
+    if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
     struct inode i_node;
@@ -268,7 +378,7 @@ int do_inode(args_list args) {
 }
 
 int do_sha(args_list args) {
-    if (u == NULL) {
+    if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
     struct inode i_node;
@@ -281,7 +391,7 @@ int do_sha(args_list args) {
 }
 
 int do_psb(args_list args) {
-    if (u == NULL) {
+    if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
     mountv6_print_superblock(u);
@@ -308,6 +418,7 @@ int tokenize_input(char *input, char (*command)[INPUT_MAX_LENGTH], size_t comman
 
     return index;
 }
+
 
 
 
