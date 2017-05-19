@@ -34,7 +34,7 @@ int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct direc
         return ERR_INVALID_DIRECTORY_INODE;
     }
     d->fv6 = fv6;
-    memset(d->dirs, 0, DIRENTRIES_PER_SECTOR);
+    memset(d->dirs, 0, DIRENTRIES_PER_SECTOR * sizeof(struct direntv6));
     d->cur = 0;
     d->last = 0;
     return 0;
@@ -54,6 +54,7 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
     }
     strncpy(name, d->dirs[d->cur % (SECTOR_SIZE / sizeof(struct direntv6))].d_name, DIRENT_MAXLEN);
     name[DIRENT_MAXLEN] = '\0';
+
     *child_inr = d->dirs[d->cur % (SECTOR_SIZE / sizeof(struct direntv6))].d_inumber;
     d->cur += 1;
 
@@ -174,9 +175,6 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     if (parent_inr < 0) {
         return ERR_BAD_PARAMETER; // TODO différencier les deux types d'erreurs possible ?
     }
-
-    printf("%s\n", parent_path);
-    printf("%d\n", parent_inr);
 
     int inr = direntv6_dirlookup(u, parent_inr, filename);
     if (inr > 0) {

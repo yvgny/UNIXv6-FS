@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "shell.h"
+#include "bmblock.h"
 
 /*
  * An array that contains the messages corresponding to the different errors

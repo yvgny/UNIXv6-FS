@@ -17,6 +17,7 @@
 void fill_ibm(struct unix_filesystem *u) {
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
+
     for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
         error = sector_read(u->f, s, sector);
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
@@ -72,7 +73,7 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     }
     uint16_t number_inode = u->s.s_isize * INODES_PER_SECTOR;
 
-    u->fbm = bm_alloc(u->s.s_block_start + UINT64_C(1), u->s.s_fsize);
+    u->fbm = bm_alloc(u->s.s_block_start + UINT16_C(1), u->s.s_fsize);
     u->ibm = bm_alloc(ROOT_INUMBER + 1, number_inode);
 
     fill_ibm(u);

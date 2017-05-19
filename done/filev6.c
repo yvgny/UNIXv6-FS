@@ -64,6 +64,7 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
     byteRead = remainingByte > SECTOR_SIZE ? SECTOR_SIZE : remainingByte;
     fv6->offset += byteRead;
 
+
     return byteRead;
 }
 
@@ -104,13 +105,9 @@ int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, 
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
-    
-    struct direntv6 *d = buf;
-    printf("%s\n", d->d_name);
-    printf("%d\n", d->d_inumber);
-    
+
     fv6->offset = 0;
-    int byte_read;
+    int byte_read = 0;
     const char* byte_buf = buf;
     while (len > 0) {
 		byte_read = filev6_writesector(u, fv6, &byte_buf[fv6->offset], len);
@@ -140,21 +137,21 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
 		return ERR_FILE_TOO_LARGE;
 	}
 	
-	int32_t index = i_size / SECTOR_SIZE + (i_size % SECTOR_SIZE != 0 ? 1 : 0);
+	int32_t index = i_size / SECTOR_SIZE;
 	uint16_t last_addr = fv6->i_node.i_addr[index];
 	char byte[SECTOR_SIZE];
 	memset(byte, 0, SECTOR_SIZE);
 	int byte_written;
 	int next;
 	if(i_size % SECTOR_SIZE == 0) {
-		printf("ON EST LA\n");
-		next = bm_find_next(u->fbm);
+        next = bm_find_next(u->fbm);
 		if (next < 0) {
 			return next;
 		}
 		bm_set(u->fbm, next);
 		memcpy(byte, buf, len > SECTOR_SIZE ? SECTOR_SIZE : len);
 		byte_written = len > SECTOR_SIZE ? SECTOR_SIZE : len;
+        fv6->i_node.i_addr[index] = next;
 	} else {
 		sector_read(u->f, last_addr, byte);
 		int remaining_byte = SECTOR_SIZE - (i_size % SECTOR_SIZE);
@@ -162,13 +159,13 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
 		memcpy(&byte[i_size % SECTOR_SIZE], buf, remaining_byte);
 		byte_written = remaining_byte;
 		next = last_addr;
-	}
-	int error = sector_write(u->f, next, byte);
+    }
+
+    int error = sector_write(u->f, next, byte);
 	if (error < 0) {
 		return error;
 	}
 	// TODO : Vérifier que index < 7
-	fv6->i_node.i_addr[index + 1] = next;
 	return (error = inode_setsize(&fv6->i_node, i_size + byte_written)) ? error : byte_written;
 }
 
