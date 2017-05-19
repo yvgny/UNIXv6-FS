@@ -224,6 +224,7 @@ int tokenize_path(const char *const full_path, const char *parent_path, const ch
     full_path_copy[full_path_length] = '\0';
     char *filename_start = strrchr(full_path_copy, '/');
     if (NULL == filename_start) {
+        strncpy(filename, full_path, strlen(full_path));
         return -1; //TODO voir issue
     }
 
@@ -234,6 +235,7 @@ int tokenize_path(const char *const full_path, const char *parent_path, const ch
     if (filename != NULL) {
         strncpy(filename, filename_start + 1, MAXPATHLEN_UV6);
     }
+
 
     return 0;
 }

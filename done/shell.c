@@ -233,13 +233,12 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
 
     struct direntv6 dirv6;
     strncpy(dirv6.d_name, filename, 14);
-    printf("filename = %s, dirv6 name = %s", filename, dirv6.d_name);
     dirv6.d_inumber = inr;
 
     struct filev6 parent_dir_fv6;
     int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent_path);
     if (parent_inr < 0) {
-        return ERR_INVALID_ARGS;
+        return ERR_IO;
     }
 
     error = filev6_open(u, parent_inr, &parent_dir_fv6);
@@ -262,32 +261,35 @@ int do_add(args_list args) {
     }
 
     struct filev6 fv6;
-    const char filename[FILENAME_MAX];
+    char filename[FILENAME_MAX];
+    memset(filename, 0, sizeof(filename));
 
     tokenize_path(args[0], NULL, filename);
 
-    int error = create_file(filename, args[1], &fv6);
-    if (error < 0) {
-        return error;
-    }
-
     FILE *f = fopen(args[0], "rb");
     if (NULL == f) {
-        return ERR_IO;
+        return ERR_SHELL_IO;
+    }
+
+    int error = create_file(filename, args[1], &fv6);
+    if (error != 0) {
+        fclose(f);
+        bm_clear(u->ibm, fv6.i_number);
+        return error;
     }
 
     error = fseek(f, 0, SEEK_END);
     if (error < 0) {
         fclose(f);
         bm_clear(u->ibm, fv6.i_number);
-        return ERR_IO;
+        return ERR_SHELL_IO;
     }
 
     long file_size = ftell(f);
     if (file_size < 0) {
         fclose(f);
         bm_clear(u->ibm, fv6.i_number);
-        return ERR_IO;
+        return ERR_SHELL_IO;
     } else if (file_size > MAX_BIG_FILE_SIZE) {
         bm_clear(u->ibm, fv6.i_number);
         fclose(f);
@@ -297,7 +299,7 @@ int do_add(args_list args) {
     if (error < 0) {
         fclose(f);
         bm_clear(u->ibm, fv6.i_number);
-        return ERR_IO;
+        return ERR_SHELL_IO;
     }
 
 

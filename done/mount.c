@@ -120,6 +120,8 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     M_REQUIRE_NON_NULL(filename);
 
     struct superblock sb;
+    memset(&sb, 0, sizeof(sb));
+
     sb.s_isize = num_inodes / INODES_PER_SECTOR;
     sb.s_isize += num_inodes % INODES_PER_SECTOR != 0 ? 1 : 0;
 
@@ -132,30 +134,36 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
 
     FILE *f = fopen(filename, "wb+");
     if (NULL == f) {
+        fclose(f);
         return ERR_IO;
     }
 
     uint8_t bootblock[SECTOR_SIZE];
     memset(&bootblock, 0, sizeof(bootblock));
+
     bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] = BOOTBLOCK_MAGIC_NUM;
 
     int error = sector_write(f, BOOTBLOCK_SECTOR, bootblock);
     if (error < 0) {
+        fclose(f);
         return error;
     }
 
     error = sector_write(f, SUPERBLOCK_SECTOR, &sb);
     if (error < 0) {
+        fclose(f);
         return error;
     }
 
     struct inode sector[INODES_PER_SECTOR];
     memset(&sector, 0, sizeof(sector));
+
     sector[1].i_mode = IALLOC | IFDIR;
     sector[1].i_addr[0] = sb.s_block_start + 1;
     
     error = sector_write(f, sb.s_inode_start, sector);
     if (error < 0) {
+        fclose(f);
         return error;
     }
     
@@ -163,9 +171,12 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     for (int i = sb.s_inode_start + 1; i < sb.s_block_start - 1; ++i) {
         error = sector_write(f, i, sector);
         if (error < 0) {
+            fclose(f);
             return error;
         }
     }
+
+    fclose(f);
 
     return 0;
 }
