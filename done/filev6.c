@@ -144,9 +144,23 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
             return error;
         }
     }
-
+    int is_big_file = i_size >= MAX_SMALL_FILE_SIZE ? 1 : 0;
     int32_t index = i_size / SECTOR_SIZE;
     uint16_t last_addr = fv6->i_node.i_addr[index];
+
+    if (is_big_file) {
+        index = i_size / (SECTOR_SIZE * ADDRESSES_PER_SECTOR);
+        uint16_t sector[ADDRESSES_PER_SECTOR];
+        memset(sector, 0, sizeof(sector));
+
+        error = sector_read(u->f, fv6->i_node.i_addr[index], sector);
+        if (error < 0) {
+            return error;
+        }
+
+        last_addr = sector[i_size % (SECTOR_SIZE * ADDRESSES_PER_SECTOR)];
+    }
+
     char byte[SECTOR_SIZE];
     memset(byte, 0, SECTOR_SIZE);
     int byte_written;
@@ -182,7 +196,7 @@ int to_indirect_sectors(struct unix_filesystem *u, struct filev6 *fv6) {
     M_REQUIRE_NON_NULL(fv6);
 
     // each cell take two bytes thus we divide the size by two
-    uint16_t buf[SECTOR_SIZE / 2];
+    uint16_t buf[ADDRESSES_PER_SECTOR];
     memset(buf, 0, SECTOR_SIZE);
 
     for (int i = 0; i < ADDR_SMALL_LENGTH; ++i) {
@@ -211,7 +225,7 @@ int to_indirect_sectors(struct unix_filesystem *u, struct filev6 *fv6) {
     return 0;
 }
 
-int write_big_file (struct unix_filesystem *u, struct filev6 *fv6, const char *buf, int len) {
+int write_big_file(struct unix_filesystem *u, struct filev6 *fv6, const char *buf, int len) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
