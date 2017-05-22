@@ -15,7 +15,11 @@
 #include "bmblock.h"
 #include "string.h"
 
-int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char* buf, int len);
+int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char *buf, int len);
+
+int to_indirect_sectors(struct unix_filesystem *u, struct filev6 *fv6);
+
+int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i_size, int32_t last_used_addr_index);
 
 int filev6_open(const struct unix_filesystem *u, uint16_t inr, struct filev6 *fv6) {
     M_REQUIRE_NON_NULL(u);
@@ -108,21 +112,21 @@ int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, 
 
     fv6->offset = 0;
     int byte_read = 0;
-    const char* byte_buf = buf;
+    const char *byte_buf = buf;
     while (len > 0) {
-		byte_read = filev6_writesector(u, fv6, &byte_buf[fv6->offset], len);
-		if (byte_read < 0) {
-			return byte_read;
-		}
-		fv6->offset += byte_read;
-		len -= byte_read;
-	}
-	
-	int error = inode_write(u, fv6->i_number, &fv6->i_node);
-	if(error < 0) {
-		return error;
-	}
-	
+        byte_read = filev6_writesector(u, fv6, &byte_buf[fv6->offset], len);
+        if (byte_read < 0) {
+            return byte_read;
+        }
+        fv6->offset += byte_read;
+        len -= byte_read;
+    }
+
+    int error = inode_write(u, fv6->i_number, &fv6->i_node);
+    if (error < 0) {
+        return error;
+    }
+
     return 0;
 }
 
@@ -131,49 +135,162 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);
     int32_t i_size = inode_getsize(&fv6->i_node);
+    int error = 0;
     if (0 >= len) {
-		return 0;
-	} else if (i_size + len >= MAX_BIG_FILE_SIZE) {
-		return ERR_FILE_TOO_LARGE;
-	}
-	
-	int32_t index = i_size / SECTOR_SIZE;
-	uint16_t last_addr = fv6->i_node.i_addr[index];
-	char byte[SECTOR_SIZE];
-	memset(byte, 0, SECTOR_SIZE);
-	int byte_written;
-	int next;
-	if(i_size % SECTOR_SIZE == 0) {
-        next = bm_find_next(u->fbm);
-		if (next < 0) {
-			return next;
-		}
-		bm_set(u->fbm, next);
-		memcpy(byte, buf, len > SECTOR_SIZE ? SECTOR_SIZE : len);
-		byte_written = len > SECTOR_SIZE ? SECTOR_SIZE : len;
-        fv6->i_node.i_addr[index] = next;
-	} else {
-		sector_read(u->f, last_addr, byte);
-		int remaining_byte = SECTOR_SIZE - (i_size % SECTOR_SIZE);
-		remaining_byte = remaining_byte < len ? remaining_byte : len;
-		memcpy(&byte[i_size % SECTOR_SIZE], buf, remaining_byte);
-		byte_written = remaining_byte;
-		next = last_addr;
+        return 0;
+    } else if (i_size + len >= MAX_BIG_FILE_SIZE) {
+        return ERR_FILE_TOO_LARGE;
+    } else if (i_size == ADDR_SMALL_LENGTH * SECTOR_SIZE) {
+        error = to_indirect_sectors(u, fv6);
+        if (error < 0) {
+            return error;
+        }
+    }
+    int is_big_file = i_size >= MAX_SMALL_FILE_SIZE ? 1 : 0;
+    int32_t index = i_size / SECTOR_SIZE;
+    uint16_t last_addr = fv6->i_node.i_addr[index];
+
+    if (is_big_file) {
+        index = i_size / (SECTOR_SIZE * ADDRESSES_PER_SECTOR);
+        uint16_t sector[ADDRESSES_PER_SECTOR];
+        memset(sector, 0, sizeof(sector));
+
+        error = sector_read(u->f, fv6->i_node.i_addr[index], sector);
+        if (error < 0) {
+            return error;
+        }
     }
 
-    int error = sector_write(u->f, next, byte);
-	if (error < 0) {
-		return error;
-	}
-	// TODO : Vérifier que index < 7
-	return (error = inode_setsize(&fv6->i_node, i_size + byte_written)) ? error : byte_written;
+    char byte[SECTOR_SIZE];
+    memset(byte, 0, SECTOR_SIZE);
+    int byte_written;
+    int next;
+    if (i_size % SECTOR_SIZE == 0) {
+        if (is_big_file) {
+            next = big_file_add_sector(u, fv6, i_size, index);
+        } else {
+            next = bm_find_next(u->fbm);
+            if (next < 0) {
+                return next;
+            }
+            bm_set(u->fbm, next);
+            fv6->i_node.i_addr[index] = next;
+        }
+        byte_written = len > SECTOR_SIZE ? SECTOR_SIZE : len;
+        memcpy(byte, buf, len > SECTOR_SIZE ? SECTOR_SIZE : len);
+
+    } else {
+        sector_read(u->f, last_addr, byte);
+        int remaining_byte = SECTOR_SIZE - (i_size % SECTOR_SIZE);
+        remaining_byte = remaining_byte < len ? remaining_byte : len;
+        memcpy(&byte[i_size % SECTOR_SIZE], buf, remaining_byte);
+        byte_written = remaining_byte;
+        next = last_addr;
+    }
+
+    error = sector_write(u->f, next, byte);
+    if (error < 0) {
+        return error;
+    }
+    // TODO : Vérifier que index < 7
+    return (error = inode_setsize(&fv6->i_node, i_size + byte_written)) ? error : byte_written;
 }
 
+int to_indirect_sectors(struct unix_filesystem *u, struct filev6 *fv6) {
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(fv6);
 
+    // each cell take two bytes thus we divide the size by two
+    uint16_t buf[ADDRESSES_PER_SECTOR];
+    memset(buf, 0, SECTOR_SIZE);
 
+    for (int i = 0; i < ADDR_SMALL_LENGTH; ++i) {
+        buf[i] = fv6->i_node.i_addr[i];
+    }
 
+    int next = bm_find_next(u->fbm);
+    if (next < 0) {
+        return next;
+    }
 
+    int error = sector_write(u->f, next, buf);
+    if (error < 0) {
+        return error;
+    }
 
+    memset(fv6->i_node.i_addr, 0, sizeof(fv6->i_node.i_addr));
+    fv6->i_node.i_addr[0] = next;
 
+    error = inode_write(u, fv6->i_number, &fv6->i_node);
+    if (error < 0) {
+        return error;
+    }
+    bm_set(u->fbm, next);
 
+    return 0;
+}
 
+int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i_size, int32_t last_used_addr_index) {
+    M_REQUIRE_NON_NULL(u);
+    M_REQUIRE_NON_NULL(fv6);
+
+    int error = 0;
+
+    int sector_addr = bm_find_next(u->fbm);
+    printf("sector addr = %d\n", sector_addr);
+    if (sector_addr < 0) {
+        return sector_addr;
+    }
+    bm_set(u->fbm, sector_addr);
+
+    uint16_t buf[ADDRESSES_PER_SECTOR];
+    memset(buf, 0, sizeof(buf));
+    int sector_offset = i_size / SECTOR_SIZE % ADDRESSES_PER_SECTOR;
+
+    if (i_size % (ADDRESSES_PER_SECTOR * SECTOR_SIZE) == 0) {
+
+        int data_sector = bm_find_next(u->fbm);
+        if (data_sector < 0) {
+            bm_clear(u->fbm, sector_addr);
+            return data_sector;
+        }
+        buf[0] = data_sector;
+
+        fv6->i_node.i_addr[last_used_addr_index + 1] = sector_addr;
+        error = inode_write(u, fv6->i_number, &fv6->i_node);
+        if (error < 0) {
+            bm_clear(u->fbm, sector_addr);
+            return error;
+        }
+
+        error = sector_write(u->f, sector_addr, buf);
+        if (error < 0) {
+            bm_clear(u->fbm, sector_addr);
+            return error;
+        }
+        bm_set(u->fbm, data_sector);
+
+        return data_sector;
+    } else {
+        error = sector_read(u->f, fv6->i_node.i_addr[last_used_addr_index], buf);
+        if (error < 0) {
+            return error;
+        }
+        /*bm_print(u->fbm);
+        for (int i = 0; i < ADDRESSES_PER_SECTOR; ++i) {
+            if (i == sector_offset) {
+                printf("addr n°%d : %" PRIu16 " --> %" PRIu16 "\n", i, buf[i], sector_addr);
+            } else if (buf[i] != 0){
+                printf("addr n°%d : %" PRIu16 "\n", i, buf[i]);
+            }
+        }
+        printf("\n\n");*/
+        buf[sector_offset] = sector_addr;
+        error = sector_write(u->f, fv6->i_node.i_addr[last_used_addr_index], buf);
+        if (error < 0) {
+            return error;
+        }
+
+        return sector_addr;
+    }
+}

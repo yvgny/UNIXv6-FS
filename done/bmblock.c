@@ -92,7 +92,6 @@ int bm_find_next(struct bmblock_array *bmblock_array) {
             }
         }
         bmblock_array->cursor++;
-    }
     return ERR_BITMAP_FULL;
 }
 
