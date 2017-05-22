@@ -32,7 +32,7 @@ void bm_free(struct bmblock_array *bmblock);
 void print_binary(uint64_t bitmap_v);
 
 struct bmblock_array *bm_alloc(uint64_t min, uint64_t max) {
-    if (min > max || min < 0) {
+    if (min > max) {
         return NULL;
     }
     struct bmblock_array *bmblock;
