@@ -42,8 +42,9 @@ struct bmblock_array *bm_alloc(uint64_t min, uint64_t max) {
     }
     memset(bmblock, 0, sizeof(*bmblock));
     bmblock->length = length;
-    bmblock->min = bmblock->cursor = min;
+    bmblock->min = min;
     bmblock->max = max;
+    bmblock->cursor = 0;
 
     return bmblock;
 }
@@ -82,16 +83,17 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
 }
 
 int bm_find_next(struct bmblock_array *bmblock_array) {
-    for (uint64_t i = bmblock_array->cursor; i < ceil(bmblock_array->length / (double)BM_MEMBER_SIZE); i++) {
+    for (uint64_t i = bmblock_array->cursor; i < bmblock_array->length; i++) {
         if (bmblock_array->bm[i] != UINT64_C(-1)) {
             for (uint64_t j = 0; j < BM_MEMBER_SIZE; j++) {
                 if (!((bmblock_array->bm[i] >> j) & 1)) {
                     bmblock_array->cursor = i;
-                    return bmblock_array->min + (uint64_t) j + BM_MEMBER_SIZE * i;
+                    return bmblock_array->min + (uint64_t) (j + BM_MEMBER_SIZE * i);
                 }
             }
         }
         bmblock_array->cursor++;
+	}
     return ERR_BITMAP_FULL;
 }
 

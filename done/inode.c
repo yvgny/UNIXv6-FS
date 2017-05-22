@@ -152,6 +152,7 @@ int inode_alloc(struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
 
     int inr = bm_find_next(u->ibm);
+    fprintf(stderr, "%d\n", inr);
     if (inr < 0) {
         return ERR_NOMEM;
     }
