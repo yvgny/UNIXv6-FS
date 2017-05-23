@@ -6,7 +6,7 @@
  * the file system.
  *
  * This file is a revision from Edouard Bugnion of a file created by
- * Mendel Rosenblum (Stanford), who derived it himself from the actual
+ * d (Stanford), who derived it himself from the actual
  * UNIX v6 source code.
  *
  * It has been converted to use stdint.h to work on 32- and 64-bit systems.

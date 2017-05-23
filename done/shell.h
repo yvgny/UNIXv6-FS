@@ -72,7 +72,7 @@ int umountv6_fs(void);
 /**
  * @brief displays some helpful information for a user
  * @param args, an empty array
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_help(args_list args);
@@ -80,7 +80,7 @@ int do_help(args_list args);
 /**
  * @brief this command allows to exit the shell
  * @param args, an empty array
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_exit(args_list args);
@@ -88,27 +88,30 @@ int do_exit(args_list args);
 /**
  * @brief this command allows to exit the shell
  * @param args, an empty array
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_quit(args_list args);
 
 /**
- * TODO
+ * @brief create a new filesystem
+ * @param args the name of the filesystem, followed by the number of inodes and the number of sectors
+ * @return 0 on succes; != 0 on exception
  */
-
 int do_mkfs(args_list args);
 
 /**
  * @brief mounts the filesystem
  * @param args, an array that contains the path to the filesystem we want to mount
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_mount(args_list args);
 
 /**
- * TODO
+ * @brief create a new folder in the filesystem
+ * @param args the path of the new folder
+ * @return 0 on succes, != on exception
  */
 
 int do_mkdir(args_list args);
@@ -116,13 +119,15 @@ int do_mkdir(args_list args);
 /**
  * @brief displays the full filesystem
  * @param args, an empty array
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_lsall(args_list args);
 
 /**
- * TODO
+ * @brief add an external file to the filesystem
+ * @param args the path of the external file, followed by destination folder in the filesystem
+ * @return 0 on success, != 0 on exception
  */
 
 int do_add(args_list args);
@@ -130,7 +135,7 @@ int do_add(args_list args);
 /**
  * @brief opens and displays a given file
  * @param args, an array that contains the path to the file we want to display
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_cat(args_list args);
@@ -138,7 +143,7 @@ int do_cat(args_list args);
 /**
  * @brief displays some informations about a given inode
  * @param args, an array that contains the number of the inode that we want to display
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_istat(args_list args);
@@ -146,7 +151,7 @@ int do_istat(args_list args);
 /**
  * @brief finds and print the number of the inode that we are looking for
  * @param args, an array that contains the path to the inode we want to find
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_inode(args_list args);
@@ -154,7 +159,7 @@ int do_inode(args_list args);
 /**
  * @brief print the sha of a given file
  * @param args, an array that contains the path to the file
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_sha(args_list args);
@@ -162,7 +167,7 @@ int do_sha(args_list args);
 /**
  * @brief prints the superblock of the filesystem
  * @param args, an empty array
- * @return 0 on succes; >0 on exception
+ * @return 0 on succes; != 0 on exception
  */
 
 int do_psb(args_list args);

@@ -99,9 +99,6 @@ int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6) 
         return error;
     }
 
-    //TODO superflu ?
-    bm_set(u->ibm, fv6->i_number);
-
     return 0;
 }
 
@@ -192,7 +189,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
     if (error < 0) {
         return error;
     }
-    // TODO : Vérifier que index < 7
+
     return (error = inode_setsize(&fv6->i_node, i_size + byte_written)) ? error : byte_written;
 }
 
@@ -237,7 +234,6 @@ int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i
     int error = 0;
 
     int sector_addr = bm_find_next(u->fbm);
-    printf("sector addr = %d\n", sector_addr);
     if (sector_addr < 0) {
         return sector_addr;
     }
@@ -256,7 +252,7 @@ int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i
         }
         buf[0] = data_sector;
 
-        fv6->i_node.i_addr[last_used_addr_index + 1] = sector_addr;
+        fv6->i_node.i_addr[last_used_addr_index] = sector_addr;
         error = inode_write(u, fv6->i_number, &fv6->i_node);
         if (error < 0) {
             bm_clear(u->fbm, sector_addr);
@@ -276,15 +272,6 @@ int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i
         if (error < 0) {
             return error;
         }
-        /*bm_print(u->fbm);
-        for (int i = 0; i < ADDRESSES_PER_SECTOR; ++i) {
-            if (i == sector_offset) {
-                printf("addr n°%d : %" PRIu16 " --> %" PRIu16 "\n", i, buf[i], sector_addr);
-            } else if (buf[i] != 0){
-                printf("addr n°%d : %" PRIu16 "\n", i, buf[i]);
-            }
-        }
-        printf("\n\n");*/
         buf[sector_offset] = sector_addr;
         error = sector_write(u->f, fv6->i_node.i_addr[last_used_addr_index], buf);
         if (error < 0) {

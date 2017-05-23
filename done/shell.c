@@ -15,6 +15,7 @@
 #include "shell.h"
 #include "bmblock.h"
 #include "direntv6.h"
+#include "sector.h"
 
 /*
  * An array that contains the messages corresponding to the different errors
@@ -192,6 +193,7 @@ int do_mount(args_list args) {
         umountv6_fs();
         return error;
     }
+
     return 0;
 }
 
@@ -232,22 +234,25 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
     }
 
     struct direntv6 dirv6;
-    strncpy(dirv6.d_name, filename, 14);
+    strncpy(dirv6.d_name, filename, DIRENT_MAXLEN);
     dirv6.d_inumber = inr;
 
     struct filev6 parent_dir_fv6;
     int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent_path);
     if (parent_inr < 0) {
+        bm_clear(u->ibm, inr);
         return ERR_IO;
     }
 
     error = filev6_open(u, parent_inr, &parent_dir_fv6);
     if (error < 0) {
+        bm_clear(u->ibm, inr);
         return error;
     }
 
     error = filev6_writebytes(u, &parent_dir_fv6, &dirv6, sizeof(dirv6));
     if (error < 0) {
+        bm_clear(u->ibm, inr);
         return error;
     }
 
