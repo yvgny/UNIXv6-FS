@@ -134,7 +134,6 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
 
     FILE *f = fopen(filename, "wb+");
     if (NULL == f) {
-        fclose(f);
         return ERR_IO;
     }
 

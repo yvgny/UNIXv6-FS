@@ -80,7 +80,7 @@ static int fs_getattr(const char *path, struct stat *stbuf) {
 
     stbuf->st_ino = inr;
     stbuf->st_mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
-    stbuf->st_mode = stbuf->st_mode | (i_node.i_mode & IFDIR ? S_IFDIR : S_IFREG);
+    stbuf->st_mode = stbuf->st_mode | ((i_node.i_mode & IFDIR) ? S_IFDIR : S_IFREG);
     stbuf->st_uid = i_node.i_uid;
     stbuf->st_gid = i_node.i_gid;
     stbuf->st_size = inode_getsize(&i_node);

@@ -264,7 +264,7 @@ int do_add(args_list args) {
     if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
-
+    int error = 0;
     struct filev6 fv6;
     char filename[FILENAME_MAX];
     memset(filename, 0, sizeof(filename));
@@ -276,39 +276,39 @@ int do_add(args_list args) {
         return ERR_SHELL_IO;
     }
 
-    int error = create_file(filename, args[1], &fv6);
-    if (error != 0) {
-        fclose(f);
-        bm_clear(u->ibm, fv6.i_number);
-        return error;
-    }
-
     error = fseek(f, 0, SEEK_END);
     if (error < 0) {
         fclose(f);
-        bm_clear(u->ibm, fv6.i_number);
         return ERR_SHELL_IO;
     }
 
     long file_size = ftell(f);
     if (file_size < 0) {
         fclose(f);
-        bm_clear(u->ibm, fv6.i_number);
         return ERR_SHELL_IO;
     } else if (file_size > MAX_BIG_FILE_SIZE) {
-        bm_clear(u->ibm, fv6.i_number);
         fclose(f);
         return ERR_FILE_TOO_LARGE;
     }
     error = fseek(f, 0, SEEK_SET);
     if (error < 0) {
         fclose(f);
-        bm_clear(u->ibm, fv6.i_number);
         return ERR_SHELL_IO;
     }
 
+    error = create_file(filename, args[1], &fv6);
+    if (error != 0) {
+        fclose(f);
+        bm_clear(u->ibm, fv6.i_number);
+        return error;
+    }
 
     char *buf = malloc(file_size + 1);
+    if (NULL == buf) {
+        fclose(f);
+        bm_clear(u->ibm, fv6.i_number);
+        return ERR_LAST; // TODO quelle erreur ?
+    }
     buf[file_size] = EOF;
     fread(buf, file_size, 1, f);
     fclose(f);

@@ -135,7 +135,7 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
     int error = 0;
     if (0 >= len) {
         return 0;
-    } else if (i_size + len >= MAX_BIG_FILE_SIZE) {
+    } else if (i_size + len > MAX_BIG_FILE_SIZE) {
         return ERR_FILE_TOO_LARGE;
     } else if (i_size == ADDR_SMALL_LENGTH * SECTOR_SIZE) {
         error = to_indirect_sectors(u, fv6);
