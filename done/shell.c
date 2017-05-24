@@ -142,6 +142,8 @@ int umountv6_fs(void) {
 }
 
 int do_help(args_list args) {
+    (void) args;
+
     if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
@@ -152,6 +154,8 @@ int do_help(args_list args) {
 }
 
 int do_exit(args_list args) {
+    (void) args;
+
     umountv6_fs();
     return ERR_INTERRUPT_REQ;
 }
@@ -186,7 +190,7 @@ int do_mount(args_list args) {
     umountv6_fs();
     u = malloc(sizeof(struct unix_filesystem));
     if (NULL == u) {
-        return ERR_LAST; //TODO Quel code d'erreur ?
+        return ERR_NOMEM;
     }
     int error = mountv6(args[0], u);
     if (error < 0) {
@@ -209,9 +213,12 @@ int do_mkdir(args_list args) {
 }
 
 int do_lsall(args_list args) {
+    (void) args;
+
     if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
+
     return direntv6_print_tree(u, ROOT_INUMBER, "");
 }
 
@@ -222,6 +229,7 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
     M_REQUIRE_NON_NULL(fv6);
 
     int inr = inode_alloc(u);
+
     if (inr < 0) {
         return inr;
     }
@@ -239,9 +247,18 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
 
     struct filev6 parent_dir_fv6;
     int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent_path);
+    struct inode i_node;
+    inode_read(u, parent_inr, &i_node);
+
     if (parent_inr < 0) {
         bm_clear(u->ibm, inr);
         return ERR_IO;
+    }
+
+    int file_exists = direntv6_dirlookup(u, parent_inr, filename);
+    if (file_exists > 0) {
+        bm_clear(u->ibm, inr);
+        return ERR_FILENAME_ALREADY_EXISTS;
     }
 
     error = filev6_open(u, parent_inr, &parent_dir_fv6);
@@ -256,6 +273,7 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
         return error;
     }
 
+    inode_read(u, parent_inr, &i_node);
 
     return 0;
 }
@@ -307,7 +325,7 @@ int do_add(args_list args) {
     if (NULL == buf) {
         fclose(f);
         bm_clear(u->ibm, fv6.i_number);
-        return ERR_LAST; // TODO quelle erreur ?
+        return ERR_NOMEM;
     }
     buf[file_size] = EOF;
     fread(buf, file_size, 1, f);
@@ -398,6 +416,8 @@ int do_sha(args_list args) {
 }
 
 int do_psb(args_list args) {
+    (void) args;
+
     if (NULL == u) {
         return ERR_FS_UNMOUNTED;
     }
@@ -410,8 +430,8 @@ int tokenize_input(char *input, char (*command)[INPUT_MAX_LENGTH], size_t comman
     M_REQUIRE_NON_NULL(command);
 
     int index = 0;
-    const char *maxInput = input + strlen(input);
-    char space = ' ';
+    char *maxInput = input + strlen(input);
+    const char space = ' ';
     char *c = strtok(input, &space);
 
     do {

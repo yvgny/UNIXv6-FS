@@ -165,6 +165,9 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
     if (i_size % SECTOR_SIZE == 0) {
         if (is_big_file) {
             next = big_file_add_sector(u, fv6, i_size, index);
+            if (next < 0) {
+                return next;
+            }
         } else {
             next = bm_find_next(u->fbm);
             if (next < 0) {
@@ -184,7 +187,6 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
         byte_written = remaining_byte;
         next = last_addr;
     }
-
     error = sector_write(u->f, next, byte);
     if (error < 0) {
         return error;

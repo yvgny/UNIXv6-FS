@@ -159,9 +159,13 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     char parent_path[MAXPATHLEN_UV6];
     char filename[MAXPATHLEN_UV6];
 
+    memset(parent_path, '\0', MAXPATHLEN_UV6);
+    memset(filename, '\0', MAXPATHLEN_UV6);
+
     if (tokenize_path(entry, parent_path, filename) < 0) {
         return ERR_BAD_PARAMETER;
     }
+
 
     size_t filename_size = strlen(filename);
     if (filename_size > DIRENT_MAXLEN) {

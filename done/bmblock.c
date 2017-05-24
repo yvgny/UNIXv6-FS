@@ -85,8 +85,8 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
 int bm_find_next(struct bmblock_array *bmblock_array) {
     for (uint64_t i = bmblock_array->cursor; i < bmblock_array->length; i++) {
         if (bmblock_array->bm[i] != UINT64_C(-1)) {
-            for (uint64_t j = 0; j < BM_MEMBER_SIZE; j++) {
-                if (!((bmblock_array->bm[i] >> j) & 1)) {
+            for (uint64_t j = 0; j < BM_MEMBER_SIZE && bmblock_array->max - bmblock_array->min >= j + BM_MEMBER_SIZE * i; j++) {
+                if (!((bmblock_array->bm[i] >> j ) & 1)) {
                     bmblock_array->cursor = i;
                     return bmblock_array->min + (uint64_t) (j + BM_MEMBER_SIZE * i);
                 }
