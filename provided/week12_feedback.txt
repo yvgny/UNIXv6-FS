@@ -1,0 +1,208 @@
+Submission accepted
+
+stdout:
+making (our) test-inodes: 
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o test-inodes.o test-inodes.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o test-core.o test-core.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o error.o error.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o mount.o mount.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o sector.o sector.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o inode.o inode.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o filev6.o filev6.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o sha.o sha.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o direntv6.o direntv6.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o bmblock.o bmblock.c
+cc   test-inodes.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o test-inodes
+test-inodes done.
+making (our) test-file: 
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o test-file.o test-file.c
+cc   test-file.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o test-file
+test-file done.
+making (our) test-dirent: 
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o test-dirent.o test-dirent.c
+cc   test-dirent.o test-core.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o test-dirent
+test-dirent done.
+making (our) test-bitmap: 
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o test-bitmap.o test-bitmap.c
+cc   test-bitmap.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o test-bitmap
+test-bitmap done.
+=====
+testing our test-inodes on disk simple.uv6: done.
+diff from reference:
+=====
+testing our test-inodes on disk aiw.uv6: done.
+diff from reference:
+=====
+testing our test-file on disk simple.uv6: done.
+diff from reference:
+=====
+testing our test-file on disk aiw.uv6: done.
+diff from reference:
+=====
+testing our test-dirent on disk simple.uv6: done.
+diff from reference:
+=====
+testing our test-dirent on disk aiw.uv6: done.
+diff from reference:
+=====
+testing our test-bitmap on disk simple.uv6: done.
+diff from reference:
+=====
+testing our test-bitmap on disk aiw.uv6: done.
+diff from reference:
+=====
+making (your) shell: 
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -o shell.o shell.c
+cc   shell.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o  -lcrypto -lc -lm -o shell
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings    -c -D_DEFAULT_SOURCE $(pkg-config fuse --cflags) -o fs.o -c fs.c
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings     -o fs fs.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o -lcrypto -lc -lm $(pkg-config fuse --libs)
+shell done.
+testing your shell: 
+done.
+diff from reference:
+1,3c1,5
+< ERROR SHELL: mount the FS before the operation.
+< ERROR FS: IO error.
+< >>> >>> >>> >>> DIR /
+---
+> Shell interpretor
+> Type "help" for more information.
+> >>> ERROR SHELL: mount the FS before the operation
+> >>> ERROR FS: IO error: No such file or directory
+> >>> >>> DIR /
+6a9
+> 
+77d79
+< DIR /tmp/
+89,97c91
+< >>> **********FS INODE START**********
+< i_mode: 49152
+< i_nlink: 0
+< i_uid: 0
+< i_gid: 0
+< i_size0: 0
+< i_size1: 0
+< size: 0
+< **********FS INODE END**********
+---
+> >>> ERROR FS: unallocated inode
+388,392c382
+< you’d better aERROR SHELL: IO error: No such file or directory.
+< ERROR FS: inode out of range.
+< ERROR FS: unallocated inode.
+< ERROR FS: inode out of range.
+< sk HER about it.’
+---
+> you’d better ask HER about it.’
+400a391
+> 
+405a397
+> FIL /tmp/abcd.txt
+408c400,443
+< >>> >>> >>> >>> 
+\ No newline at end of file
+---
+> >>> inode: 3
+> >>> **********FS INODE START**********
+> i_mode: 32768
+> i_nlink: 0
+> i_uid: 0
+> i_gid: 0
+> i_size0: 0
+> i_size1: 616
+> size: 616 
+> **********FS INODE END**********
+> >>> lsall
+> mount bidon142857.
+> mount /home/whitlock/pps/Dev2017/mainprj/disks/simple.uv6
+> lsall
+> cat /tmp/coucou.txt
+> istat 2
+> istat 3
+> inode /tmp
+> inode /tmp/coucou.txt
+> psb
+> help
+> sha /tmp/coucou.txt
+> mount /home/whitlock/pps/Dev2017/mainprj/disks/aiw.uv6
+> lsall
+> sha /books/aiw/full/11-0.txt
+> inode /books/aiw/by_chapters/11-0-c11.txt
+> istat 19
+> istat 22
+> cat /books/aiw/by_chapters/11-0-c08.txt
+> mkfs bidon 128 1024
+> mount bidon
+> lsall
+> mkdir /tmp
+> lsall
+> add shell_cmd.txt /tmp/abcd.txt
+> lsall
+> inode /
+> inode /tmp
+> inode /tmp/abcd.txt
+> istat 3
+> cat /tmp/abcd.txt
+> quit
+> 
+> >>> 
+
+=====
+testing mkfs: ERROR: Disk "bidon" does not have the right size (7680 bytes)
+=====
+making (your) fs: 
+cc -std=c99 -g  -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings     -o fs fs.o error.o mount.o sector.o inode.o filev6.o sha.o direntv6.o bmblock.o -lcrypto -lc -lm $(pkg-config fuse --libs)
+fs done.
+
+-----
+stderr:
+sha.c: In function ‘print_sha_inode’:
+sha.c:37:99: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     if (u == NULL || u->f == NULL || !(inode.i_mode & IALLOC) || u->s.s_isize * INODES_PER_SECTOR <= inr) {
+                                                                                                   ^
+direntv6.c: In function ‘direntv6_dirlookup_core’:
+direntv6.c:126:63: warning: signed and unsigned type in conditional expression [-Wsign-compare]
+         strLength = NULL == nextEntry ? strlen(&entry[index]) : (nextEntry - &entry[index]);
+                                                               ^
+direntv6.c: In function ‘tokenize_path’:
+direntv6.c:231:17: warning: passing argument 1 of ‘strncpy’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+         strncpy(filename, full_path, strlen(full_path));
+                 ^
+In file included from direntv6.c:10:0:
+/usr/include/string.h:128:14: note: expected ‘char * restrict’ but argument is of type ‘const char *’
+ extern char *strncpy (char *__restrict __dest,
+              ^
+direntv6.c:237:17: warning: passing argument 1 of ‘strncpy’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+         strncpy(parent_path, full_path_copy, MAXPATHLEN_UV6);
+                 ^
+In file included from direntv6.c:10:0:
+/usr/include/string.h:128:14: note: expected ‘char * restrict’ but argument is of type ‘const char *’
+ extern char *strncpy (char *__restrict __dest,
+              ^
+direntv6.c:240:17: warning: passing argument 1 of ‘strncpy’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+         strncpy(filename, filename_start + 1, MAXPATHLEN_UV6);
+                 ^
+In file included from direntv6.c:10:0:
+/usr/include/string.h:128:14: note: expected ‘char * restrict’ but argument is of type ‘const char *’
+ extern char *strncpy (char *__restrict __dest,
+              ^
+bmblock.c: In function ‘bm_alloc’:
+bmblock.c:39:21: warning: cast from function call of type ‘double’ to non-matching type ‘long unsigned int’ [-Wbad-function-cast]
+     size_t length = (size_t) ceil((max - min + 1) / (double) BM_MEMBER_SIZE);
+                     ^
+bmblock.c: In function ‘bm_print’:
+bmblock.c:107:23: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     for (int i = 0; i < bmblock_array->length; i++) {
+                       ^
+shell.c: In function ‘main’:
+shell.c:93:29: warning: pointers to arrays with different qualifiers are incompatible in ISO C [-Wpedantic]
+                     error = shell_cmds[i].fct(&command[1]);
+                             ^
+shell.c: In function ‘tokenize_input’:
+shell.c:444:37: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     } while (input != NULL && index < command_size);
+                                     ^
+fs.c: In function ‘fs_read’:
+fs.c:145:36: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     while (totalByte + SECTOR_SIZE < size && (byteRead = filev6_readblock(&fv6, &buf[totalByte])) != 0) {
+                                    ^
