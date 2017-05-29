@@ -60,9 +60,10 @@ shell done.
 testing your shell: 
 done.
 diff from reference:
-1,3c1,5
+1,4c1,5
 < ERROR SHELL: mount the FS before the operation.
 < ERROR FS: IO error.
+< ERROR FS: unallocated inode.
 < >>> >>> >>> >>> DIR /
 ---
 > Shell interpretor
@@ -70,35 +71,26 @@ diff from reference:
 > >>> ERROR SHELL: mount the FS before the operation
 > >>> ERROR FS: IO error: No such file or directory
 > >>> >>> DIR /
-6a9
+7a9
 > 
-77d79
-< DIR /tmp/
-89,97c91
-< >>> **********FS INODE START**********
-< i_mode: 49152
-< i_nlink: 0
-< i_uid: 0
-< i_gid: 0
-< i_size0: 0
-< i_size1: 0
-< size: 0
-< **********FS INODE END**********
+89c91,92
+< >>> >>> CHAPTER VIII. The Queen’s Croquet-Ground
 ---
 > >>> ERROR FS: unallocated inode
-388,392c382
-< you’d better aERROR SHELL: IO error: No such file or directory.
+> >>> CHAPTER VIII. The Queen’s Croquet-Ground
+384,388c387
+<  ThERROR SHELL: IO error: No such file or directory.
 < ERROR FS: inode out of range.
 < ERROR FS: unallocated inode.
 < ERROR FS: inode out of range.
-< sk HER about it.’
+< e Cat’s head began fading away the moment he was gone, and,
 ---
-> you’d better ask HER about it.’
-400a391
+>  The Cat’s head began fading away the moment he was gone, and,
+391a391
 > 
-405a397
+396a397
 > FIL /tmp/abcd.txt
-408c400,443
+399c400,443
 < >>> >>> >>> >>> 
 \ No newline at end of file
 ---
