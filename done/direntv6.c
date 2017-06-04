@@ -72,7 +72,7 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
     if (error == ERR_INVALID_DIRECTORY_INODE) {
         snprintf(prefixCopy, MAXPATHLEN_UV6, "%s", prefix);
         printf("%s %s\n", SHORT_FIL_NAME, prefixCopy);
-        return error;
+        return 0;
     } else if (error < 0) {
         return error;
     }
