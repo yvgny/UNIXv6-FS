@@ -58,7 +58,7 @@ int filev6_readblock(struct filev6 *fv6, void *buf) {
     if (sector < 0) {
         return sector;
     }
-    int error = sector_read(fv6->u->f, sector, buf);
+    int error = sector_read(fv6->u->f, (uint32_t)sector, buf);
 
     if (error) {
         return error;
@@ -173,21 +173,21 @@ int filev6_writesector(struct unix_filesystem *u, struct filev6 *fv6, const char
             if (next < 0) {
                 return next;
             }
-            bm_set(u->fbm, next);
-            fv6->i_node.i_addr[index] = next;
+            bm_set(u->fbm, (uint64_t)next);
+            fv6->i_node.i_addr[index] = (uint16_t)next;
         }
         byte_written = len > SECTOR_SIZE ? SECTOR_SIZE : len;
-        memcpy(byte, buf, len > SECTOR_SIZE ? SECTOR_SIZE : len);
+        memcpy(byte, buf, (size_t)len > SECTOR_SIZE ? SECTOR_SIZE : (size_t)len);
 
     } else {
         sector_read(u->f, last_addr, byte);
         int remaining_byte = SECTOR_SIZE - (i_size % SECTOR_SIZE);
         remaining_byte = remaining_byte < len ? remaining_byte : len;
-        memcpy(&byte[i_size % SECTOR_SIZE], buf, remaining_byte);
+        memcpy(&byte[i_size % SECTOR_SIZE], buf, (size_t)remaining_byte);
         byte_written = remaining_byte;
         next = last_addr;
     }
-    error = sector_write(u->f, next, byte);
+    error = sector_write(u->f, (uint32_t)next, byte);
     if (error < 0) {
         return error;
     }
@@ -212,19 +212,19 @@ int to_indirect_sectors(struct unix_filesystem *u, struct filev6 *fv6) {
         return next;
     }
 
-    int error = sector_write(u->f, next, buf);
+    int error = sector_write(u->f, (uint32_t)next, buf);
     if (error < 0) {
         return error;
     }
 
     memset(fv6->i_node.i_addr, 0, sizeof(fv6->i_node.i_addr));
-    fv6->i_node.i_addr[0] = next;
+    fv6->i_node.i_addr[0] = (uint16_t)next;
 
     error = inode_write(u, fv6->i_number, &fv6->i_node);
     if (error < 0) {
         return error;
     }
-    bm_set(u->fbm, next);
+    bm_set(u->fbm, (uint64_t)next);
 
     return 0;
 }
@@ -239,7 +239,7 @@ int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i
     if (sector_addr < 0) {
         return sector_addr;
     }
-    bm_set(u->fbm, sector_addr);
+    bm_set(u->fbm, (uint64_t)sector_addr);
 
     uint16_t buf[ADDRESSES_PER_SECTOR];
     memset(buf, 0, sizeof(buf));
@@ -249,24 +249,24 @@ int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i
 
         int data_sector = bm_find_next(u->fbm);
         if (data_sector < 0) {
-            bm_clear(u->fbm, sector_addr);
+            bm_clear(u->fbm, (uint64_t)sector_addr);
             return data_sector;
         }
-        buf[0] = data_sector;
+        buf[0] = (uint16_t)data_sector;
 
-        fv6->i_node.i_addr[last_used_addr_index] = sector_addr;
+        fv6->i_node.i_addr[last_used_addr_index] = (uint16_t)sector_addr;
         error = inode_write(u, fv6->i_number, &fv6->i_node);
         if (error < 0) {
-            bm_clear(u->fbm, sector_addr);
+            bm_clear(u->fbm, (uint64_t)sector_addr);
             return error;
         }
 
-        error = sector_write(u->f, sector_addr, buf);
+        error = sector_write(u->f, (uint32_t)sector_addr, buf);
         if (error < 0) {
-            bm_clear(u->fbm, sector_addr);
+            bm_clear(u->fbm, (uint64_t)sector_addr);
             return error;
         }
-        bm_set(u->fbm, data_sector);
+        bm_set(u->fbm, (uint64_t)data_sector);
 
         return data_sector;
     } else {
@@ -274,7 +274,7 @@ int big_file_add_sector(struct unix_filesystem *u, struct filev6 *fv6, int32_t i
         if (error < 0) {
             return error;
         }
-        buf[sector_offset] = sector_addr;
+        buf[sector_offset] = (uint16_t)sector_addr;
         error = sector_write(u->f, fv6->i_node.i_addr[last_used_addr_index], buf);
         if (error < 0) {
             return error;

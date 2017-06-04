@@ -180,7 +180,7 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
         return parent_inr;
     }
 
-    int inr = direntv6_dirlookup(u, parent_inr, filename);
+    int inr = direntv6_dirlookup(u, (uint16_t)parent_inr, filename);
     if (inr > 0) {
         return ERR_FILENAME_ALREADY_EXISTS;
     }
@@ -194,17 +194,17 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     memset(&i_node, 0, sizeof(struct inode));
     i_node.i_mode = mode;
 
-    int error = inode_write(u, inr, &i_node);
+    int error = inode_write(u, (uint16_t)inr, &i_node);
     if (error < 0) {
         return error;
     }
 
     struct direntv6 d;
-    d.d_inumber = inr;
+    d.d_inumber = (uint16_t)inr;
     strncpy(d.d_name, filename, DIRENT_MAXLEN);
 
     struct filev6 fv6;
-    error = filev6_open(u, parent_inr, &fv6);
+    error = filev6_open(u, (uint16_t)parent_inr, &fv6);
     if (error < 0) {
         return error;
     }

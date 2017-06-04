@@ -18,7 +18,7 @@ void fill_ibm(struct unix_filesystem *u) {
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
 
-    for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
+    for (uint32_t s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
         error = sector_read(u->f, s, sector);
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
@@ -37,14 +37,17 @@ void fill_fbm(struct unix_filesystem *u) {
     //TODO verifiy min - 1 as it is confusing
     for (uint64_t i = u->ibm->min - 1; i < u->ibm->max; i++) {
         if (bm_get(u->ibm, i)) {
-            inode_read(u, i, &i_node);
+            inode_read(u, (uint16_t)i, &i_node);
             if (inode_getsize(&i_node) > MAX_SMALL_FILE_SIZE) {
                 for (int j = 0; j < ADDR_SMALL_LENGTH; ++j) {
                     bm_set(u->fbm, i_node.i_addr[j]);
                 }
             }
             while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
-                bm_set(u->fbm, sector);
+				if(sector < 0) {
+					return;
+				}
+                bm_set(u->fbm, (uint64_t)sector);
             }
             offset = 0;
         }
@@ -71,9 +74,9 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     if (error) {
         return error;
     }
-    uint16_t number_inode = u->s.s_isize * INODES_PER_SECTOR;
+    uint16_t number_inode = (uint16_t)(u->s.s_isize * INODES_PER_SECTOR);
 
-    u->fbm = bm_alloc(u->s.s_block_start + UINT16_C(1), u->s.s_fsize);
+    u->fbm = bm_alloc(u->s.s_block_start + UINT64_C(1), u->s.s_fsize);
     u->ibm = bm_alloc(ROOT_INUMBER + 1, number_inode);
 
     fill_ibm(u);
@@ -130,7 +133,7 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     }
     sb.s_fsize = num_blocks;
     sb.s_inode_start = SUPERBLOCK_SECTOR + 1;
-    sb.s_block_start = sb.s_inode_start + sb.s_isize;
+    sb.s_block_start = (uint16_t)(sb.s_inode_start + sb.s_isize);
 
     FILE *f = fopen(filename, "wb+");
     if (NULL == f) {
@@ -167,8 +170,8 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     }
     
     memset(&sector, 0, sizeof(sector));
-    for (int i = sb.s_inode_start + 1; i < sb.s_block_start - 1; ++i) {
-        error = sector_write(f, i, sector);
+    for (int i = sb.s_inode_start + 1; i > 0 && i < sb.s_block_start - 1; ++i) {
+        error = sector_write(f, (uint32_t)i, sector);
         if (error < 0) {
             fclose(f);
             return error;

@@ -18,8 +18,8 @@ int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u->f);
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
-    for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
-        error = sector_read(u->f, s, sector);
+    for (int s = u->s.s_inode_start; s > 0 && s < u->s.s_isize + u->s.s_inode_start; s++) {
+        error = sector_read(u->f, (uint32_t)s, sector);
         if (error != 0) {
             return error;
         }
@@ -27,7 +27,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
                 printf("inode   %lu (%s) len   %" PRIu32"\n",
-                       ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i,
+                       (((long unsigned)(s - u->s.s_inode_start) * INODES_PER_SECTOR) + i),
                        (in.i_mode & IFDIR) ? SHORT_DIR_NAME : SHORT_FIL_NAME,
                        inode_getsize(&in));
             }
@@ -58,11 +58,11 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     M_REQUIRE_NON_NULL(inode);
     M_REQUIRE_NON_NULL(u->f);
 
-    if (u->s.s_isize * INODES_PER_SECTOR <= inr && inr > 0) {
+    if (u->s.s_isize * INODES_PER_SECTOR <= inr || inr < ROOT_INUMBER) {
         return ERR_INODE_OUTOF_RANGE;
     }
 
-    int sec = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
+    uint32_t sec = (uint32_t)(u->s.s_inode_start + (inr / INODES_PER_SECTOR));
 
     struct inode sector[INODES_PER_SECTOR];
     int error = sector_read(u->f, sec, sector);
@@ -86,7 +86,7 @@ int inode_write(struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
         return ERR_INODE_OUTOF_RANGE;
     }
 
-    int sec = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
+    uint32_t sec = u->s.s_inode_start + (inr / INODES_PER_SECTOR);
 
     struct inode sector[INODES_PER_SECTOR];
     int error = sector_read(u->f, sec, sector);
@@ -143,8 +143,8 @@ int inode_setsize(struct inode *inode, int new_size) {
 		return ERR_NOMEM;
 	}
 	
-	inode->i_size0 = (new_size >> 16) & 0xFF;
-	inode->i_size1 = new_size & 0xFFFF;
+	inode->i_size0 = ((uint8_t)new_size >> 16) & 0xFF;
+	inode->i_size1 = (uint16_t)(new_size & 0xFFFF);
 	return 0;
 }
 
@@ -156,7 +156,7 @@ int inode_alloc(struct unix_filesystem *u) {
         return ERR_NOMEM;
     }
 
-    bm_set(u->ibm, inr);
+    bm_set(u->ibm, (uint64_t)inr);
 
     return inr;
 }

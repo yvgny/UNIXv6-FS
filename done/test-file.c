@@ -28,20 +28,26 @@ int test(struct unix_filesystem *u) {
     printf("%d", DIRENTRIES_PER_SECTOR);
 
     puts("");
-    inner_test(u, 3);
+    int error = inner_test(u, 3);
+    if (error < 0) {
+		return error;
+	}
     puts("");
-    inner_test(u, 5);
+    error = inner_test(u, 5);
+    if (error < 0) {
+		return error;
+	}
     printf("\nListing inodes SHA:\n");
     struct inode sector[INODES_PER_SECTOR];
-    for (int s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
-        int error = sector_read(u->f, s, sector);
+    for (uint32_t s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
+        error = sector_read(u->f, s, sector);
         if (error != 0) {
             return error;
         }
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
-                print_sha_inode(u, in, ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i);
+                print_sha_inode(u, in, (int)(((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i));
             }
         }
     }
@@ -57,9 +63,13 @@ int test(struct unix_filesystem *u) {
 int inner_test(struct unix_filesystem *u, int inr) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
+    if(u->s.s_isize * INODES_PER_SECTOR <= inr || inr == 0) {
+		return ERR_INODE_OUTOF_RANGE;
+	}
+    
     struct filev6 fv6;
     M_REQUIRE_NON_NULL(memset(&fv6, 255, sizeof(fv6)));
-    int error = filev6_open(u, inr, &fv6);
+    int error = filev6_open(u, (uint16_t)inr, &fv6);
     if (error) {
         printf("filev6_open failed for inode #%d.\n", inr);
         return error;

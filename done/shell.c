@@ -124,7 +124,7 @@ int create_inode(struct inode *i_node, const char *path) {
     if (inr < 0) {
         return inr;
     }
-    int error = inode_read(u, inr, i_node);
+    int error = inode_read(u, (uint16_t)inr, i_node);
     if (error) {
         return error;
     }
@@ -233,47 +233,51 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
     if (inr < 0) {
         return inr;
     }
-    fv6->i_number = inr;
+    fv6->i_number = (uint16_t)inr;
 
     int error = filev6_create(u, IALLOC, fv6);
     if (error < 0) {
-        bm_clear(u->ibm, inr);
+        bm_clear(u->ibm, (uint64_t)inr);
         return error;
     }
 
     struct direntv6 dirv6;
     strncpy(dirv6.d_name, filename, DIRENT_MAXLEN);
-    dirv6.d_inumber = inr;
+    dirv6.d_inumber = (uint16_t)inr;
 
     struct filev6 parent_dir_fv6;
     int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent_path);
-    struct inode i_node;
-    inode_read(u, parent_inr, &i_node);
-
     if (parent_inr < 0) {
-        bm_clear(u->ibm, inr);
+        bm_clear(u->ibm, (uint64_t)inr);
         return ERR_IO;
-    }
+    }    
+    
+    struct inode i_node;
+    inode_read(u, (uint16_t)parent_inr, &i_node);
 
-    int file_exists = direntv6_dirlookup(u, parent_inr, filename);
+    int file_exists = direntv6_dirlookup(u, (uint16_t)parent_inr, filename);
     if (file_exists > 0) {
-        bm_clear(u->ibm, inr);
+        bm_clear(u->ibm, (uint64_t)inr);
         return ERR_FILENAME_ALREADY_EXISTS;
     }
 
-    error = filev6_open(u, parent_inr, &parent_dir_fv6);
+    error = filev6_open(u, (uint16_t)parent_inr, &parent_dir_fv6);
     if (error < 0) {
-        bm_clear(u->ibm, inr);
+        bm_clear(u->ibm, (uint64_t)inr);
         return error;
     }
 
     error = filev6_writebytes(u, &parent_dir_fv6, &dirv6, sizeof(dirv6));
     if (error < 0) {
-        bm_clear(u->ibm, inr);
+        bm_clear(u->ibm, (uint64_t)inr);
         return error;
     }
 
-    inode_read(u, parent_inr, &i_node);
+    error = inode_read(u, (uint16_t)parent_inr, &i_node);
+    if (error < 0) {
+		bm_clear(u->ibm, (uint64_t)inr);
+		return error;
+	}
 
     return 0;
 }
@@ -321,17 +325,17 @@ int do_add(args_list args) {
         return error;
     }
 
-    char *buf = malloc(file_size + 1);
+    char *buf = malloc((size_t)(file_size + 1));
     if (NULL == buf) {
         fclose(f);
         bm_clear(u->ibm, fv6.i_number);
         return ERR_NOMEM;
     }
     buf[file_size] = EOF;
-    fread(buf, file_size, 1, f);
+    fread(buf, (size_t)file_size, 1, f);
     fclose(f);
 
-    error = filev6_writebytes(u, &fv6, buf, file_size);
+    error = filev6_writebytes(u, &fv6, buf, (size_t)file_size);
     free(buf);
     if (error < 0) {
         bm_clear(u->ibm, fv6.i_number);
@@ -355,7 +359,7 @@ int do_cat(args_list args) {
     }
 
     struct filev6 file;
-    error = filev6_open(u, error, &file);
+    error = filev6_open(u, (uint16_t)error, &file);
     if (error < 0) {
         return error;
     }
