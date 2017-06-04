@@ -102,7 +102,7 @@ int filev6_create(struct unix_filesystem *u, uint16_t mode, struct filev6 *fv6) 
     return 0;
 }
 
-int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, void *buf, int len) {
+int filev6_writebytes(struct unix_filesystem *u, struct filev6 *fv6, const void *buf, int len) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(fv6);
     M_REQUIRE_NON_NULL(buf);

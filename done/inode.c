@@ -77,7 +77,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     return 0;
 }
 
-int inode_write(struct unix_filesystem *u, uint16_t inr, struct inode *inode) {
+int inode_write(struct unix_filesystem *u, uint16_t inr, const struct inode *inode) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(inode);
     M_REQUIRE_NON_NULL(u->f);
