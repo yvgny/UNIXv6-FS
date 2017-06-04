@@ -217,7 +217,7 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     return 0;
 }
 
-int tokenize_path(const char *const full_path, const char *parent_path, const char *filename) {
+int tokenize_path(const char *const full_path, char *parent_path, char *filename) {
     M_REQUIRE_NON_NULL(full_path);
 
     size_t full_path_length = strlen(full_path);

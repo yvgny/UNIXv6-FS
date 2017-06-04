@@ -20,10 +20,10 @@ extern "C" {
 #define MAXPATHLEN_UV6 1024
 
 struct directory_reader {
-	struct filev6 fv6;
-	struct direntv6 dirs[DIRENTRIES_PER_SECTOR];
-	uint16_t cur;
-	uint16_t last;
+    struct filev6 fv6;
+    struct direntv6 dirs[DIRENTRIES_PER_SECTOR];
+    uint16_t cur;
+    uint16_t last;
 };
 
 /**
@@ -71,7 +71,14 @@ int direntv6_dirlookup(const struct unix_filesystem *u, uint16_t inr, const char
  */
 int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode);
 
-int tokenize_path(const char *const full_path, const char *parent_path, const char *filename);
+/**
+ * @brief Tokenize a file path by separating the file name from the parent path
+ * @param full_path (IN) the full path to be tokenized
+ * @param parent_path (OUT) the base path (parent path) of the full path
+ * @param filename  (OUT) the file name
+ * @return < 0 in case of an error, 0 otherwise
+ */
+int tokenize_path(const char *const full_path, char *parent_path, char *filename);
 
 #ifdef __cplusplus
 }
