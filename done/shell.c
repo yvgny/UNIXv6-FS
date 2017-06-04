@@ -353,16 +353,16 @@ int do_cat(args_list args) {
         return ERR_FS_UNMOUNTED;
     }
     struct inode i_node;
-    int error = create_inode(&i_node, args[0]);
+    int inr = create_inode(&i_node, args[0]);
 
-    if (error < 0) {
-        return error;
+    if (inr < 0) {
+        return inr;
     } else if (i_node.i_mode & IFDIR) {
         return ERR_CAT_OPERATION;
     }
 
     struct filev6 file;
-    error = filev6_open(u, (uint16_t)error, &file);
+    int error = filev6_open(u, (uint16_t)inr, &file);
     if (error < 0) {
         return error;
     }
