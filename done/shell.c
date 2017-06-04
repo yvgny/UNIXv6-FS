@@ -11,11 +11,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include <libgen.h>
 #include "shell.h"
 #include "bmblock.h"
-#include "direntv6.h"
-#include "sector.h"
 
 /*
  * An array that contains the messages corresponding to the different errors
