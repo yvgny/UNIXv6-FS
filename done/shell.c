@@ -31,6 +31,20 @@ const char *const ERR_SHELL_MESSAGES[] = {
 };
 
 /*
+ * enum for the different exceptions that may be thrown by the shell
+ */
+
+enum shell_error_codes {
+    ERR_INVALID_COMMAND = 1,
+    ERR_INVALID_ARGS,
+    ERR_FS_UNMOUNTED,
+    ERR_CAT_OPERATION,
+    ERR_SHELL_IO,
+    ERR_INTERRUPT_REQ,
+    ERR_SHELL_LAST
+};
+
+/*
  * An array that contains all the supported operations
  */
 
