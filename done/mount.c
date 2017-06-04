@@ -34,20 +34,21 @@ void fill_fbm(struct unix_filesystem *u) {
     int sector = 0;
     int offset = 0;
 
-    //TODO verifiy min - 1 as it is confusing
+    // we use a offset of -1 in the loop to correct the "bug" that have been explained
+    // by Mr.Chappelier on the Moodle
     for (uint64_t i = u->ibm->min - 1; i < u->ibm->max; i++) {
         if (bm_get(u->ibm, i)) {
-            inode_read(u, (uint16_t)i, &i_node);
+            inode_read(u, (uint16_t) i, &i_node);
             if (inode_getsize(&i_node) > MAX_SMALL_FILE_SIZE) {
                 for (int j = 0; j < ADDR_SMALL_LENGTH; ++j) {
                     bm_set(u->fbm, i_node.i_addr[j]);
                 }
             }
             while ((sector = inode_findsector(u, &i_node, offset++)) > 0) {
-				if(sector < 0) {
-					return;
-				}
-                bm_set(u->fbm, (uint64_t)sector);
+                if (sector < 0) {
+                    return;
+                }
+                bm_set(u->fbm, (uint64_t) sector);
             }
             offset = 0;
         }
@@ -74,7 +75,7 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
     if (error) {
         return error;
     }
-    uint16_t number_inode = (uint16_t)(u->s.s_isize * INODES_PER_SECTOR);
+    uint16_t number_inode = (uint16_t) (u->s.s_isize * INODES_PER_SECTOR);
 
     u->fbm = bm_alloc(u->s.s_block_start + UINT64_C(1), u->s.s_fsize);
     u->ibm = bm_alloc(ROOT_INUMBER + 1, number_inode);
@@ -133,7 +134,7 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     }
     sb.s_fsize = num_blocks;
     sb.s_inode_start = SUPERBLOCK_SECTOR + 1;
-    sb.s_block_start = (uint16_t)(sb.s_inode_start + sb.s_isize);
+    sb.s_block_start = (uint16_t) (sb.s_inode_start + sb.s_isize);
 
     FILE *f = fopen(filename, "wb+");
     if (NULL == f) {
@@ -162,16 +163,16 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
 
     sector[1].i_mode = IALLOC | IFDIR;
     sector[1].i_addr[0] = sb.s_block_start + 1;
-    
+
     error = sector_write(f, sb.s_inode_start, sector);
     if (error < 0) {
         fclose(f);
         return error;
     }
-    
+
     memset(&sector, 0, sizeof(sector));
     for (int i = sb.s_inode_start + 1; i > 0 && i < sb.s_block_start - 1; ++i) {
-        error = sector_write(f, (uint32_t)i, sector);
+        error = sector_write(f, (uint32_t) i, sector);
         if (error < 0) {
             fclose(f);
             return error;
