@@ -289,9 +289,12 @@ int do_add(args_list args) {
     int error = 0;
     struct filev6 fv6;
     char filename[FILENAME_MAX];
+    char parent_path[MAXPATHLEN_UV6];
     memset(filename, 0, sizeof(filename));
+    memset(parent_path, 0, sizeof(parent_path));
 
-    tokenize_path(args[0], NULL, filename);
+
+    tokenize_path(args[1], parent_path, filename);
 
     FILE *f = fopen(args[0], "rb");
     if (NULL == f) {
@@ -318,7 +321,7 @@ int do_add(args_list args) {
         return ERR_SHELL_IO;
     }
 
-    error = create_file(filename, args[1], &fv6);
+    error = create_file(filename, parent_path, &fv6);
     if (error != 0) {
         fclose(f);
         bm_clear(u->ibm, fv6.i_number);
