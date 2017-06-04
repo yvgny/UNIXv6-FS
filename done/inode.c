@@ -58,7 +58,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
     M_REQUIRE_NON_NULL(inode);
     M_REQUIRE_NON_NULL(u->f);
 
-    if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
+    if (u->s.s_isize * INODES_PER_SECTOR <= inr && inr > 0) {
         return ERR_INODE_OUTOF_RANGE;
     }
 

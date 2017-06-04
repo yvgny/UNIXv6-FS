@@ -61,7 +61,7 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
 int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const char *prefix) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(prefix);
-    if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
+    if (u->s.s_isize * INODES_PER_SECTOR <= inr && inr > 0) {
         return ERR_INODE_OUTOF_RANGE;
     }
 
@@ -88,7 +88,10 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
         }
 
         snprintf(prefixCopy, MAXPATHLEN_UV6, "%s/%s", prefix, name);
-        direntv6_print_tree(u, child_inr, prefixCopy);
+        error = direntv6_print_tree(u, child_inr, prefixCopy);
+        if (error < 0) {
+			return error;
+		}
     }
 
     return 0;
@@ -174,7 +177,7 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
 
     int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent_path);
     if (parent_inr < 0) {
-        return ERR_BAD_PARAMETER; // TODO différencier les deux types d'erreurs possible ?
+        return parent_inr;
     }
 
     int inr = direntv6_dirlookup(u, parent_inr, filename);

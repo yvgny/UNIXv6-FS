@@ -115,7 +115,9 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         if (error < 0) {
             return print_error(error);
         }
-        filler(buf, name, NULL, 0);
+        if(filler(buf, name, NULL, 0)) {
+			return EIO;
+		}
     }
 
     return 0;

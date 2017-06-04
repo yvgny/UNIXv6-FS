@@ -34,7 +34,7 @@ void print_sha_from_content(const unsigned char *content, size_t length) {
 }
 
 void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
-    if (u == NULL || u->f == NULL || !(inode.i_mode & IALLOC) || u->s.s_isize * INODES_PER_SECTOR <= inr) {
+    if (u == NULL || u->f == NULL || !(inode.i_mode & IALLOC) || u->s.s_isize * INODES_PER_SECTOR <= inr || inr == 0) {
         return;
     }
     printf("SHA inode %d: ", inr);
@@ -43,7 +43,8 @@ void print_sha_inode(struct unix_filesystem *u, struct inode inode, int inr) {
         puts("no SHA for directories.");
     } else {
 		struct filev6 fv6 = { .u = u, .i_number = inr, .i_node = inode, .offset = 0 };
-        unsigned char content[inode_getsectorsize(&inode)];
+        unsigned char content[inode_getsectorsize(&inode) + 1];
+        content[inode_getsectorsize(&inode)] = '\0';
 		memset(content, 0, inode_getsectorsize(&inode));
         int error = 0;
         while((error = filev6_readblock(&fv6, &content[fv6.offset])) > 0) {
