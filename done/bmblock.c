@@ -13,8 +13,6 @@
 #include "bmblock.h"
 #include "error.h"
 
-#define BM_MEMBER_SIZE 64
-
 
 /**
  * Allows to free up the space used by the bitmap.
@@ -36,7 +34,7 @@ struct bmblock_array *bm_alloc(uint64_t min, uint64_t max) {
         return NULL;
     }
     struct bmblock_array *bmblock;
-    size_t length = (size_t) ceil((max - min + 1) / (double) BM_MEMBER_SIZE);
+    size_t length = (size_t) ceil((max - min + 1) / (double) BITS_PER_VECTOR);
     if (NULL == (bmblock = malloc(sizeof(struct bmblock_array) + (length - 1) * sizeof(uint64_t)))) {
         return bmblock;
     }
@@ -58,7 +56,7 @@ int bm_get(struct bmblock_array *bmblock_array, uint64_t x) {
         return ERR_BAD_PARAMETER;
     }
     uint64_t relative_x = x - bmblock_array->min;
-    return (bmblock_array->bm[relative_x / BM_MEMBER_SIZE] >> relative_x % BM_MEMBER_SIZE) & 1;
+    return (bmblock_array->bm[relative_x / BITS_PER_VECTOR] >> relative_x % BITS_PER_VECTOR) & 1;
 }
 
 void bm_set(struct bmblock_array *bmblock_array, uint64_t x) {
@@ -66,8 +64,8 @@ void bm_set(struct bmblock_array *bmblock_array, uint64_t x) {
         return;
     }
     uint64_t relative_x = x - bmblock_array->min;
-    uint64_t mask = UINT64_C(1) << (relative_x % BM_MEMBER_SIZE);
-    bmblock_array->bm[relative_x / BM_MEMBER_SIZE] |= mask;
+    uint64_t mask = UINT64_C(1) << (relative_x % BITS_PER_VECTOR);
+    bmblock_array->bm[relative_x / BITS_PER_VECTOR] |= mask;
 }
 
 void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
@@ -75,9 +73,9 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
         return;
     }
     uint64_t relative_x = x - bmblock_array->min;
-    uint64_t mask = (uint64_t) 1 << (relative_x % BM_MEMBER_SIZE);
+    uint64_t mask = (uint64_t) 1 << (relative_x % BITS_PER_VECTOR);
     mask = ~mask;
-    uint64_t relative_bitmap = relative_x / BM_MEMBER_SIZE;
+    uint64_t relative_bitmap = relative_x / BITS_PER_VECTOR;
     bmblock_array->bm[relative_bitmap] &= mask;
     bmblock_array->cursor = bmblock_array->cursor > relative_bitmap ? relative_bitmap : bmblock_array->cursor;
 }
@@ -85,10 +83,10 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
 int bm_find_next(struct bmblock_array *bmblock_array) {
     for (uint64_t i = bmblock_array->cursor; i < bmblock_array->length; i++) {
         if (bmblock_array->bm[i] != UINT64_C(-1)) {
-            for (uint64_t j = 0; j < BM_MEMBER_SIZE && bmblock_array->max - bmblock_array->min >= j + BM_MEMBER_SIZE * i; j++) {
+            for (uint64_t j = 0; j < BITS_PER_VECTOR && bmblock_array->max - bmblock_array->min >= j + BITS_PER_VECTOR * i; j++) {
                 if (!((bmblock_array->bm[i] >> j ) & 1)) {
                     bmblock_array->cursor = i;
-                    return bmblock_array->min + (uint64_t) (j + BM_MEMBER_SIZE * i);
+                    return bmblock_array->min + (uint64_t) (j + BITS_PER_VECTOR * i);
                 }
             }
         }
@@ -112,7 +110,7 @@ void bm_print(struct bmblock_array *bmblock_array) {
 }
 
 void print_binary(uint64_t bitmap_v) {
-    for (int i = 0; i < BM_MEMBER_SIZE; i++) {
+    for (int i = 0; i < BITS_PER_VECTOR; i++) {
         if (i % 8 == 0) {
             printf(" ");
         }

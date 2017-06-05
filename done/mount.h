@@ -23,12 +23,6 @@ struct unix_filesystem {
 };
 
 /**
- * @brief fills the fbm and the ibm of the given unixfilesystem
- * @param u the filesystem
- */
-void fill(struct unix_filesystem *u);
-
-/**
  * @brief  mount a unix v6 filesystem
  * @param filename name of the unixv6 filesystem on the underlying disk (IN)
  * @param u the filesystem (OUT)

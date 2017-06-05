@@ -29,7 +29,7 @@ int sector_read(FILE *f, uint32_t sector, void *data) {
     return 0;
 }
 
-int sector_write(FILE *f, uint32_t sector, void *data) {
+int sector_write(FILE *f, uint32_t sector, const void *data) {
     M_REQUIRE_NON_NULL(f);
     M_REQUIRE_NON_NULL(data);
 
