@@ -18,8 +18,8 @@ void print_sha(unsigned char sha[]) {
     if (sha == NULL) {
         return;
     }
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        printf("%02x", sha[i]);
+    for (unsigned char* i = sha; i < sha + SHA256_DIGEST_LENGTH; i++) {
+        printf("%02x", *i);
 	}
     puts("");
 }
