@@ -28,12 +28,10 @@ int test(struct unix_filesystem *u) {
     printf("%d", DIRENTRIES_PER_SECTOR);
 
     puts("");
-    int error = inner_test(u, 3);
-    M_RETURN_IF_NEGATIVE(error);
+    inner_test(u, 3);
 
     puts("");
-    error = inner_test(u, 5);
-    M_RETURN_IF_NEGATIVE(error);
+    inner_test(u, 5);
 
     printf("\nListing inodes SHA:\n");
     struct inode sector[INODES_PER_SECTOR];
