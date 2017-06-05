@@ -64,7 +64,7 @@ enum error_codes {
         if (arg < 0) { \
             debug_print("ERROR: parameter %s is NEGATIVE when calling  %s() (defined in %s)\n", \
                         #arg, __func__, __FILE__); \
-            return ERR_BAD_PARAMETER; \
+            return arg; \
         } \
     } while(0)
 
