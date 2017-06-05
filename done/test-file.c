@@ -35,6 +35,8 @@ int test(struct unix_filesystem *u) {
 
     printf("\nListing inodes SHA:\n");
     struct inode sector[INODES_PER_SECTOR];
+
+    int error = 0;
     for (uint32_t s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
         error = sector_read(u->f, s, sector);
         M_RETURN_IF_NEGATIVE(error);
