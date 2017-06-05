@@ -20,9 +20,9 @@ void fill_ibm(struct unix_filesystem *u) {
 
     for (uint32_t s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
         error = sector_read(u->f, s, sector);
-        for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
+        for (size_t i = 0; i < INODES_PER_SECTOR && error == 0; i++) {
             struct inode in = sector[i];
-            if (error != 0 || in.i_mode & IALLOC) {
+            if (in.i_mode & IALLOC) {
                 bm_set(u->ibm, (s - u->s.s_inode_start) * INODES_PER_SECTOR + i);
             }
         }
