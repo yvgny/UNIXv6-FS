@@ -199,6 +199,10 @@ int do_mkfs(args_list args) {
 
 int do_mount(args_list args) {
     umountv6_fs();
+
+    // we use dynamic allocation as this is easier to check if the fs is unmounted,
+    // as discussed with Mr. Chappelier which said that it is a common practice in
+    // this kind of project (projects that uses filesystems).
     u = malloc(sizeof(struct unix_filesystem));
     if (NULL == u) {
         return ERR_NOMEM;

@@ -100,13 +100,13 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     }
 
     size_t index = 0;
-    while (index < size && entry[index] == '/') {
+    while (index < size && entry[index] == PATH_TOKEN) {
         index++;
     }
     if (index == size) {
         return inr;
     }
-    char *nextEntry = strchr(&entry[index], '/');
+    char *nextEntry = strchr(&entry[index], PATH_TOKEN);
     struct directory_reader d;
     int error = direntv6_opendir(u, inr, &d);
     M_RETURN_IF_NEGATIVE(error);
@@ -209,14 +209,14 @@ int tokenize_path(const char *const full_path, char *parent_path, char *filename
 
     size_t full_path_length = strlen(full_path);
 
-    while (full_path[--full_path_length] == '/');
+    while (full_path[--full_path_length] == PATH_TOKEN);
     full_path_length++;
 
     char full_path_copy[full_path_length];
     strncpy(full_path_copy, full_path, full_path_length);
 
     full_path_copy[full_path_length] = '\0';
-    char *filename_start = strrchr(full_path_copy, '/');
+    char *filename_start = strrchr(full_path_copy, PATH_TOKEN);
     if (NULL == filename_start) {
         strncpy(filename, full_path, strlen(full_path));
         return 0;

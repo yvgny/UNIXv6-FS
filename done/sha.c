@@ -25,6 +25,9 @@ void print_sha(unsigned char sha[]) {
 }
 
 void print_sha_from_content(const unsigned char *content, size_t length) {
+    if (length > CONTENT_MAX_SIZE) {
+        fprintf(stderr, "Cannot print SHA : content is too big (bigger than %d).\n", CONTENT_MAX_SIZE);
+    }
     unsigned char sha[SHA256_DIGEST_LENGTH];
     memset(sha, 0, SHA256_DIGEST_LENGTH);
     if (SHA256(content, length, sha) == NULL) {
