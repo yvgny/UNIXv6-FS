@@ -38,7 +38,10 @@ void fill_fbm(struct unix_filesystem *u) {
     // by Mr.Chappelier on the Moodle
     for (uint64_t i = u->ibm->min - 1; i < u->ibm->max; i++) {
         if (bm_get(u->ibm, i)) {
-            inode_read(u, (uint16_t) i, &i_node);
+            int error = inode_read(u, (uint16_t) i, &i_node);
+            if (error < 0) {
+                return;
+            }
             if (inode_getsize(&i_node) > MAX_SMALL_FILE_SIZE) {
                 for (int j = 0; j < ADDR_SMALL_LENGTH; ++j) {
                     bm_set(u->fbm, i_node.i_addr[j]);

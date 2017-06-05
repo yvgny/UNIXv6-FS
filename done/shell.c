@@ -14,6 +14,14 @@
 #include "shell.h"
 #include "bmblock.h"
 
+/**
+ * @brief display the correct error (print in a different format
+ * if the error is either a shell or a fs error
+ * @param error the error to be displayed
+ */
+void display_error(int error);
+
+
 /*
  * An array that contains the messages corresponding to the different errors
  */
@@ -262,7 +270,11 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
     }    
     
     struct inode i_node;
-    inode_read(u, (uint16_t)parent_inr, &i_node);
+    error = inode_read(u, (uint16_t)parent_inr, &i_node);
+    if (error < 0) {
+        bm_clear(u->ibm, (uint64_t)inr);
+        return error;
+    }
 
     int file_exists = direntv6_dirlookup(u, (uint16_t)parent_inr, filename);
     if (file_exists > 0) {
