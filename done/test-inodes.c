@@ -13,6 +13,8 @@
 int test(struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(u->f);
-    inode_scan_print(u);
+    int error = inode_scan_print(u);
+    M_RETURN_IF_NEGATIVE(error);
+
     return 0;
 }

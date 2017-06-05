@@ -59,12 +59,21 @@ enum error_codes {
         } \
     } while(0)
 
+#define M_RETURN_IF_NEGATIVE(arg) \
+    do { \
+        if (arg < 0) { \
+            debug_print("ERROR: parameter %s is NEGATIVE when calling  %s() (defined in %s)\n", \
+                        #arg, __func__, __FILE__); \
+            return ERR_BAD_PARAMETER; \
+        } \
+    } while(0)
+
 /**
 * @brief filesystem internal error messages. defined in error.c
 *
 */
 extern
-const char * const ERR_MESSAGES[];
+const char *const ERR_MESSAGES[];
 
 #ifdef __cplusplus
 }

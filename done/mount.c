@@ -66,15 +66,13 @@ int mountv6(const char *filename, struct unix_filesystem *u) {
 
     uint8_t bootblock[SECTOR_SIZE];
     int error = sector_read(u->f, BOOTBLOCK_SECTOR, bootblock);
-    if (error) {
-        return error;
-    } else if (bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM) {
+    M_RETURN_IF_NEGATIVE(error);
+    if (bootblock[BOOTBLOCK_MAGIC_NUM_OFFSET] != BOOTBLOCK_MAGIC_NUM) {
         return ERR_BADBOOTSECTOR;
     }
     error = sector_read(u->f, SUPERBLOCK_SECTOR, &u->s);
-    if (error) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     uint16_t number_inode = (uint16_t) (u->s.s_isize * INODES_PER_SECTOR);
 
     u->fbm = bm_alloc(u->s.s_block_start + UINT64_C(1), u->s.s_fsize);

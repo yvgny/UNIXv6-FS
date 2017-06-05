@@ -24,9 +24,8 @@ int direntv6_opendir(const struct unix_filesystem *u, uint16_t inr, struct direc
     M_REQUIRE_NON_NULL(u);
     struct filev6 fv6;
     int error = filev6_open(u, inr, &fv6);
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     if ((fv6.i_node.i_mode & IFMT) != IFDIR) {
         return ERR_INVALID_DIRECTORY_INODE;
     }
@@ -73,25 +72,21 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
         snprintf(prefixCopy, MAXPATHLEN_UV6, "%s", prefix);
         printf("%s %s\n", SHORT_FIL_NAME, prefixCopy);
         return 0;
-    } else if (error < 0) {
-        return error;
     }
+
+    M_RETURN_IF_NEGATIVE(error);
+
     snprintf(prefixCopy, MAXPATHLEN_UV6, "%s/", prefix);
     printf("%s %s\n", SHORT_DIR_NAME, prefixCopy);
-
 
     char name[DIRENT_MAXLEN + 1];
     uint16_t child_inr;
     while ((error = direntv6_readdir(&d, name, &child_inr)) != 0) {
-        if (error < 0) {
-            return error;
-        }
+        M_RETURN_IF_NEGATIVE(error);
 
         snprintf(prefixCopy, MAXPATHLEN_UV6, "%s/%s", prefix, name);
         error = direntv6_print_tree(u, child_inr, prefixCopy);
-        if (error < 0) {
-			return error;
-		}
+        M_RETURN_IF_NEGATIVE(error);
     }
 
     return 0;
@@ -114,9 +109,8 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
     char *nextEntry = strchr(&entry[index], '/');
     struct directory_reader d;
     int error = direntv6_opendir(u, inr, &d);
-    if (error) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     char name[DIRENT_MAXLEN + 1];
     uint16_t child_inr = 0;
     int found = 0, result = 0;
@@ -138,9 +132,8 @@ int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const
 
     struct inode i_node;
     error = inode_read(u, child_inr, &i_node);
-    if (error) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     if (NULL == nextEntry) {
         return child_inr;
     } else {
@@ -176,9 +169,8 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     }
 
     int parent_inr = direntv6_dirlookup(u, ROOT_INUMBER, parent_path);
-    if (parent_inr < 0) {
-        return parent_inr;
-    }
+    M_RETURN_IF_NEGATIVE(parent_inr);
+
 
     int inr = direntv6_dirlookup(u, (uint16_t)parent_inr, filename);
     if (inr > 0) {
@@ -186,18 +178,16 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
     }
 
     inr = inode_alloc(u);
-    if (inr < 0) {
-        return inr;
-    }
+    M_RETURN_IF_NEGATIVE(inr);
+
 
     struct inode i_node;
     memset(&i_node, 0, sizeof(struct inode));
     i_node.i_mode = mode;
 
     int error = inode_write(u, (uint16_t)inr, &i_node);
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
 
     struct direntv6 d;
     d.d_inumber = (uint16_t)inr;
@@ -205,14 +195,11 @@ int direntv6_create(struct unix_filesystem *u, const char *entry, uint16_t mode)
 
     struct filev6 fv6;
     error = filev6_open(u, (uint16_t)parent_inr, &fv6);
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
 
     error = filev6_writebytes(u, &fv6, &d, sizeof(d));
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
 
     return 0;
 }

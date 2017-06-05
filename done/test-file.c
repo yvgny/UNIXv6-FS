@@ -29,21 +29,18 @@ int test(struct unix_filesystem *u) {
 
     puts("");
     int error = inner_test(u, 3);
-    if (error < 0) {
-		return error;
-	}
+    M_RETURN_IF_NEGATIVE(error);
+
     puts("");
     error = inner_test(u, 5);
-    if (error < 0) {
-		return error;
-	}
+    M_RETURN_IF_NEGATIVE(error);
+
     printf("\nListing inodes SHA:\n");
     struct inode sector[INODES_PER_SECTOR];
     for (uint32_t s = u->s.s_inode_start; s < u->s.s_isize + u->s.s_inode_start; s++) {
         error = sector_read(u->f, s, sector);
-        if (error != 0) {
-            return error;
-        }
+        M_RETURN_IF_NEGATIVE(error);
+
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {

@@ -132,13 +132,11 @@ int create_inode(struct inode *i_node, const char *path) {
         return ERR_FS_UNMOUNTED;
     }
     int inr = direntv6_dirlookup(u, ROOT_INUMBER, path);
-    if (inr < 0) {
-        return inr;
-    }
+    M_RETURN_IF_NEGATIVE(inr);
+
     int error = inode_read(u, (uint16_t)inr, i_node);
-    if (error) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     return inr;
 }
 
@@ -190,9 +188,8 @@ int do_mkfs(args_list args) {
     }
 
     int error = mountv6_mkfs(args[0], num_blocks, num_inodes);
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
 
     return 0;
 }
@@ -217,9 +214,8 @@ int do_mkdir(args_list args) {
         return ERR_FS_UNMOUNTED;
     }
     int error = direntv6_create(u, args[0], IALLOC | IFDIR);
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     return 0;
 }
 
@@ -240,10 +236,8 @@ int create_file(const char *filename, const char *parent_path, struct filev6 *fv
     M_REQUIRE_NON_NULL(fv6);
 
     int inr = inode_alloc(u);
+    M_RETURN_IF_NEGATIVE(inr);
 
-    if (inr < 0) {
-        return inr;
-    }
     fv6->i_number = (uint16_t)inr;
 
     int error = filev6_create(u, IALLOC, fv6);
@@ -366,23 +360,20 @@ int do_cat(args_list args) {
     struct inode i_node;
     int inr = create_inode(&i_node, args[0]);
 
-    if (inr < 0) {
-        return inr;
-    } else if (i_node.i_mode & IFDIR) {
+    M_RETURN_IF_NEGATIVE(inr);
+    if (i_node.i_mode & IFDIR) {
         return ERR_CAT_OPERATION;
     }
 
     struct filev6 file;
     int error = filev6_open(u, (uint16_t)inr, &file);
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     char buffer[SECTOR_SIZE + 1];
     buffer[SECTOR_SIZE] = '\0';
     while ((error = filev6_readblock(&file, buffer)) != 0) {
-        if (error < 0) {
-            return error;
-        }
+        M_RETURN_IF_NEGATIVE(error);
+
         printf("%s", buffer);
     }
 
@@ -400,9 +391,8 @@ int do_istat(args_list args) {
         return ERR_INODE_OUTOF_RANGE;
     }
     error = inode_read(u, inr, &i_node);
-    if (error) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
+
     inode_print(&i_node);
     return 0;
 }
@@ -413,9 +403,8 @@ int do_inode(args_list args) {
     }
     struct inode i_node;
     int inr = create_inode(&i_node, args[0]);
-    if (inr < 0) {
-        return inr;
-    }
+    M_RETURN_IF_NEGATIVE(inr);
+
     printf("inode: %d\n", inr);
     return 0;
 }
@@ -426,9 +415,8 @@ int do_sha(args_list args) {
     }
     struct inode i_node;
     int inr = create_inode(&i_node, args[0]);
-    if (inr < 0) {
-        return inr;
-    }
+    M_RETURN_IF_NEGATIVE(inr);
+
     print_sha_inode(u, i_node, inr);
     return 0;
 }

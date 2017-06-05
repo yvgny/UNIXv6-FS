@@ -66,9 +66,7 @@ int inode_read(const struct unix_filesystem *u, uint16_t inr, struct inode *inod
 
     struct inode sector[INODES_PER_SECTOR];
     int error = sector_read(u->f, sec, sector);
-    if (error) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
     *inode = sector[inr % INODES_PER_SECTOR];
 
     if (!(inode->i_mode & IALLOC)) {
@@ -90,16 +88,12 @@ int inode_write(struct unix_filesystem *u, uint16_t inr, const struct inode *ino
 
     struct inode sector[INODES_PER_SECTOR];
     int error = sector_read(u->f, sec, sector);
-    if (error) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
 
     sector[inr % INODES_PER_SECTOR] = *inode;
 
     error = sector_write(u->f, sec, sector);
-    if (error < 0) {
-        return error;
-    }
+    M_RETURN_IF_NEGATIVE(error);
 
     return 0;
 }
@@ -129,9 +123,8 @@ int inode_findsector(const struct unix_filesystem *u, const struct inode *i, int
         int second_level = file_sec_off % ADDRESSES_PER_SECTOR;
         uint16_t sector_list[ADDRESSES_PER_SECTOR];
         int error = sector_read(u->f, i->i_addr[first_level], sector_list);
-        if (error) {
-            return error;
-        }
+        M_RETURN_IF_NEGATIVE(error);
+
         return sector_list[second_level];
     }
 
