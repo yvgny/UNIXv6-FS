@@ -187,6 +187,10 @@ int do_mkfs(args_list args) {
     int scanned = sscanf(args[1], "%" SCNu16 "", &num_inodes);
     if (scanned != 1) {
         return ERR_INVALID_ARGS;
+    } else if (num_inodes == 0) {
+        // Return an error as this case is non-sense, plus it creates a segfault,
+        // thus it is better to handle it here
+        return ERR_INVALID_ARGS;
     }
 
     scanned = sscanf(args[2], "%" SCNu16 "", &num_blocks);

@@ -81,12 +81,16 @@ void bm_clear(struct bmblock_array *bmblock_array, uint64_t x) {
 }
 
 int bm_find_next(struct bmblock_array *bmblock_array) {
+    uint64_t found = 0;
     for (uint64_t i = bmblock_array->cursor; i < bmblock_array->length; i++) {
-        if (bmblock_array->bm[i] != UINT64_C(-1)) {
+        if (bmblock_array->bm[i] != UINT64_MAX) {
             for (uint64_t j = 0; j < BITS_PER_VECTOR && bmblock_array->max - bmblock_array->min >= j + BITS_PER_VECTOR * i; j++) {
                 if (!((bmblock_array->bm[i] >> j ) & 1)) {
                     bmblock_array->cursor = i;
-                    return bmblock_array->min + (uint64_t) (j + BITS_PER_VECTOR * i);
+                    if ((found = bmblock_array->min + (uint64_t) (j + BITS_PER_VECTOR * i)) > bmblock_array->max) {
+                        return ERR_BITMAP_FULL;
+                    }
+                    return found;
                 }
             }
         }
