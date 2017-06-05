@@ -68,17 +68,17 @@ static int fs_getattr(const char *path, struct stat *stbuf) {
     memset(stbuf, 0, sizeof(struct stat));
 
     inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
-    if (inr < 0) {
+    if (inr < ROOT_INUMBER) {
         return print_error(inr);
     }
 
     struct inode i_node;
-    res = inode_read(&fs, inr, &i_node);
+    res = inode_read(&fs, (uint16_t)inr, &i_node);
     if (res < 0) {
         return print_error(res);
     }
 
-    stbuf->st_ino = inr;
+    stbuf->st_ino = (__ino_t)inr;
     stbuf->st_mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
     stbuf->st_mode = stbuf->st_mode | ((i_node.i_mode & IFDIR) ? S_IFDIR : S_IFREG);
     stbuf->st_uid = i_node.i_uid;
@@ -100,11 +100,11 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     filler(buf, "..", NULL, 0);
 
     int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
-    if (inr < 0) {
+    if (inr < ROOT_INUMBER) {
         return print_error(inr);
     }
     struct directory_reader d;
-    int error = direntv6_opendir(&fs, inr, &d);
+    int error = direntv6_opendir(&fs, (uint16_t)inr, &d);
     if (error < 0) {
         return print_error(error);
     }
@@ -128,12 +128,12 @@ static int fs_read(const char *path, char *buf, size_t size, off_t offset,
     (void) fi;
 
     int inr = direntv6_dirlookup(&fs, ROOT_INUMBER, path);
-    if (inr < 0) {
+    if (inr < ROOT_INUMBER) {
         print_error(inr);
         return 0;
     }
     struct filev6 fv6;
-    int error = filev6_open(&fs, inr, &fv6);
+    int error = filev6_open(&fs, (uint16_t)inr, &fv6);
     if (error < 0) {
         print_error(error);
         return 0;
