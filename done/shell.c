@@ -349,7 +349,7 @@ int do_add(args_list args) {
     fread(buf, (size_t)file_size, 1, f);
     fclose(f);
 
-    error = filev6_writebytes(u, &fv6, buf, (size_t)file_size);
+    error = filev6_writebytes(u, &fv6, buf, file_size);
     free(buf);
     if (error < 0) {
         bm_clear(u->ibm, fv6.i_number);
@@ -396,10 +396,10 @@ int do_istat(args_list args) {
     struct inode i_node;
     int inr;
     int error = sscanf(args[0], "%d", &inr);
-    if (error != 1 || inr < 0) {
+    if (error != 1 || inr <= 0) {
         return ERR_INODE_OUTOF_RANGE;
     }
-    error = inode_read(u, inr, &i_node);
+    error = inode_read(u, (uint16_t)inr, &i_node);
     if (error) {
         return error;
     }
