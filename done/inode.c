@@ -135,9 +135,9 @@ int inode_setsize(struct inode *inode, int new_size) {
 	if(new_size < 0) {
 		return ERR_NOMEM;
 	}
-	
-	inode->i_size0 = ((uint8_t)new_size >> 16) & 0xFF;
-	inode->i_size1 = (uint16_t)(new_size & 0xFFFF);
+
+    inode->i_size0 = (uint8_t )((new_size >> 16) & 0xFF);
+    inode->i_size1 = (uint16_t )(new_size & 0xFFFF);
 	return 0;
 }
 
