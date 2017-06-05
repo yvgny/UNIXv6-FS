@@ -44,7 +44,7 @@ int test(struct unix_filesystem *u) {
         for (size_t i = 0; i < INODES_PER_SECTOR; i++) {
             struct inode in = sector[i];
             if (in.i_mode & IALLOC) {
-                print_sha_inode(u, in, (int)(((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i));
+                print_sha_inode(u, in, ((s - u->s.s_inode_start) * INODES_PER_SECTOR) + i);
             }
         }
     }

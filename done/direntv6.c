@@ -60,7 +60,7 @@ int direntv6_readdir(struct directory_reader *d, char *name, uint16_t *child_inr
 int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const char *prefix) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(prefix);
-    if (u->s.s_isize * INODES_PER_SECTOR <= inr && inr > 0) {
+    if (u->s.s_isize * INODES_PER_SECTOR <= inr || inr < ROOT_INUMBER) {
         return ERR_INODE_OUTOF_RANGE;
     }
 
@@ -95,7 +95,7 @@ int direntv6_print_tree(const struct unix_filesystem *u, uint16_t inr, const cha
 int direntv6_dirlookup_core(const struct unix_filesystem *u, uint16_t inr, const char *entry, size_t size) {
     M_REQUIRE_NON_NULL(u);
     M_REQUIRE_NON_NULL(entry);
-    if (u->s.s_isize * INODES_PER_SECTOR <= inr) {
+    if (u->s.s_isize * INODES_PER_SECTOR <= inr || inr < ROOT_INUMBER) {
         return ERR_INODE_OUTOF_RANGE;
     }
 

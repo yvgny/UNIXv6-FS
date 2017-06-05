@@ -18,7 +18,7 @@ int inode_scan_print(const struct unix_filesystem *u) {
     M_REQUIRE_NON_NULL(u->f);
     struct inode sector[INODES_PER_SECTOR];
     int error = 0;
-    for (int s = u->s.s_inode_start; s > 0 && s < u->s.s_isize + u->s.s_inode_start; s++) {
+    for (int s = u->s.s_inode_start; s >= 0 && s < u->s.s_isize + u->s.s_inode_start; s++) {
         error = sector_read(u->f, (uint32_t)s, sector);
         if (error != 0) {
             return error;

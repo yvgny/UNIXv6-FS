@@ -103,7 +103,7 @@ void bm_print(struct bmblock_array *bmblock_array) {
     printf("cursor: %" PRIu64 "\n", bmblock_array->cursor);
     puts("content:");
     for (uint64_t i = 0; i < bmblock_array->length; i++) {
-        printf("%d:", i);
+        printf("%" PRIu64 ":", i);
         print_binary(bmblock_array->bm[i]);
     }
     puts("**********BitMap Block END************");

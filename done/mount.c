@@ -172,7 +172,7 @@ int mountv6_mkfs(const char *filename, uint16_t num_blocks, uint16_t num_inodes)
     }
 
     memset(&sector, 0, sizeof(sector));
-    for (int i = sb.s_inode_start + 1; i > 0 && i < sb.s_block_start - 1; ++i) {
+    for (int i = sb.s_inode_start + 1; i >= 0 && i < sb.s_block_start - 1; ++i) {
         error = sector_write(f, (uint32_t) i, sector);
         if (error < 0) {
             fclose(f);
