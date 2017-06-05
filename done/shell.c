@@ -162,10 +162,7 @@ int umountv6_fs(void) {
 
 int do_help(args_list args) {
     (void) args;
-
-    if (NULL == u) {
-        return ERR_FS_UNMOUNTED;
-    }
+    
     for (int i = 0; i < SUPPORTED_OPERATIONS; i++) {
         printf("- %s %s: %s.\n", shell_cmds[i].name, shell_cmds[i].args, shell_cmds[i].help);
     }
