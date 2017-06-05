@@ -38,7 +38,7 @@ struct bmblock_array *bm_alloc(uint64_t min, uint64_t max) {
     if (NULL == (bmblock = malloc(sizeof(struct bmblock_array) + (length - 1) * sizeof(uint64_t)))) {
         return bmblock;
     }
-    memset(bmblock, 0, sizeof(*bmblock));
+    memset(bmblock, 0, sizeof(*bmblock) + (length - 1) * sizeof(uint64_t));
     bmblock->length = length;
     bmblock->min = min;
     bmblock->max = max;
