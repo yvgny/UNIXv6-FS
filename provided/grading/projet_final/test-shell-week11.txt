@@ -1,0 +1,18 @@
+test-mkdir2inarow: pass
+test-mkdirbeforemount: fail
+test-mkdirfilepath: pass
+test-mkdirinroot: pass
+test-mkdirmultipath: fail
+test-mkdirnoargs: fail
+test-mkdirokay: pass
+test-mkdirsametwice: fail
+test-mkdirtoomanyargs: fail
+test-mkfslistnomount: fail
+test-mkfsmkdir1: fail
+test-mkfsmkdir2: fail
+test-mkfsmkdirnotenoughinodes: fail
+test-mkfsmountokay: fail
+test-mkfsnoargs: fail
+test-mkfsnotenoughargs: fail
+test-mkfstoomanyargs: pass
+week 11: 5/17

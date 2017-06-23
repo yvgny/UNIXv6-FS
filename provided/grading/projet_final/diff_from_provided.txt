@@ -1,0 +1,145 @@
+unixv6fs.h:
+9c9
+<  * Mendel Rosenblum (Stanford), who derived it himself from the actual
+---
+>  * d (Stanford), who derived it himself from the actual
+19d18
+<  * @author original UNIX v6 team + Mendel Rosenblum (Stanford) + Edouard Bugnion
+202,204c201,209
+<     /* TODO WEEK 04:
+<      * la première chose à faire est de définir cette structure.
+<      */
+---
+>     uint16_t    i_mode;                         /*contains informations about inode*/
+>     uint8_t     i_nlink;                        /*unused for this project*/
+>     uint8_t     i_uid;                          /*id of the proprietary of the file*/
+>     uint8_t     i_gid;                          /*id of the file group*/
+>     uint8_t     i_size0;                        /*least significant bits of the file size*/
+>     uint16_t    i_size1;                        /*most significant bits of the file size*/
+>     uint16_t    i_addr[ADDR_SMALL_LENGTH];      /*contains the sector number where the file is stored*/
+>     uint16_t    i_atime[2];                     /*stores the date of the last access to the file*/
+>     uint16_t    i_mtime[2];                     /*stores the date of the last modification of the file*/
+
+
+mount.h:
+7d6
+<  * @author Edouard Bugnion
+13d11
+< #include "bmblock.h"
+
+
+error.h:
+7d6
+<  * @author Edouard Bugnion
+61a61,69
+> #define M_RETURN_IF_NEGATIVE(arg) \
+>     do { \
+>         if (arg < 0) { \
+>             debug_print("ERROR: parameter %s is NEGATIVE when calling  %s() (defined in %s)\n", \
+>                         #arg, __func__, __FILE__); \
+>             return arg; \
+>         } \
+>     } while(0)
+> 
+
+
+inode.h:
+7d6
+<  * @author Edouard Bugnion
+16a16,18
+> 
+> #define MAX_SMALL_FILE_SIZE 4000 // define the maximum size of a "small" file, in byte
+> #define MAX_BIG_FILE_SIZE 896000 // define the maximum size of a "big" file, in byte
+
+
+sha.h:
+7d6
+<  * @author Aurélien Soccard
+12a12,13
+> 
+> #define CONTENT_MAX_SIZE 896000
+
+
+test-core.c:
+5d4
+<  * @author Aurélien Soccard & Jean-Cédric Chappelier
+20,21c19
+< void error(const char* message)
+< {
+---
+> void error(const char *message) {
+29,30c27
+< void check_args(int argc)
+< {
+---
+> void check_args(int argc) {
+39,40c36
+< int main(int argc, char *argv[])
+< {
+---
+> int main(int argc, char *argv[]) {
+
+
+filev6.h:
+7d6
+<  * @author Edouard Bugnion
+54c53
+<  * @param mode the mode of the file
+---
+>  * @param mode the new offset of the file
+
+
+sector.h:
+7d6
+<  * @author Edouard Bugnion
+
+
+direntv6.h:
+7d6
+<  * @author Edouard Bugnion
+19a19,20
+> #define MAXPATHLEN_UV6 1024
+> 
+21,24c22,25
+<     /* TODO WEEK 06:
+<      * définir cette structure.
+<      */
+<     int unused; // so that it can compile before WEEK 6
+---
+>     struct filev6 fv6;
+>     struct direntv6 dirs[DIRENTRIES_PER_SECTOR];
+>     uint16_t cur;
+>     uint16_t last;
+70a72,80
+> 
+> /**
+>  * @brief Tokenize a file path by separating the file name from the parent path
+>  * @param full_path (IN) the full path to be tokenized
+>  * @param parent_path (OUT) the base path (parent path) of the full path
+>  * @param filename  (OUT) the file name
+>  * @return < 0 in case of an error, 0 otherwise
+>  */
+> int tokenize_path(const char *const full_path, char *parent_path, char *filename);
+
+
+bmblock.h:
+7d6
+<  * @author Edouard Bugnion
+12a12
+> #include <stdio.h>
+19c19,23
+<     int unused; // so that it can compile before WEEK 9
+---
+> 	size_t length;
+> 	uint64_t cursor;
+> 	uint64_t min;
+> 	uint64_t max;
+> 	uint64_t bm[1];
+66a71,76
+> 
+> /**
+>  * @brief free the space used for a bitmap
+>  * @param bmblock the bitmap block to be freed
+>  */
+> void bm_free(struct bmblock_array *bmblock);
+
